@@ -7,12 +7,29 @@ In env write:
 pip install -r requirements.txt
 
 
+Links regarding Python & GH:-------------------------------------------------------------------
+
+Python:
+https://realpython.com/python-virtual-environments-a-primer/
+https://towardsdatascience.com/virtual-environments-104c62d48c54
+
+
+GutHub:
+https://product.hubspot.com/blog/git-and-github-tutorial-for-beginners
+
+GH Cheat sheet:
+https://medium.com/@isamarietr/git-cheat-sheet-5c27a42f2c1a
+https://www.bryanbraun.com/2020/04/24/drawing-git-branching-diagrams/
+https://www.pinterest.com/pin/534521049508801854/
+https://education.github.com/git-cheat-sheet-education.pdf
+https://www.google.com/search?q=github+cheat+sheet&hl=da&sxsrf=ALiCzsYAEck-aSwM6NYP7sCNLxzFfJ52Zw:1660649319319&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjC15jmoMv5AhVnXvEDHXLTDKIQ_AUoAXoECAEQAw&biw=1920&bih=937&dpr=1&safe=active&ssui=on
+----------------------------------------------------------------------------------------------------
 
 
 
 
 Needs to be reviewed
-% ---------------------------------------------------------------------------
+% -------------------------------------------------------------------------------------------------
 # How to python
 
 # In order to see current version type (XXX is the file you wanna look up)
