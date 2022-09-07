@@ -1,0 +1,7 @@
+To create requirements.txt file:
+In the env write:
+pip list --format=freeze > requirements.txt
+
+To intall requirements.txt.
+In env write:
+pip install -r requirements.txt
