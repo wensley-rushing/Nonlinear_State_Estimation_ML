@@ -1,0 +1,76 @@
+To create requirements.txt file:
+In the env write:
+pip list --format=freeze > requirements.txt
+
+To intall requirements.txt.
+In env write:
+pip install -r requirements.txt
+
+
+
+
+
+
+Needs to be reviewed
+% ---------------------------------------------------------------------------
+# How to python
+
+# In order to see current version type (XXX is the file you wanna look up)
+conda search XXX
+conda list
+
+# To see the current version of XXX type 
+XXX -V
+
+
+# Install / update python
+conda update conda
+conda update python
+
+conda install python=$pythonversion$
+
+conda create --name py10 python=3.10.0
+
+# Activate enviorment
+conda env list
+
+conda activate py10
+
+conda deactivate
+
+
+conda env remove --name py10
+
+#### PIP ####
+
+pip install numpy
+pip list
+pip freeze
+
+# Save txt-file with all pip installments
+pip freeze > requirements.txt
+OR
+conda list -e > requirements.txt
+
+To install
+pip install -r requirements.txt
+
+
+And then
+virtualenv environment # Create a virtual environment
+environment\Scripts\activate # Activate the virtual environment
+pip install -r requirements.txt # Install the dependencies
+
+################################################################ Virtual Enviorments ##################################################
+python -m venv venv\  # Made in global python --> python 3.9.7
+python -m venv venv10\ # Made in enviorment py10 --> python 3.10.0
+
+pip install virtualenv 
+virtual env1   # Made in enviorment py10 --> python 3.10.0 with all folders and pachages included
+
+# Activate enviorment
+venv\Scripts\activate
+
+# Deactivate
+deactivtate
+
