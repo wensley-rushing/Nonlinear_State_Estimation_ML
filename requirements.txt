@@ -21,6 +21,7 @@ cloudpickle==2.0.0
 colorama==0.4.5
 cookiecutter==1.7.3
 cryptography==37.0.1
+cycler==0.11.0
 debugpy==1.5.1
 decorator==5.1.1
 defusedxml==0.7.1
@@ -30,6 +31,7 @@ docutils==0.18.1
 entrypoints==0.4
 fastjsonschema==2.16.2
 flake8==4.0.1
+fonttools==4.37.1
 idna==3.3
 imagesize==1.4.1
 importlib-metadata==4.11.3
@@ -48,8 +50,10 @@ jupyter_client==7.3.5
 jupyter-core==4.10.0
 jupyterlab-pygments==0.1.2
 keyring==23.4.0
+kiwisolver==1.4.4
 lazy-object-proxy==1.6.0
 MarkupSafe==2.1.1
+matplotlib==3.5.3
 matplotlib-inline==0.1.6
 mccabe==0.6.1
 mistune==0.8.4
@@ -62,13 +66,16 @@ numpy==1.23.2
 numpydoc==1.4.0
 openseespy==3.4.0.2
 openseespywin==3.4.0.2
+opsvis==1.0.20
 packaging==21.3
+pandas==1.4.4
 pandocfilters==1.5.0
 paramiko==2.8.1
 parso==0.8.3
 pathspec==0.9.0
 pexpect==4.8.0
 pickleshare==0.7.5
+Pillow==9.2.0
 pip==22.1.2
 platformdirs==2.4.0
 pluggy==1.0.0
@@ -87,8 +94,9 @@ pyls-spyder==0.4.0
 PyNaCl==1.5.0
 pyOpenSSL==22.0.0
 pyparsing==3.0.9
-PyQt5==5.15.7
+PyQt5==5.12.3
 PyQt5-sip==12.11.0
+PyQtWebEngine==5.12.1
 pyrsistent==0.18.0
 PySocks==1.7.1
 python-dateutil==2.8.2
