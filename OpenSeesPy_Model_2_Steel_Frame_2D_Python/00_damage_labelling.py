@@ -21,6 +21,7 @@ from Model_definition_2D_frame import createModel
 from Module_analysis import pushover_analysis
 from ReadRecord import ReadRecord
 
+import DamageTools
 
 
 # turn on/off the plots by setting these to True or False
@@ -58,6 +59,13 @@ g = 9.81
 ## Define the model ----------
 
 st = 2 # n. storeys number
+
+# Acceleration nodes to be recorded
+if st == 2:
+    ACC_Nodes = [20,30]
+elif st == 1:
+    ACC_Nodes = [20]
+    
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
@@ -144,7 +152,11 @@ ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_def.o
 ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_force.out',
              '-ele', 1020,  'section', 1,  'force')
 
-
+# Acceleration recordings
+for acc_nodes in ACC_Nodes:
+    ops.recorder('Node', '-file', output_directory+'/2_Acc_x_' + str(acc_nodes) +'.out',
+                 '-time', '-node', acc_nodes,  '-dof', 1,  'accel')
+    
 
 
 # Define dynamic load (ground motion) in the horizontal direction
@@ -190,8 +202,20 @@ else: print(f"-----------------Analysis FAILED at time {current_time}-----------
 
 
 
+# =============================================================================
+# Estimate Entropy
+# =============================================================================
 
 
+print('DAMAGE LABEL -----------------------------------------------------------')
+print('Load factor: ', loadfactor)
+print()
+
+for acc_nodes in ACC_Nodes:
+    ACC_x = np.loadtxt(output_directory+'/2_Acc_x_' + str(acc_nodes) +'.out')[:,1]
+
+    entropy = DamageTools.SampEn(ACC_x, 2, 0.2*np.std(ACC_x))
+    print('Entropy Node_%d: ' % acc_nodes, round(entropy,4))
 
 
 
