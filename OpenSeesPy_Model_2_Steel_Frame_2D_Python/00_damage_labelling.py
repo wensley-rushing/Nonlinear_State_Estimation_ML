@@ -89,7 +89,9 @@ load_dat_file = 'el_centro.dat'
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M)
+st = 2 # n. storeys number
+
+createModel(H1,L1,M, st)
 
 if plot_model:
     plt.figure()
