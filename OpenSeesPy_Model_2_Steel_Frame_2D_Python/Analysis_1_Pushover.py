@@ -74,7 +74,7 @@ kg = 1
 # Input parameters
 # =============================================================================
 
-st = 2
+st = 1
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
@@ -148,7 +148,7 @@ ops.load(20     , *[1,0,0]  )  # load in x direction in node 20
 
 #Define max displacement and displacement increment
 
-Dmax  = 0.40*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
+Dmax  = 1.60*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
 Dincr = 0.004*m; 	# 4mm     increment of pushover
 
 
@@ -187,6 +187,7 @@ plt.show()
 
 
 
+
 #%%
 
 # =============================================================================
@@ -204,11 +205,19 @@ Pushover_reactions = np.loadtxt(output_directory+'/1_Pushover_base_reactions.out
 
 total_base_reaction = -np.sum(Pushover_reactions,axis=1)
 
+x = [Pushover_topDisp[0],Pushover_topDisp[1]]
+y = [total_base_reaction[0]/1000,total_base_reaction[1]/1000]
+slope = abs(y[0]-y[1]) / abs(x[0]-x[1])
+
+F_max  = abs(max(total_base_reaction)/1000)
+F_max_index = np.where(total_base_reaction == F_max*1000)[0][0]
 
 
 if plot_defo_Pushover:
     plt.figure()
     plt.plot(np.insert(Pushover_topDisp, 0, 0),np.insert(total_base_reaction, 0, 0)/1000)   #inserts 0 at the beginning
+    plt.plot(0.8*F_max/slope, 0.8*F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
+    plt.plot(Pushover_topDisp[F_max_index], F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
     plt.title('Pushover curve')
     plt.xlabel('displacement top (m)')
     plt.ylabel('total base shear (kN)')
