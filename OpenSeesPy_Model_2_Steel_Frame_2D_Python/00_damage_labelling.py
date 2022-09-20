@@ -25,8 +25,8 @@ from ReadRecord import ReadRecord
 
 # turn on/off the plots by setting these to True or False
 plot_model = True
-plot_defo_gravity = True
 plot_modeshapes = True
+plot_defo_Pushover = True
 
 
 
@@ -102,38 +102,7 @@ if plot_model:
 # Run Pushover Test
 # =============================================================================
 
-
-
-pushover_analysis(H1, L1, M, Dmax, Dincr, nodes)
-
- 
-
-# =============================================================================
-# Compute structural periods after gravity
-# =============================================================================
-
-omega_sq = ops.eigen('-fullGenLapack', 2); # eigenvalue mode 1 and 2
-omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
-
-periods = 2*np.pi/omega
-
-print(f'First period T1 = {round(periods[0],3)} seconds')
-
-
-# =============================================================================
-# Plot modeshapes
-# =============================================================================
-
-if plot_modeshapes:
-    plt.figure()
-    opsv.plot_mode_shape(1, sfac=1)
-    plt.title('mode shape 1')
-    plt.show()
-
-    plt.figure()
-    opsv.plot_mode_shape(2, sfac=1)
-    plt.title('mode shape 2')
-    plt.show()
+delta_y, delta_u = pushover_analysis(H1, L1, M, Dmax, Dincr, nodes, plot_defo_Pushover)
 
 
 # =============================================================================
@@ -164,11 +133,6 @@ ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 
 #read record
 dt, nPts = ReadRecord(load_file, load_dat_file)
-
-
-
-
-
 
 
 # Define Recorders
@@ -225,38 +189,11 @@ if ok == 0: print("-----------------Dynamic analysis successfully completed-----
 else: print(f"-----------------Analysis FAILED at time {current_time}--------------------")
 
 
-#%%
-
-# =============================================================================
-# plot analysis results
-# =============================================================================
 
 
 
 
 
-ops.wipe() # to close recorders
-
-time_topDisp = np.loadtxt(output_directory+'/2_groundmotion_top_disp.out')
-sectionDef = np.loadtxt(output_directory+'/2_groundmotion_section_def.out')
-sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
-                          
-              
-plt.figure()
-plt.plot(time_topDisp[:,0],time_topDisp[:,1])
-plt.title('dynamic analysis')
-plt.xlabel('time (s)')
-plt.ylabel('displacement top (m)')
-plt.grid()
-plt.show()
-
-plt.figure()
-plt.plot(sectionDef[:,1],sectionForce[:,1]/1000)
-plt.title('dynamic analysis - section base column')
-plt.xlabel('curvature')
-plt.ylabel('Moment (kN)')
-plt.grid()
-plt.show()
 
 
 
