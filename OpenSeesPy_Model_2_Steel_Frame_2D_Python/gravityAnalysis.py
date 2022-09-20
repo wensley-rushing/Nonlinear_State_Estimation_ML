@@ -24,7 +24,7 @@ def runGravityAnalysis():
     
     #eleLoad('-ele', *eleTags, '-type', '-beamUniform', Wy)
     ops.eleLoad('-ele', 2021, '-type', '-beamUniform', -140*N/m)      # 140 N/m of uniformly distributed load on the beam
-
+    ops.eleLoad('-ele', 3031, '-type', '-beamUniform', -140*N/m) 
 
 
 

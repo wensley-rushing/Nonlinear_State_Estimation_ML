@@ -27,14 +27,18 @@ def define_SteelSections():
     
     E = 210*GPa
     fy = 355*MPa #       yield stress    #S355
-    b = 0.02;  # strain-hardening ratio
+    b = 0;  # strain-hardening ratio
     R0 = 18 ;cR1 = 0.925;cR2 = 0.15    # transition from elastic to plastic branches
     # Recommended values: $R0=between 10 and 20, $cR1=0.925, $cR2=0.15
     
     
+    fu = 490*MPa
+    Ru = 10
+    
     matSteelTag = 1
     
-    ops.uniaxialMaterial('Steel02', matSteelTag, fy, E, b,*[R0,cR1,cR2])
+    #ops.uniaxialMaterial('Steel02', matSteelTag, fy, E, b,*[R0,cR1,cR2])
+    ops.uniaxialMaterial('Steel4', matSteelTag, fy, E, '-kin', b, *[R0,cR1,cR2],'-ult', fu, Ru)
     
 
 

@@ -5,26 +5,10 @@ Created on Sat Jan 29 18:29:09 2022
 @author: lucag
 """
 
-#sketch of the structure  with node and element numbering
-
-#
-# 20		2021     	  21	
-
-# | |					 | |	
-# | |					 | |	
-# 1020 				     1121
-# | |					 | |	
-# | |					 | |	
-
-# 10				      11	
-
-# nodes: 10, 11, 20, 21
-# elements: 1020 (column), 1121 (column), 2021 (beam)
 
 
 
 import openseespy.opensees as ops
-#import openseespy.postprocessing.ops_vis as opsv
 import opsvis as opsv
 
 
@@ -34,7 +18,7 @@ import numpy as np
 
 
 from Model_definition_2D_frame import createModel
-from gravityAnalysis import runGravityAnalysis
+from Module_analysis import pushover_analysis
 from ReadRecord import ReadRecord
 
 
@@ -71,6 +55,9 @@ g = 9.81
 # Input parameters
 # =============================================================================
 
+## Define the model ----------
+
+st = 2 # n. storeys number
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
@@ -84,12 +71,22 @@ load_file = 'el_centro.AT2'
 load_dat_file = 'el_centro.dat'
 
 
+## Pushover analysis ----------
+
+node_supp1 = 10
+node_supp2 = 11
+node_load = 30
+
+nodes = [node_supp1, node_supp2, node_load]
+
+Dmax = 0.40*m
+Dincr = 0.004*m
+
 
 # =============================================================================
-# # call function to create the model
+# # call function to create the model + plot
 # =============================================================================
 
-st = 2 # n. storeys number
 
 createModel(H1,L1,M, st)
 
@@ -102,21 +99,13 @@ if plot_model:
 
 
 # =============================================================================
-# Run gravity Analysis
+# Run Pushover Test
 # =============================================================================
-runGravityAnalysis()
-
-if plot_defo_gravity: 
-    plt.figure()
-    opsv.plot_defo(sfac = 10000) 
-    plt.title('deformed shape - gravity analysis')
-    plt.show()  
 
 
-# wipe analysis objects and set pseudo time to 0
-ops.wipeAnalysis()
-ops.loadConst()
-ops.loadConst('-time', 0.0)
+
+pushover_analysis(H1, L1, M, Dmax, Dincr, nodes)
+
  
 
 # =============================================================================

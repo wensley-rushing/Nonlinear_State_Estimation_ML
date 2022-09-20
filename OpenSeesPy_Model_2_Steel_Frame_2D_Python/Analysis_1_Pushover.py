@@ -74,6 +74,7 @@ kg = 1
 # Input parameters
 # =============================================================================
 
+st = 2
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
@@ -87,7 +88,7 @@ M = 1000 *kg 	  #kg		lumped mass at top corner nodes
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M)
+createModel(H1,L1,M, st)
 
 
 
