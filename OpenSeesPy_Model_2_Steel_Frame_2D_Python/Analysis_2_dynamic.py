@@ -71,6 +71,7 @@ g = 9.81
 # Input parameters
 # =============================================================================
 
+st = 2
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
@@ -78,7 +79,7 @@ M = 1000 *kg 	  #kg		lumped mass at top corner nodes
 dampRatio = 0.02
 
 
-loadfactor = 50
+loadfactor = 100
 
 load_file = 'el_centro.AT2'
 load_dat_file = 'el_centro.dat'
@@ -89,7 +90,7 @@ load_dat_file = 'el_centro.dat'
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M)
+createModel(H1,L1,M, st)
 
 if plot_model:
     plt.figure()
