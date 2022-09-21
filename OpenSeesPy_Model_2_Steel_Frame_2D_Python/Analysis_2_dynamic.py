@@ -24,8 +24,7 @@ Created on Sat Jan 29 18:29:09 2022
 
 
 import openseespy.opensees as ops
-import openseespy.postprocessing.ops_vis as opsv
-
+import opsvis as opsv
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -71,13 +70,15 @@ g = 9.81
 # =============================================================================
 
 
+st = 1
+
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
 M = 1000 *kg 	  #kg		lumped mass at top corner nodes 
 dampRatio = 0.02
 
 
-loadfactor = 50
+loadfactor = 1
 
 load_file = 'el_centro.AT2'
 load_dat_file = 'el_centro.dat'
@@ -88,7 +89,7 @@ load_dat_file = 'el_centro.dat'
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M)
+createModel(H1,L1,M,st)
 
 if plot_model:
     plt.figure()
@@ -251,7 +252,7 @@ sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
                           
               
 plt.figure()
-plt.plot(time_topDisp[:,0],time_topDisp[:,1])
+plt.plot(time_topDisp[:,0],time_topDisp[:,1], color = 'red')
 plt.title('dynamic analysis')
 plt.xlabel('time (s)')
 plt.ylabel('displacement top (m)')
