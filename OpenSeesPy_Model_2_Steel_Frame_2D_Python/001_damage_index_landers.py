@@ -95,8 +95,9 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
         plot_model = False  
     
 
-    load_file = 'el_centro.AT2'
-    load_dat_file = 'el_centro.dat'
+    
+    load_file = 'LANDERS_YER270.AT1'
+    load_dat_file = 'LANDERS_YER270.dat'
     
     
     
@@ -314,6 +315,8 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
     
     
     Entropy = []
+    Entropy_labels = []
+    
     for nodes in ACC_Nodes:
         time_Acc_x_XX = np.loadtxt(output_directory+'/2_Acc_x_' + str(nodes) +'.out')
     
@@ -321,13 +324,19 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
     
         entropy = DamageTools.SampEn(ACC_x_XX, 2, 0.2*np.std(ACC_x_XX))
         Entropy.append(entropy)
+        
+        Entropy_labels.append('E_'+str(nodes)) 
+        
         print('Entropy Node_%d: ' % nodes, round(entropy,4))
 
     
     df.loc[loadfactor_idx-1] = [loadfactor, damage_idx, Entropy]
 
 #%%
-DF = pd.DataFrame(columns=['Damage index', 'E_{20}', 'E_{30}'])
+DF_labels = ['Damage index']
+DF_labels.extend(Entropy_labels)
+
+DF = pd.DataFrame(columns=DF_labels)
 for i in range(len(df)):
     vec = []
     
@@ -340,15 +349,30 @@ corr = DF.corr()
 
 #%%
 
+markers = ['x', 'o']
+colors = ['red', 'green']
+
+
+plt.figure()
 for i in range(len(df['Entropy'][0])):
-    plt.figure()
-    plt.scatter(DF['Damage index'],DF.iloc[:,i+1],  color="red", label='E20')
-    plt.scatter(DF['Damage index'],DF.iloc[:,i+1],  color="green", marker='x', label='E30')
-    plt.title('Entropy ' +DF.columns[i+1]+ ' corr = %f' % corr.iloc[0,i+1])
-    plt.xlabel('Damage index')
-    plt.ylabel('Entropy')
-    plt.legend()
-    plt.grid()
+    label_i = Entropy_labels[i]+'corr= %.2f' % corr.iloc[0,i+1]
+    plt.scatter(DF['Damage index'],DF.iloc[:,i+1],  color=colors[i], marker=markers[i], label=label_i)
+plt.title('Entropy \n GM: ' + load_file)
+plt.xlabel('Damage index')
+plt.ylabel('Entropy')
+plt.legend()
+plt.grid()
+
+
+fig, axs = plt.subplots(1, 2)
+for i in range(len(df['Entropy'][0])):
+    axs[i].scatter(DF['Damage index'],DF.iloc[:,i+1],  color=colors[i], marker=markers[i], label=label_i)
+    axs[i].set_title(Entropy_labels[i]+'corr= %.2f' % corr.iloc[0,i+1])
+    axs[i].set(xlabel='Damage index', ylabel='Entropy')
+    axs[i].grid()
+fig.suptitle('Entropy \n GM: ' + load_file)
+fig.tight_layout()
+
     
 # UnDamaged: 
 # loadlevel: 1
