@@ -45,8 +45,9 @@ plot_defo_gravity = False
 plot_modeshapes = False
 
 
-delta_y = 0.0477
-delta_u = 0.2
+
+delta_y = 0.121771097
+delta_u = 0.4
 
 
 # =============================================================================
@@ -88,7 +89,7 @@ df = pd.DataFrame(columns = ['Load factor', 'Damage index', 'Entropy'])
 
 
 loadfactor_idx = 0
-for loadfactor in [1,2,3,4,5,7,10,20]:
+for loadfactor in [3,4,5,7,10,20,30,40]:
     loadfactor_idx = loadfactor_idx + 1
     
     if loadfactor_idx > 1:
@@ -202,6 +203,10 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
                  '-ele', 1020,  'section', 1,  'force')
     
     
+    ops.recorder('Node', '-file', output_directory+'/2_groundmotion_base_reactions.out',
+             '-node', 10,11,  '-dof', 1,  'reaction')
+
+    
     
     for nodes in ACC_Nodes:
         ops.recorder('Node', '-file', output_directory+'/2_Acc_x_' + str(nodes) +'.out',
@@ -271,7 +276,7 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
                   
     plt.figure()
     plt.plot(time_topDisp[:,0],time_topDisp[:,1])
-    plt.title('dynamic analysis')
+    plt.title('dynamic analysis \n GM: ' + load_file)
     plt.xlabel('time (s)')
     plt.ylabel('displacement top (m)')
     plt.grid()
@@ -279,7 +284,7 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
     
     plt.figure()
     plt.plot(sectionDef[:,1],sectionForce[:,1]/1000)
-    plt.title('dynamic analysis - section base column')
+    plt.title('dynamic analysis - section base column \n GM: ' + load_file)
     plt.xlabel('curvature')
     plt.ylabel('Moment (kN)')
     plt.grid()
@@ -373,7 +378,9 @@ for i in range(len(df['Entropy'][0])):
 fig.suptitle('Entropy \n GM: ' + load_file)
 fig.tight_layout()
 
-    
+
+DF.to_csv(r'el_centro_dataframe.csv')
+ 
 # UnDamaged: 
 # loadlevel: 1
 #  E = 210          E = 150

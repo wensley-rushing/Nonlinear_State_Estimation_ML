@@ -102,7 +102,7 @@ ops.loadConst('-time', 0.0)
 # Define Recorders
 output_directory = 'output_files'
 ops.recorder('Node', '-file', output_directory+'/001_Pushover_top_disp.out',
-             '-node', 20,  '-dof', 1,  'disp')
+             '-node', 30,  '-dof', 1,  'disp')
 ops.recorder('Node', '-file', output_directory+'/001_Pushover_base_reactions.out',
              '-node', 10,11,  '-dof', 1,  'reaction')
 
@@ -116,14 +116,14 @@ ops.timeSeries('Linear', 1)     #create timeSeries with tag 1
 ops.pattern('Plain', 1,        1 )
 
 #load   (nodeTag, *loadValues)    loadValues in x direction, y dir, moment
-ops.load(20     , *[1,0,0]  )  # load in x direction in node 20
+ops.load(30     , *[1,0,0]  )  # load in x direction in node 20
 
 
 
 
 #Define max displacement and displacement increment
 
-Dmax  = 0.40*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
+Dmax  = 0.6*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
 Dincr = 0.004*m; 	# 4mm     increment of pushover
 
 
@@ -137,7 +137,7 @@ ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
 
 
 #integrator('DisplacementControl',   nodeTag, dof, incr)
-ops.integrator('DisplacementControl',20,      1 ,  Dincr)
+ops.integrator('DisplacementControl',30,      1 ,  Dincr)
 
 ops.analysis('Static')    #creates a static analysis
 
