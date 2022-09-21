@@ -27,7 +27,7 @@ def define_SteelSections():
     
     E = 210*GPa
     fy = 355*MPa #       yield stress    #S355
-    b = 0;  # strain-hardening ratio
+    b = 0.0;  # strain-hardening ratio
     R0 = 18 ;cR1 = 0.925;cR2 = 0.15    # transition from elastic to plastic branches
     # Recommended values: $R0=between 10 and 20, $cR1=0.925, $cR2=0.15
     
