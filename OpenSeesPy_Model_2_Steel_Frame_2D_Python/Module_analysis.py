@@ -37,6 +37,7 @@ def pushover_analysis(H1, L1, M, Dmax, Dincr, nodes, plot_defo_Pushover):
     # nodes = [node_supp1, node_supp2, node_load]
 
     # Define Recorders
+    
     output_directory = 'output_files'
     ops.recorder('Node', '-file', output_directory+'/1_Pushover_top_disp.out',
                  '-node', nodes[2],  '-dof', 1,  'disp')
@@ -107,25 +108,25 @@ def pushover_analysis(H1, L1, M, Dmax, Dincr, nodes, plot_defo_Pushover):
 
     ops.wipe() # to close recorders
 
-    Pushover_topDisp = np.loadtxt(output_directory+'/1_Pushover_top_disp.out')
+    p_curve_x = np.loadtxt(output_directory+'/1_Pushover_top_disp.out')
     Pushover_reactions = np.loadtxt(output_directory+'/1_Pushover_base_reactions.out')
     
-    total_base_reaction = -np.sum(Pushover_reactions,axis=1)
+    p_curve_y = -np.sum(Pushover_reactions,axis=1)/1000
     
-    x = [Pushover_topDisp[0],Pushover_topDisp[1]]
-    y = [total_base_reaction[0]/1000,total_base_reaction[1]/1000]
+    x = [p_curve_x[0],p_curve_x[1]]
+    y = [p_curve_y[0],p_curve_y[1]]
     slope = abs(y[0]-y[1]) / abs(x[0]-x[1])
     
-    F_max  = abs(max(total_base_reaction)/1000)
-    F_max_index = np.where(total_base_reaction == F_max*1000)[0][0]
+    F_max  = abs(max(p_curve_y))
+    F_max_index = np.where(p_curve_y == F_max)[0][0]
     
-    delta_y = 0.8*F_max/slope
-    delta_u = Pushover_topDisp[F_max_index]
-
+    delta_y = (0.8)*(F_max) / (slope)
+    delta_u = p_curve_x[F_max_index]
+    
 
     if plot_defo_Pushover:
         plt.figure()
-        plt.plot(np.insert(Pushover_topDisp, 0, 0),np.insert(total_base_reaction, 0, 0)/1000)   #inserts 0 at the beginning
+        plt.plot(np.insert(p_curve_x, 0, 0),np.insert(p_curve_y, 0, 0))   #inserts 0 at the beginning
         plt.plot(delta_y, 0.8*F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
         plt.plot(delta_u, F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
         plt.title('Pushover curve')
@@ -135,5 +136,5 @@ def pushover_analysis(H1, L1, M, Dmax, Dincr, nodes, plot_defo_Pushover):
         plt.show()
 
     
-    return delta_y, delta_u
+    return delta_y, delta_u, p_curve_x, p_curve_y
 
