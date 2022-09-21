@@ -327,7 +327,7 @@ for loadfactor in [1,2,3,4,5,7,10,20]:
     df.loc[loadfactor_idx-1] = [loadfactor, damage_idx, Entropy]
 
 #%%
-DF = pd.DataFrame(columns=['Damage', 'E_{20}', 'E_{30}'])
+DF = pd.DataFrame(columns=['Damage index', 'E_{20}', 'E_{30}'])
 for i in range(len(df)):
     vec = []
     
@@ -337,6 +337,18 @@ for i in range(len(df)):
     DF.loc[i] = vec
     
 corr = DF.corr()
+
+#%%
+
+for i in range(len(df['Entropy'][0])):
+    plt.figure()
+    plt.scatter(DF['Damage index'],DF.iloc[:,i+1],  color="red", label='E20')
+    plt.scatter(DF['Damage index'],DF.iloc[:,i+1],  color="green", marker='x', label='E30')
+    plt.title('Entropy ' +DF.columns[i+1]+ ' corr = %f' % corr.iloc[0,i+1])
+    plt.xlabel('Damage index')
+    plt.ylabel('Entropy')
+    plt.legend()
+    plt.grid()
     
 # UnDamaged: 
 # loadlevel: 1
@@ -384,21 +396,7 @@ corr = DF.corr()
 
 import sys
 sys.exit()
-#%%
 
-# Define data values
-x = [7, 14, 21, 28, 35, 42, 49]
-y = [5, 12, 19, 21, 31, 27, 35]
-z = [3, 5, 11, 20, 15, 29, 31]
-
-# Plot a simple line chart
-plt.plot(x, y, label = 'Test')
-
-# Plot another line on the same chart/graph
-plt.plot(x, z)
-plt.grid()
-plt.legend(loc = 'best')
-#plt.show()
 
 
 
