@@ -29,7 +29,7 @@ def define_RCSections():
     
     
     # nominal concrete compressive strength
-    fc = -30*MPa 	# CONCRETE Compressive Strength, MPa   (+Tension, -Compression)
+    fc = -35*MPa 	# CONCRETE Compressive Strength, MPa   (+Tension, -Compression)
     
     # Unconfined cover concrete
     fc1U = fc 			    # UNCONFINED concrete (todeschini parabolic model), maximum stress
@@ -40,7 +40,7 @@ def define_RCSections():
     Ec0 = 2*fc1U/eps1U      # Concrete Elastic Modulus
     
     # Confined core concrete
-    Kfc = 1.0 			# ratio of confined to unconfined concrete strength
+    Kfc = 1.3 			# ratio of confined to unconfined concrete strength
     
     fc1C = Kfc*fc		# CONFINED concrete (mander model), maximum stress
     eps1C = 2.*fc1C/Ec0 # strain at maximum stress 
@@ -90,9 +90,9 @@ def define_RCSections():
     NumBars_col = [numBarsTop_col, numBarsBot_col, numBarsIntTot_col]
     
     
-    diaBarsTop_col = 8*mm # Bar individual bar diameter top
-    diaBarsBot_col = 8*mm # Bar individual bar diameter bottom
-    diaBarsInt_col = 8*mm # Bar individual bar diameter intermediate
+    diaBarsTop_col = 16*mm # Bar individual bar diameter top
+    diaBarsBot_col = 16*mm # Bar individual bar diameter bottom
+    diaBarsInt_col = 16*mm # Bar individual bar diameter intermediate
     
     barAreaTop_col = np.pi*diaBarsTop_col**2/4	# area of longitudinal-reinforcement bars -- top
     barAreaBot_col = np.pi*diaBarsBot_col**2/4	# area of longitudinal-reinforcement bars -- bot
@@ -100,20 +100,20 @@ def define_RCSections():
     AreaBars_col = [barAreaTop_col, barAreaBot_col, barAreaInt_col]
     
     # Define Beam geometry
-    H_beam = 350*mm 		# Column Depth
-    B_beam = 300*mm	# Column Width
+    H_beam = 500*mm 		# Column Depth
+    B_beam = 400*mm	# Column Width
     coverH_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to H
     coverB_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to B
     
     numBarsTop_beam = 4		# number of longitudinal-reinforcement bars in steel layer. -- top
-    numBarsBot_beam = 4		# number of longitudinal-reinforcement bars in steel layer. -- bot
-    numBarsIntTot_beam = 4			# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
+    numBarsBot_beam = 8		# number of longitudinal-reinforcement bars in steel layer. -- bot
+    numBarsIntTot_beam = 0			# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
     NumBars_beam = [numBarsTop_beam, numBarsBot_beam, numBarsIntTot_beam]
     
     
-    diaBarsTop_beam = 12*mm # Bar individual bar diameter top
-    diaBarsBot_beam = 12*mm # Bar individual bar diameter bottom
-    diaBarsInt_beam = 6*mm # Bar individual bar diameter intermediate
+    diaBarsTop_beam = 16*mm # Bar individual bar diameter top
+    diaBarsBot_beam = 16*mm # Bar individual bar diameter bottom
+    diaBarsInt_beam = 0*mm # Bar individual bar diameter intermediate
     
     barAreaTop_beam = np.pi*diaBarsTop_beam**2/4	# area of longitudinal-reinforcement bars -- top
     barAreaBot_beam = np.pi*diaBarsBot_beam**2/4	# area of longitudinal-reinforcement bars -- bot
@@ -192,8 +192,9 @@ def RCSection(secID, matTags, HSec, BSec, coverH, coverB, numBars, areaBars):
     ops.patch('quad', matTags[0], nfZ, 1,          -coverY, coverZ, -coverY, -coverZ, -coreY,  -coreZ, -coreY,  coreZ )
     ops.patch('quad', matTags[0], nfZ, 1,            coreY,  coreZ,   coreY,  -coreZ, coverY, -coverZ, coverY, coverZ )
     # #
-    ops.layer('straight', matTags[2], numBarsInt, areaBars[2],  -coreY,  coreZ,   coreY,  coreZ )	# intermediate skin reinf. +z
-    ops.layer('straight', matTags[2], numBarsInt, areaBars[2],  -coreY, -coreZ,   coreY, -coreZ )	# intermediate skin reinf. -z
+    if numBarsInt != 0 and areaBars[2] != 0:
+        ops.layer('straight', matTags[2], numBarsInt, areaBars[2],  -coreY,  coreZ,   coreY,  coreZ )	# intermediate skin reinf. +z
+        ops.layer('straight', matTags[2], numBarsInt, areaBars[2],  -coreY, -coreZ,   coreY, -coreZ )	# intermediate skin reinf. -z
     ops.layer('straight', matTags[2], numBars[0], areaBars[0],   coreY,  coreZ,   coreY, -coreZ )	# top layer reinfocement
     ops.layer('straight', matTags[2], numBars[1], areaBars[1],  -coreY,  coreZ,  -coreY, -coreZ )	# bottom layer reinforcement
         
