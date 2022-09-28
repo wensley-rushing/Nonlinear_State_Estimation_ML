@@ -56,7 +56,7 @@ g = 9.81
 # =============================================================================
 delta_y = 0.02
 
-define_model = '1x1'
+define_model = '2x1'
 
 if define_model == '1x1':
     from Model_definition_1x1_frame import createModel
@@ -67,7 +67,7 @@ if define_model == '1x1':
     drift_nodes = [11, 21]
     
     #Local DI
-    id_element = [1020, 1121]
+    id_element = [1020]
     
 elif define_model == '2x1':
     from Model_definition_2x1_frame import createModel
@@ -98,11 +98,17 @@ L1 = 5.5*m        #m      length first span
 M = 1000 *kg 	  #kg		lumped mass at top corner nodes 
 dampRatio = 0.02
 
-df = pd.DataFrame(columns = ['Load factor', 'Damage index', 'Entropy'])
+
+
+
+# Create Dataframe for results
+gm_idx = 0
+df = pd.DataFrame(columns = ['Ground motion', 'Load factor', 'E - glob', 'Gl Drift', 'Gl Drift - class', 'Element ID', 'E - elem', 'Plastic def. ele.'])
+
 
 
 loadfactor_idx = 0
-for loadfactor in [10,60]:
+for loadfactor in [5, 10, 20]:
     loadfactor_idx = loadfactor_idx + 1
     print()
     print('Loadfactor: %.2f' %(loadfactor))
@@ -112,43 +118,6 @@ for loadfactor in [10,60]:
     
 
     
-    load_file = 'el_centro.AT2'
-    load_dat_file = 'el_centro.dat'
-    
-    
-    # Import multiple loads
-    if 1 > 2:
-        import os
-        
-        # Getting the work directory of loads .AT1 or .AT2 files
-        folder_loads = os.path.join(os.getcwd(), 'load_files')
-        #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
-        
-        # r=root, d=directories, f = files
-        for rdirs, dirs, files in os.walk(folder_loads):
-            for file in files:
-                if file.endswith(".AT1") or file.endswith(".AT2"):
-                    #print(os.path.join(rdirs, file))
-                    
-                    #print(file)
-                    
-                    file_name = file[:-4]
-                    #print(file_name)
-                    
-                    file_dat = file_name + '.dat'
-                    #print(file_dat)
-                    
-                    
-                    load_file = file
-                    load_dat_file = file_dat
-    
-    
-    # Move up in folder structure
-    #from pathlib import Path
-    #p = Path(__file__).parents[0]
-    
-    #print(p)
-    # /absolute/path/to/two/levels/up
     
     
     
@@ -235,6 +204,51 @@ for loadfactor in [10,60]:
     ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
     
     
+    
+    # Import multiple loads
+    import os
+    
+    # Getting the work directory of loads .AT1 or .AT2 files
+    folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
+    #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
+    
+    idx = 0
+    # r=root, d=directories, f = files
+    for rdirs, dirs, files in os.walk(folder_loads):
+        for file in files:
+            if file.endswith(".AT1") or file.endswith(".AT2"):
+                #print(os.path.join(rdirs, file))
+                #print(idx)
+                #print(file)
+                
+                file_name = file[:-4]
+                #print(file_name)
+                
+                file_dat = file_name + '.dat'
+                #print(file_dat)
+                
+                
+                load_file = file
+                load_dat_file = file_dat
+    
+    
+                #Move up in folder structure
+                #from pathlib import Path
+                #p = Path(__file__).parents[0]
+                
+                #print(p)
+                # /absolute/path/to/two/levels/up
+                idx += 1
+                
+                   
+                load_file = os.path.join(folder_loads, file)
+                load_dat_file = os.path.join(folder_loads, file_dat)
+    
+    load_file = 'el_centro.AT2'
+    load_dat_file = 'el_centro.dat'
+    file_name = 'el_centro'
+    
+
     # =============================================================================
     # Dynamic analysis
     # =============================================================================
@@ -353,7 +367,7 @@ for loadfactor in [10,60]:
         # Top displacement over time
         plt.figure()
         plt.plot(time_drift_disp[:,0],time_drift_disp[:,len(drift_nodes)])
-        plt.title('Dynamic analysis \n GM: ' + load_file)
+        plt.title('Dynamic analysis \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
         plt.xlabel('Time (s)')
         plt.ylabel('Top displacement node %.0f (m)' %(drift_nodes[-1]))
         plt.grid()
@@ -362,7 +376,7 @@ for loadfactor in [10,60]:
         # Hysterises loop Global (Base shear vs. top disp)
         plt.figure()
         plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
-        plt.title('Dynamic analysis - Structure \n GM: ' + load_file)
+        plt.title('Dynamic analysis - Structure \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
         plt.xlabel('Roof displacement (m)')
         plt.ylabel('Total base shear (kN)')
         plt.grid()
@@ -376,14 +390,56 @@ for loadfactor in [10,60]:
         DI_y = total_base_shear/1000 #Force (Moment)
         
         
-        Energy_g = np.trapz(DI_y, x=DI_x)
-        print('Energy - Global: %.4f' %(Energy_g))
+        Energy_G = np.trapz(DI_y, x=DI_x)
+        print('Energy - Global: %.4f' %(Energy_G))
         
         corr = np.corrcoef(DI_x, DI_y)
         Corr = corr[0][1]
         print('Correlation: %.4f' %(Corr))
         
         
+        #%% Tnterstorey drift (Global)
+
+        n_floors = len(time_drift_disp[0]) - 2 # do not count the columns for time and base node 
+        
+        drift = []
+        inter_drift = []
+        inter_time_drift = []
+        for i in range (0, n_floors):
+            drift.append(abs(time_drift_disp[-1, i+2]) / H1) # residual drift
+            inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # residual drift
+            inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # residual drift
+            
+        max_drift = max(drift)*100 # residual drift in percentage
+        max_inter_drift = max(inter_drift)*100
+        max_inter_time_drift = max(inter_time_drift)*100
+        
+        if max_inter_drift < 0.2:
+            drift_cl = 'No damage'     
+        elif max_inter_drift <= 0.5:
+            drift_cl = 'Repairable'     
+        elif max_inter_drift < 1.5:
+            drift_cl = 'Irreparable'      
+        elif max_inter_drift < 2.5:
+            drift_cl = 'Severe'
+        elif max_inter_drift > 2.5:
+            drift_cl = 'Collapse'
+            
+            
+        if max_inter_time_drift < 0.2:
+            drift_time_cl = 'No damage'     
+        elif max_inter_time_drift <= 0.5:
+            drift_time_cl = 'Repairable'     
+        elif max_inter_time_drift < 1.5:
+            drift_time_cl = 'Irreparable'      
+        elif max_inter_time_drift < 2.5:
+            drift_time_cl = 'Severe'
+        elif max_inter_time_drift > 2.5:
+            drift_time_cl = 'Collapse'
+        
+        print('Max drift: ' + str(round(max_drift,4)))
+        print('Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
+        print('Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
         
         
         
@@ -395,7 +451,7 @@ for loadfactor in [10,60]:
             
             plt.figure()
             plt.plot(element_section_defs[:,(el_id*2)+1],element_section_forces[:,(el_id*2)+1]/1000)
-            plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + load_file )
+            plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
             plt.xlabel('Curvature (-)')
             plt.ylabel('Moment (kNm)')
             plt.grid()
@@ -406,8 +462,8 @@ for loadfactor in [10,60]:
             DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
             
             
-            Energy_l = np.trapz(DI_y, x=DI_x)
-            print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_g))
+            Energy_L = np.trapz(DI_y, x=DI_x)
+            print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_L))
             
             corr = np.corrcoef(DI_x, DI_y)
             Corr = corr[0][1]
@@ -433,16 +489,29 @@ for loadfactor in [10,60]:
         plt.figure()
         for i in range((el_id*3)+1,(el_id*3)+4):
             plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
-        plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + load_file )
+        plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
         plt.xlabel('Time (s)')
         plt.ylabel('Plastic deformation (-)')
         plt.legend()
         plt.grid()
         
         
-        max_plasic_deforms = plastic_deform[-1:].tolist()
-        max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
-        print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
+        max_plastic_deforms = plastic_deform[-1:].tolist()
+        max_plastic_deform = max(max_plastic_deforms[0][1:], key=abs)
+        print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plastic_deform))
+
+
+#%% Fill up the dataframe
+
+    
+    df.loc[gm_idx] = [file_name, loadfactor, Energy_G, max_inter_drift, drift_cl,
+                      id_element, Energy_L, max_plastic_deform ]
+    gm_idx += 1
+
+
+# export
+
+df.to_csv(r'el_centro_dataframe.csv')  # export dataframe to cvs
 
 sys.exit()
 #%% ??

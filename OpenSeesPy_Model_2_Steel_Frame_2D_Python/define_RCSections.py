@@ -84,15 +84,15 @@ def define_RCSections():
     coverH_col = 25*mm	 # Cover to reinforcing steel NA, parallel to H
     coverB_col = 25*mm   # Cover to reinforcing steel NA, parallel to B
     
-    numBarsTop_col = 4		# number of longitudinal-reinforcement bars in steel layer. -- top
-    numBarsBot_col = 4		# number of longitudinal-reinforcement bars in steel layer. -- bot
-    numBarsIntTot_col = 4	# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
+    numBarsTop_col = 3		# number of longitudinal-reinforcement bars in steel layer. -- top
+    numBarsBot_col = 3		# number of longitudinal-reinforcement bars in steel layer. -- bot
+    numBarsIntTot_col = 2	# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
     NumBars_col = [numBarsTop_col, numBarsBot_col, numBarsIntTot_col]
     
     
-    diaBarsTop_col = 16*mm # Bar individual bar diameter top
-    diaBarsBot_col = 16*mm # Bar individual bar diameter bottom
-    diaBarsInt_col = 16*mm # Bar individual bar diameter intermediate
+    diaBarsTop_col = 12*mm # Bar individual bar diameter top
+    diaBarsBot_col = 12*mm # Bar individual bar diameter bottom
+    diaBarsInt_col = 12*mm # Bar individual bar diameter intermediate
     
     barAreaTop_col = np.pi*diaBarsTop_col**2/4	# area of longitudinal-reinforcement bars -- top
     barAreaBot_col = np.pi*diaBarsBot_col**2/4	# area of longitudinal-reinforcement bars -- bot
@@ -105,14 +105,14 @@ def define_RCSections():
     coverH_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to H
     coverB_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to B
     
-    numBarsTop_beam = 4		# number of longitudinal-reinforcement bars in steel layer. -- top
-    numBarsBot_beam = 8		# number of longitudinal-reinforcement bars in steel layer. -- bot
+    numBarsTop_beam = 3		# number of longitudinal-reinforcement bars in steel layer. -- top
+    numBarsBot_beam = 6		# number of longitudinal-reinforcement bars in steel layer. -- bot
     numBarsIntTot_beam = 0			# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
     NumBars_beam = [numBarsTop_beam, numBarsBot_beam, numBarsIntTot_beam]
     
     
-    diaBarsTop_beam = 16*mm # Bar individual bar diameter top
-    diaBarsBot_beam = 16*mm # Bar individual bar diameter bottom
+    diaBarsTop_beam = 12*mm # Bar individual bar diameter top
+    diaBarsBot_beam = 12*mm # Bar individual bar diameter bottom
     diaBarsInt_beam = 0*mm # Bar individual bar diameter intermediate
     
     barAreaTop_beam = np.pi*diaBarsTop_beam**2/4	# area of longitudinal-reinforcement bars -- top

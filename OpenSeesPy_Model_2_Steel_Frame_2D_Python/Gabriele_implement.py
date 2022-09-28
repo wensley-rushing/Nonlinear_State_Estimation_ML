@@ -40,7 +40,7 @@ else:
 # fill up the dataframe
 
 gm_idx = loadfactor_idx + 1
-df.loc[gm_idx-1] = [ground_motion, loadfactor, Energy_G, max_drif, drift_cl, ele_ID, Energy_L, max_plastic_deform ]
+df.loc[gm_idx-1] = [ground_motion, loadfactor, Energy_G, max_inter_drif, drift_cl, ele_ID, Energy_L, max_plastic_deform ]
 
 
 

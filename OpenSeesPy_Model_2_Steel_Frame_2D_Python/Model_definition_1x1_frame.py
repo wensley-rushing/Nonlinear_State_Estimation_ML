@@ -8,6 +8,7 @@ Created on Sat Jan 29 18:35:00 2022
 import openseespy.opensees as ops
 
 from define_SteelSections import define_SteelSections
+from define_RCSections import define_RCSections
 
 
 
@@ -76,7 +77,8 @@ def createModel(H1, L1, M):
     
     # Define sections
     # ----------------------------------
-    HEB200tag, IPE200tag = define_SteelSections() #defines nonlinear steel sections IPE200 and HEB200
+    #HEB200tag, IPE200tag = define_SteelSections() #defines nonlinear steel sections IPE200 and HEB200
+    HEB200tag, IPE200tag = define_RCSections()
     
     
     
