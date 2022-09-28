@@ -67,7 +67,7 @@ if define_model == '1x1':
     drift_nodes = [11, 21]
     
     #Local DI
-    id_element = [1020]
+    id_element = [1020, 1121]
     
 elif define_model == '2x1':
     from Model_definition_2x1_frame import createModel
@@ -102,9 +102,11 @@ df = pd.DataFrame(columns = ['Load factor', 'Damage index', 'Entropy'])
 
 
 loadfactor_idx = 0
-for loadfactor in [10, 12, 14]:
+for loadfactor in [10,60]:
     loadfactor_idx = loadfactor_idx + 1
+    print()
     print('Loadfactor: %.2f' %(loadfactor))
+    
     if loadfactor_idx > 1:
         plot_model = False  
     
@@ -267,6 +269,13 @@ for loadfactor in [10, 12, 14]:
     ops.recorder('Element', '-file', output_directory+'/2_Plastic_Def.out',
                   '-time', '-ele', *id_element, 'plasticDeformation ')
     
+    # Section deformation () (local)
+    ops.recorder('Element', '-file', output_directory+'/2_Section_Force.out',
+                 '-ele', *id_element,  'section', 1,  'force')
+    
+    ops.recorder('Element', '-file', output_directory+'/2_Section_Def.out',
+                 '-ele', *id_element,  'section', 1,  'deformation')
+    
     
     
     # Recorder files for all nodes
@@ -359,46 +368,82 @@ for loadfactor in [10, 12, 14]:
         plt.grid()
         #plt.show()
         
+        
+        #%% Energy (Global)
+        
+        # Damage index information of interest
+        DI_x = time_drift_disp[:,len(drift_nodes)] #Deformation (curvature) 
+        DI_y = total_base_shear/1000 #Force (Moment)
+        
+        
+        Energy_g = np.trapz(DI_y, x=DI_x)
+        print('Energy - Global: %.4f' %(Energy_g))
+        
+        corr = np.corrcoef(DI_x, DI_y)
+        Corr = corr[0][1]
+        print('Correlation: %.4f' %(Corr))
+        
+        
+        
+        
+        
+        #%% Local ---------------
+        element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out')
+        element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out')
+        
+        for el_id in range(len(id_element)):
+            
+            plt.figure()
+            plt.plot(element_section_defs[:,(el_id*2)+1],element_section_forces[:,(el_id*2)+1]/1000)
+            plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + load_file )
+            plt.xlabel('Curvature (-)')
+            plt.ylabel('Moment (kNm)')
+            plt.grid()
+            
+            
+            # Damage index information of interest
+            DI_x = element_section_defs[:,(el_id*2)+1] #Deformation (curvature) 
+            DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
+            
+            
+            Energy_l = np.trapz(DI_y, x=DI_x)
+            print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_g))
+            
+            corr = np.corrcoef(DI_x, DI_y)
+            Corr = corr[0][1]
+            print('Correlation - Element %.0f: %.4f' %(id_element[el_id],Corr))
+            
+            
+            #max_plasic_deforms = plastic_deform[-1:].tolist()
+            #max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
+            #print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
     
-   
-#%%
+        #%% Energy (Local)
+
+
     # =============================================================================
     # Labelling
     # =============================================================================
 
-    #%% Energy
     
-    # Damage index information of interest
-    DI_x = time_drift_disp[:,len(drift_nodes)] #Deformation (curvature) 
-    DI_y = total_base_shear/1000 #Force (Moment)
-    
-    
-    Energy = np.trapz(DI_y, x=DI_x)
-    print('Energy: %.4f' %(Energy))
-    
-    corr = np.corrcoef(DI_x, DI_y)
-    Corr = corr[0][1]
-    print('Correlation: %.4f' %(Corr))
-    
-    
-    
-    
-    # Plastic deformation
+    #%% Plastic deformation (Local)
     plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
     
-    plt.figure()
-    for i in range(1,4):
-        plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
-    plt.title('Plastic Deformation \n GM: ' + load_file)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Plastic deformation (-)')
-    plt.legend()
-    plt.grid()
-    
-    
-    max_plasic_deform = 
-    
-    
+    for el_id in range(len(id_element)):
+        plt.figure()
+        for i in range((el_id*3)+1,(el_id*3)+4):
+            plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
+        plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + load_file )
+        plt.xlabel('Time (s)')
+        plt.ylabel('Plastic deformation (-)')
+        plt.legend()
+        plt.grid()
+        
+        
+        max_plasic_deforms = plastic_deform[-1:].tolist()
+        max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
+        print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
+
 sys.exit()
 #%% ??
     # delta_max = abs(max(time_topDisp[:,1]))

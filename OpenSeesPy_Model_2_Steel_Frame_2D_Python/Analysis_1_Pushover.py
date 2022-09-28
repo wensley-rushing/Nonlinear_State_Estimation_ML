@@ -213,6 +213,7 @@ slope = abs(y[0]-y[1]) / abs(x[0]-x[1])
 F_max  = abs(max(total_base_reaction)/1000)
 F_max_index = np.where(total_base_reaction == F_max*1000)[0][0]
 
+print('delta_y = %0.4f' %(0.8*F_max/slope))
 
 if plot_defo_Pushover:
     plt.figure()
