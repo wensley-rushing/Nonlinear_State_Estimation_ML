@@ -249,278 +249,276 @@ for loadfactor in [1, 3, 5]:
                 
                 #print(p)
                 # /absolute/path/to/two/levels/up
-                idx += 1
-                
-                   
+                #idx += 1
+                                   
                 load_file = os.path.join(folder_loads, file)
                 load_dat_file = os.path.join(folder_loads, file_dat)
     
-    load_file = 'el_centro.AT2'
-    load_dat_file = 'el_centro.dat'
-    file_name = 'el_centro'
-    
-
-    # =============================================================================
-    # Dynamic analysis
-    # =============================================================================
-    
-    #read record
-    dt, nPts = ReadRecord(load_file, load_dat_file)
-    
-    
-    
-    # Define Recorders
-    output_directory = 'output_files'
-    
-    # ops.recorder('Node', '-file', output_directory+'/2_groundmotion_top_disp.out',
-    #              '-time', '-node', max(ACC_Nodes),  '-dof', 1,  'disp')
-    # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_def.out',
-    #              '-ele', 1020,  'section', 1,  'deformation')
-    # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_force.out',
-    #              '-ele', 1020,  'section', 1,  'force')
-    
-    
-    # Base reaction recorder
-    ops.recorder('Node', '-file', output_directory+'/2_Reaction_Base.out',
-                 '-node', *support_nodes,  '-dof', 1,  'reaction')
-
-    # create recorder files for displacements (interstory drift - Global)
-    #for nodes in drift_nodes:
-    ops.recorder('Node', '-file', output_directory+'/2_Dsp_Drift_Nodes.out',
-                 '-time', '-node', *drift_nodes,  '-dof', 1,  'disp')
-    
-    
-    # Plastic deformations (element)
-    ops.recorder('Element', '-file', output_directory+'/2_Plastic_Def.out',
-                  '-time', '-ele', *id_element, 'plasticDeformation ')
-    
-    # Section deformation () (local)
-    ops.recorder('Element', '-file', output_directory+'/2_Section_Force.out',
-                 '-ele', *id_element,  'section', 1,  'force')
-    
-    ops.recorder('Element', '-file', output_directory+'/2_Section_Def.out',
-                 '-ele', *id_element,  'section', 1,  'deformation')
-    
-    
-    
-    # Recorder files for all nodes
-    #for nodes in ACC_Nodes:
-    #    ops.recorder('Node', '-file', output_directory+'/2_Acc_x_' + str(nodes) +'.out',
-    #                 '-time', '-node', nodes,  '-dof', 1,  'accel')
-    
-    
-    
-    #%% 
-    # Define dynamic load (ground motion) in the horizontal direction
-    # ------------------
-    #time series with tag 1
-    ops.timeSeries('Path', 1,'-filePath' ,load_dat_file, '-dt', dt,'-factor', loadfactor*g)
-    
-    
-    #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
-    ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
-    
-    
-    # ---- Create Analysis
-    ops.constraints('Plain')      		    #objects that handles the constraints
-    ops.numberer('Plain')					#objects that numbers the DOFs
-    ops.system('FullGeneral')				#objects for solving the system of equations
-    ops.test('NormDispIncr', 1e-8, 100)    #convergence test, defines the tolerance and the number of iterations
-    ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
-    
-    
-    #integrator('DisplacementControl',   nodeTag, dof, incr)
-    ops.integrator('Newmark',0.5, 0.25)  # integration method  gamma=0.5   beta=0.25
-    
-    ops.analysis('Transient')    #creates a dynamic analysis
-    
-    
-    # ---- Analyze model
-    
-    
-    current_time = 0      	# start the time of the analysis
-    ok = 0				    # as long as ok remains 0.0 it means that the analysis converges
-    maxT =  (1+nPts)*dt;    # final time of the analysis
-    
-    
-    while ok == 0 and current_time<maxT:
-        ok = ops.analyze(1,dt)
-        current_time = ops.getTime()
-    
-    
-    
-    if ok == 0: print("-----------------Dynamic analysis successfully completed--------------------")
-    else: print(f"-----------------Analysis FAILED at time {current_time}--------------------")
-    
-    
-    #%%
-    
-    # =============================================================================
-    # plot analysis results
-    # =============================================================================
-    
-    
-    
-    
-    if plot_dynamic_analysis:
-        ops.wipe() # to close recorders
-        
-        # Retrive data
-        base_shear = np.loadtxt(output_directory+'/2_Reaction_Base.out')
-        total_base_shear = -np.sum(base_shear,axis=1)
-        
-        time_drift_disp = np.loadtxt(output_directory+'/2_Dsp_Drift_Nodes.out')
-        
-        #time_topDisp = np.loadtxt(output_directory+'/2_groundmotion_top_disp.out')
-        #sectionDef = np.loadtxt(output_directory+'/2_groundmotion_section_def.out')
-        #sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
-                                  
-        # Top displacement over time
-        plt.figure()
-        plt.plot(time_drift_disp[:,0],time_drift_disp[:,len(drift_nodes)])
-        plt.title('Dynamic analysis \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
-        plt.xlabel('Time (s)')
-        plt.ylabel('Top displacement node %.0f (m)' %(drift_nodes[-1]))
-        plt.grid()
-        #plt.show()
-        
-        # Hysterises loop Global (Base shear vs. top disp)
-        plt.figure()
-        plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
-        plt.title('Dynamic analysis - Structure \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
-        plt.xlabel('Roof displacement (m)')
-        plt.ylabel('Total base shear (kN)')
-        plt.grid()
-        #plt.show()
-        
-        
-        #%% Energy (Global)
-        
-        # Damage index information of interest
-        DI_x = time_drift_disp[:,len(drift_nodes)] #Deformation (curvature) 
-        DI_y = total_base_shear/1000 #Force (Moment)
-        
-        
-        Energy_G = np.trapz(DI_y, x=DI_x)
-        print('Energy - Global: %.4f' %(Energy_G))
-        
-        corr = np.corrcoef(DI_x, DI_y)
-        Corr = corr[0][1]
-        print('Correlation: %.4f' %(Corr))
-        
-        
-        #%% Tnterstorey drift (Global)
-
-        n_floors = len(time_drift_disp[0]) - 2 # do not count the columns for time and base node 
-        
-        drift = []
-        inter_drift = []
-        inter_time_drift = []
-        for i in range (0, n_floors):
-            drift.append(abs(time_drift_disp[-1, i+2]) / H1) # residual drift
-            inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # residual drift
-            inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # residual drift
+                # load_file = 'el_centro.AT2'
+                # load_dat_file = 'el_centro.dat'
+                # file_name = 'el_centro'
+                
             
-        max_drift = max(drift)*100 # residual drift in percentage
-        max_inter_drift = max(inter_drift)*100
-        max_inter_time_drift = max(inter_time_drift)*100
-        
-        if max_inter_drift < 0.2:
-            drift_cl = 'No damage'     
-        elif max_inter_drift <= 0.5:
-            drift_cl = 'Repairable'     
-        elif max_inter_drift < 1.5:
-            drift_cl = 'Irreparable'      
-        elif max_inter_drift < 2.5:
-            drift_cl = 'Severe'
-        elif max_inter_drift > 2.5:
-            drift_cl = 'Collapse'
+                # =============================================================================
+                # Dynamic analysis
+                # =============================================================================
+                
+                #read record
+                dt, nPts = ReadRecord(load_file, load_dat_file)
+                
+                
+                
+                # Define Recorders
+                output_directory = 'output_files'
+                
+                # ops.recorder('Node', '-file', output_directory+'/2_groundmotion_top_disp.out',
+                #              '-time', '-node', max(ACC_Nodes),  '-dof', 1,  'disp')
+                # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_def.out',
+                #              '-ele', 1020,  'section', 1,  'deformation')
+                # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_force.out',
+                #              '-ele', 1020,  'section', 1,  'force')
+                
+                
+                # Base reaction recorder
+                ops.recorder('Node', '-file', output_directory+'/2_Reaction_Base.out',
+                             '-node', *support_nodes,  '-dof', 1,  'reaction')
             
-            
-        if max_inter_time_drift < 0.2:
-            drift_time_cl = 'No damage'     
-        elif max_inter_time_drift <= 0.5:
-            drift_time_cl = 'Repairable'     
-        elif max_inter_time_drift < 1.5:
-            drift_time_cl = 'Irreparable'      
-        elif max_inter_time_drift < 2.5:
-            drift_time_cl = 'Severe'
-        elif max_inter_time_drift > 2.5:
-            drift_time_cl = 'Collapse'
-        
-        print('Max drift: ' + str(round(max_drift,4)))
-        print('Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
-        print('Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
-        
-        
-        
-        #%% Local ---------------
-        element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out')
-        element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out')
-        
-        for el_id in range(len(id_element)):
-            
-            plt.figure()
-            plt.plot(element_section_defs[:,(el_id*2)+1],element_section_forces[:,(el_id*2)+1]/1000)
-            plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
-            plt.xlabel('Curvature (-)')
-            plt.ylabel('Moment (kNm)')
-            plt.grid()
-            
-            
-            # Damage index information of interest
-            DI_x = element_section_defs[:,(el_id*2)+1] #Deformation (curvature) 
-            DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
-            
-            
-            Energy_L = np.trapz(DI_y, x=DI_x)
-            print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_L))
-            
-            corr = np.corrcoef(DI_x, DI_y)
-            Corr = corr[0][1]
-            print('Correlation - Element %.0f: %.4f' %(id_element[el_id],Corr))
-            
-            
-            #max_plasic_deforms = plastic_deform[-1:].tolist()
-            #max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
-            #print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
+                # create recorder files for displacements (interstory drift - Global)
+                #for nodes in drift_nodes:
+                ops.recorder('Node', '-file', output_directory+'/2_Dsp_Drift_Nodes.out',
+                             '-time', '-node', *drift_nodes,  '-dof', 1,  'disp')
+                
+                
+                # Plastic deformations (element)
+                ops.recorder('Element', '-file', output_directory+'/2_Plastic_Def.out',
+                              '-time', '-ele', *id_element, 'plasticDeformation ')
+                
+                # Section deformation () (local)
+                ops.recorder('Element', '-file', output_directory+'/2_Section_Force.out',
+                             '-ele', *id_element,  'section', 1,  'force')
+                
+                ops.recorder('Element', '-file', output_directory+'/2_Section_Def.out',
+                             '-ele', *id_element,  'section', 1,  'deformation')
+                
+                
+                
+                # Recorder files for all nodes
+                #for nodes in ACC_Nodes:
+                #    ops.recorder('Node', '-file', output_directory+'/2_Acc_x_' + str(nodes) +'.out',
+                #                 '-time', '-node', nodes,  '-dof', 1,  'accel')
+                
+                
+                
+                #%% 
+                # Define dynamic load (ground motion) in the horizontal direction
+                # ------------------
+                #time series with tag 1
+                ops.timeSeries('Path', 1,'-filePath' ,load_dat_file, '-dt', dt,'-factor', loadfactor*g)
+                
+                
+                #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
+                ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
+                
+                
+                # ---- Create Analysis
+                ops.constraints('Plain')      		    #objects that handles the constraints
+                ops.numberer('Plain')					#objects that numbers the DOFs
+                ops.system('FullGeneral')				#objects for solving the system of equations
+                ops.test('NormDispIncr', 1e-8, 100)    #convergence test, defines the tolerance and the number of iterations
+                ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
+                
+                
+                #integrator('DisplacementControl',   nodeTag, dof, incr)
+                ops.integrator('Newmark',0.5, 0.25)  # integration method  gamma=0.5   beta=0.25
+                
+                ops.analysis('Transient')    #creates a dynamic analysis
     
-        #%% Energy (Local)
-
-
-    # =============================================================================
-    # Labelling
-    # =============================================================================
-
-    
-    #%% Plastic deformation (Local)
-    plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
-    
-    for el_id in range(len(id_element)):
-        plt.figure()
-        for i in range((el_id*3)+1,(el_id*3)+4):
-            plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
-        plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
-        plt.xlabel('Time (s)')
-        plt.ylabel('Plastic deformation (-)')
-        plt.legend()
-        plt.grid()
+                
+                # ---- Analyze model
+                
+                
+                current_time = 0      	# start the time of the analysis
+                ok = 0				    # as long as ok remains 0.0 it means that the analysis converges
+                maxT =  (1+nPts)*dt;    # final time of the analysis
+                
+                
+                while ok == 0 and current_time<maxT:
+                    ok = ops.analyze(1,dt)
+                    current_time = ops.getTime()
+                
+                
+                
+                if ok == 0: print("-----------------Dynamic analysis successfully completed--------------------")
+                else: print(f"-----------------Analysis FAILED at time {current_time}--------------------")
+                
+                
+                #%%
+                
+                # =============================================================================
+                # plot analysis results
+                # =============================================================================
+                
+                
+                
+                
+                if plot_dynamic_analysis:
+                    ops.wipe() # to close recorders
+                    
+                    # Retrive data
+                    base_shear = np.loadtxt(output_directory+'/2_Reaction_Base.out')
+                    total_base_shear = -np.sum(base_shear,axis=1)
+                    
+                    time_drift_disp = np.loadtxt(output_directory+'/2_Dsp_Drift_Nodes.out')
+                    
+                    #time_topDisp = np.loadtxt(output_directory+'/2_groundmotion_top_disp.out')
+                    #sectionDef = np.loadtxt(output_directory+'/2_groundmotion_section_def.out')
+                    #sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
+                                              
+                    # Top displacement over time
+                    plt.figure()
+                    plt.plot(time_drift_disp[:,0],time_drift_disp[:,len(drift_nodes)])
+                    plt.title('Dynamic analysis \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
+                    plt.xlabel('Time (s)')
+                    plt.ylabel('Top displacement node %.0f (m)' %(drift_nodes[-1]))
+                    plt.grid()
+                    #plt.show()
+                    
+                    # Hysterises loop Global (Base shear vs. top disp)
+                    plt.figure()
+                    plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
+                    plt.title('Dynamic analysis - Structure \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
+                    plt.xlabel('Roof displacement (m)')
+                    plt.ylabel('Total base shear (kN)')
+                    plt.grid()
+                    #plt.show()
+                    
+                    
+                #%% Energy (Global)
+                
+                # Damage index information of interest
+                DI_x = time_drift_disp[:,len(drift_nodes)] #Deformation (curvature) 
+                DI_y = total_base_shear/1000 #Force (Moment)
+                
+                
+                Energy_G = np.trapz(DI_y, x=DI_x)
+                print('Energy - Global: %.4f' %(Energy_G))
+                
+                corr = np.corrcoef(DI_x, DI_y)
+                Corr = corr[0][1]
+                print('Correlation: %.4f' %(Corr))
+                    
+                    
+                # Interstorey drift (Global)
         
-        
-        max_plastic_deforms = plastic_deform[-1:].tolist()
-        max_plastic_deform = max(max_plastic_deforms[0][1:], key=abs)
-        print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plastic_deform))
-
-
-#%% Fill up the dataframe
-
+                n_floors = len(time_drift_disp[0]) - 2 # do not count the columns for time and base node 
+                
+                drift = []
+                inter_drift = []
+                inter_time_drift = []
+                for i in range (0, n_floors):
+                    drift.append(abs(time_drift_disp[-1, i+2]) / H1) # residual drift
+                    inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # residual drift
+                    inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # residual drift
+                    
+                max_drift = max(drift)*100 # residual drift in percentage
+                max_inter_drift = max(inter_drift)*100
+                max_inter_time_drift = max(inter_time_drift)*100
+                
+                if max_inter_drift < 0.2:
+                    drift_cl = 'No damage'     
+                elif max_inter_drift <= 0.5:
+                    drift_cl = 'Repairable'     
+                elif max_inter_drift < 1.5:
+                    drift_cl = 'Irreparable'      
+                elif max_inter_drift < 2.5:
+                    drift_cl = 'Severe'
+                elif max_inter_drift > 2.5:
+                    drift_cl = 'Collapse'
+                    
+                    
+                if max_inter_time_drift < 0.2:
+                    drift_time_cl = 'No damage'     
+                elif max_inter_time_drift <= 0.5:
+                    drift_time_cl = 'Repairable'     
+                elif max_inter_time_drift < 1.5:
+                    drift_time_cl = 'Irreparable'      
+                elif max_inter_time_drift < 2.5:
+                    drift_time_cl = 'Severe'
+                elif max_inter_time_drift > 2.5:
+                    drift_time_cl = 'Collapse'
+                
+                print('Max drift: ' + str(round(max_drift,4)))
+                print('Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
+                print('Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
+                    
+                    
+                    
+                #%% Local ---------------
+                
+                # Moment curvature curce
+                
+                element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out')
+                element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out')
+                
+                for el_id in range(len(id_element)):
+                    
+                    plt.figure()
+                    plt.plot(element_section_defs[:,(el_id*2)+1],element_section_forces[:,(el_id*2)+1]/1000)
+                    plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
+                    plt.xlabel('Curvature (-)')
+                    plt.ylabel('Moment (kNm)')
+                    plt.grid()
+                    
+                    
+                    # Damage index information of interest
+                    DI_x = element_section_defs[:,(el_id*2)+1] #Deformation (curvature) 
+                    DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
+                    
+                    
+                    Energy_L = np.trapz(DI_y, x=DI_x)
+                    print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_L))
+                    
+                    corr = np.corrcoef(DI_x, DI_y)
+                    Corr = corr[0][1]
+                    print('Correlation - Element %.0f: %.4f' %(id_element[el_id],Corr))
+                    
+                    
+                    #max_plasic_deforms = plastic_deform[-1:].tolist()
+                    #max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
+                    #print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
     
-    df.loc[gm_idx] = [file_name, loadfactor, Energy_G, max_inter_drift, drift_cl,
-                      id_element, Energy_L, max_plastic_deform ]
-    gm_idx += 1
+                # Energy (Local)
+            
+                
+                # Plastic deformation 
+                plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
+                
+                for el_id in range(len(id_element)):
+                    plt.figure()
+                    for i in range((el_id*3)+1,(el_id*3)+4):
+                        plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
+                    plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
+                    plt.xlabel('Time (s)')
+                    plt.ylabel('Plastic deformation (-)')
+                    plt.legend()
+                    plt.grid()
+                    
+                    
+                    max_plastic_deforms = plastic_deform[-1:].tolist()
+                    max_plastic_deform = max(max_plastic_deforms[0][1:], key=abs)
+                    print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plastic_deform))
+            
+            
+            #%% Record data in the dataframe
+            
+                
+                df.loc[gm_idx] = [file_name, loadfactor, Energy_G, max_inter_drift, drift_cl,
+                                  id_element, Energy_L, max_plastic_deform ]
+                gm_idx += 1
 
 
-# export
+
+# export dataframe
 
 df.to_csv(r'el_centro_dataframe.csv')  # export dataframe to cvs
 
