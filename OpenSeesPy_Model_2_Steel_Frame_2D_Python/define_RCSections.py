@@ -29,7 +29,7 @@ def define_RCSections():
     
     
     # nominal concrete compressive strength
-    fc = -35*MPa 	# CONCRETE Compressive Strength, MPa   (+Tension, -Compression)
+    fc = -20*MPa 	# CONCRETE Compressive Strength, MPa   (+Tension, -Compression)
     
     # Unconfined cover concrete
     fc1U = fc 			    # UNCONFINED concrete (todeschini parabolic model), maximum stress

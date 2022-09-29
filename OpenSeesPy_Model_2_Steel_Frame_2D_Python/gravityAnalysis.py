@@ -14,7 +14,11 @@ m = 1
 
 
 
-def runGravityAnalysis():
+def runGravityAnalysis(beam_vec):
+    
+    roof_beam = beam_vec[-3:len(beam_vec)]
+    
+    floor_beam = [i for i in beam_vec if i not in roof_beam]
     
     
     ops.timeSeries('Linear', 100)     #create timeSeries with tag 100
@@ -23,12 +27,9 @@ def runGravityAnalysis():
     ops.pattern('Plain', 100,        100 )
     
     #eleLoad('-ele', *eleTags, '-type', '-beamUniform', Wy)
-    ops.eleLoad('-ele', 2021, '-type', '-beamUniform', -140*N/m)      # 140 N/m of uniformly distributed load on the beam
-    ops.eleLoad('-ele', 3031, '-type', '-beamUniform', -140*N/m) 
-
-
-
-
+    ops.eleLoad('-ele', *roof_beam, '-type', '-beamUniform', -200*N/m)      # 140 N/m of uniformly distributed load on the beam
+    ops.eleLoad('-ele', *floor_beam, '-type', '-beamUniform', -300*N/m)      # 140 N/m of uniformly distributed load on the beam
+    
 
     # ---- Create Analysis
     ops.constraints('Plain')      		    #objects that handles the constraints
