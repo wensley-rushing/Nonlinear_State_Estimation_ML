@@ -25,6 +25,7 @@ from gravityAnalysis import runGravityAnalysis
 from ReadRecord import ReadRecord
 
 
+ops.wipe()
 
 # turn on/off the plots by setting these to True or False
 plot_model = False
@@ -105,159 +106,156 @@ dampRatio = 0.02
 # Create Dataframe for results
 gm_idx = 0
 df = pd.DataFrame(columns = ['Ground motion', 'Load factor', 'E - glob', 'Gl Drift', 'Gl Drift - class', 'Element ID', 'E - elem', 'Plastic def. ele.'])
+ 
+    
+    
+# Import multiple loads
+import os
+
+# Getting the work directory of loads .AT1 or .AT2 files
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
+#r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
+
+# r=root, d=directories, f = files
+for rdirs, dirs, files in os.walk(folder_loads):
+    for file in files:
+        if file.endswith(".AT1") or file.endswith(".AT2"):
+            #print(os.path.join(rdirs, file))
+            #print(idx)
+            #print(file)
+            
+            file_name = file[:-4]
+            print(file_name)
+            
+            file_dat = file_name + '.dat'
+            # print(file_dat)
+            
+            
+            load_file = file
+            load_dat_file = file_dat
 
 
+            #Move up in folder structure
+            #from pathlib import Path
+            #p = Path(__file__).parents[0]
+            
+            #print(p)
+            # /absolute/path/to/two/levels/up
+            #idx += 1
+                               
+            load_file = os.path.join(folder_loads, file)
+            load_dat_file = os.path.join(folder_loads, file_dat)
 
-loadfactor_idx = 0
-for loadfactor in [1, 3, 5]:
-    loadfactor_idx = loadfactor_idx + 1
-    print()
-    print('Loadfactor: %.2f' %(loadfactor))
-    
-    if loadfactor_idx > 1:
-        plot_model = False  
-    
+            # load_file = 'el_centro.AT2'
+            # load_dat_file = 'el_centro.dat'
+            # file_name = 'el_centro'
+            
+            
+            
+            loadfactor_idx = 0
+            for loadfactor in [1,2,3]:
+                loadfactor_idx = loadfactor_idx + 1
+                print()
+                print('Loadfactor: %.2f' %(loadfactor))
+                
+                if loadfactor_idx > 1:
+                    plot_model = False  
+            
+            
+            
+            
+            
+                # =============================================================================
+                # # call function to create the model
+                # =============================================================================
+                
+                node_vec, el_vec, col_vec = createModel(H1,L1,M)
+                
+                beam_vec = [i for i in el_vec if i not in col_vec]
+                
 
-    
-    
-    
-    
-    # =============================================================================
-    # # call function to create the model
-    # =============================================================================
-    
-    node_vec, el_vec, col_vec = createModel(H1,L1,M)
-    
-    beam_vec = [i for i in el_vec if i not in col_vec]
-    
-
-    if plot_model:
-        plt.figure()
-        opsv.plot_model()
-        plt.title('model')
-        #plt.show()  
-    
-    
-    
-    # =============================================================================
-    # Run gravity Analysis
-    # =============================================================================
-    
-    runGravityAnalysis(beam_vec)
-    
-    if plot_defo_gravity: 
-        plt.figure()
-        opsv.plot_defo(sfac = 10000) 
-        plt.title('deformed shape - gravity analysis')
-        #plt.show()  
-    
-    
-    # wipe analysis objects and set pseudo time to 0
-    ops.wipeAnalysis()
-    ops.loadConst('-time', 0.0)
-    
-    
-    
-    # =============================================================================
-    # Compute structural periods after gravity
-    # =============================================================================
-    
-    omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1 and 2
-    omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
-    
-    periods = 2*np.pi/omega
-    
-    print(f'First period T1 = {round(periods[0],3)} seconds')
-    print(f'Second period T2 = {round(periods[1],3)} seconds')
-    print(f'Third period T3 = {round(periods[2],3)} seconds')
-    
-    
-    
-    # =============================================================================
-    # Plot modeshapes
-    # =============================================================================
-    
-    if plot_modeshapes:
-        plt.figure()
-        opsv.plot_mode_shape(1, sfac=100)
-        plt.title('mode shape 1')
-        #plt.show()
-    
-        plt.figure()
-        opsv.plot_mode_shape(2, sfac=100)
-        plt.title('mode shape 2')
-        #plt.show()
-        
-        plt.figure()
-        opsv.plot_mode_shape(3, sfac=100)
-        plt.title('mode shape 3')
-    
-    
-    
-    
-    # =============================================================================
-    # Assign Rayleigh Damping
-    # =============================================================================
-    
-    # ---- Rayleigh damping constants for SDOF system (omega1_ray = omega2_ray):
-    
-        
-    omega1_ray = omega[0]
-    omega2_ray = omega[0]
-    
-    
-    alphaM = 2.0*dampRatio*omega1_ray*omega2_ray/(omega1_ray+omega2_ray)
-    betaKcurr = 0
-    betaKinit = 0
-    betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
-    
-    
-    ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
-    
-    
-    
-    # Import multiple loads
-    import os
-    
-    # Getting the work directory of loads .AT1 or .AT2 files
-    folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
-    #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
-    
-    idx = 0
-    # r=root, d=directories, f = files
-    for rdirs, dirs, files in os.walk(folder_loads):
-        for file in files:
-            if file.endswith(".AT1") or file.endswith(".AT2"):
-                #print(os.path.join(rdirs, file))
-                #print(idx)
-                #print(file)
-                
-                file_name = file[:-4]
-                #print(file_name)
-                
-                file_dat = file_name + '.dat'
-                #print(file_dat)
+                if plot_model:
+                    plt.figure()
+                    opsv.plot_model()
+                    plt.title('model')
+                    #plt.show()  
                 
                 
-                load_file = file
-                load_dat_file = file_dat
-    
-    
-                #Move up in folder structure
-                #from pathlib import Path
-                #p = Path(__file__).parents[0]
                 
-                #print(p)
-                # /absolute/path/to/two/levels/up
-                #idx += 1
-                                   
-                load_file = os.path.join(folder_loads, file)
-                load_dat_file = os.path.join(folder_loads, file_dat)
-    
-                # load_file = 'el_centro.AT2'
-                # load_dat_file = 'el_centro.dat'
-                # file_name = 'el_centro'
+                # =============================================================================
+                # Run gravity Analysis
+                # =============================================================================
                 
+                runGravityAnalysis(beam_vec)
+                
+                if plot_defo_gravity: 
+                    plt.figure()
+                    opsv.plot_defo(sfac = 10000) 
+                    plt.title('deformed shape - gravity analysis')
+                    #plt.show()  
+                
+                
+                # wipe analysis objects and set pseudo time to 0
+                ops.wipeAnalysis()
+                ops.loadConst('-time', 0.0)
+                
+                
+                
+                # =============================================================================
+                # Compute structural periods after gravity
+                # =============================================================================
+                
+                omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1 and 2
+                omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
+                
+                periods = 2*np.pi/omega
+                
+                print(f'First period T1 = {round(periods[0],3)} seconds')
+                print(f'Second period T2 = {round(periods[1],3)} seconds')
+                print(f'Third period T3 = {round(periods[2],3)} seconds')
+                
+                
+                
+                # =============================================================================
+                # Plot modeshapes
+                # =============================================================================
+                
+                if plot_modeshapes:
+                    plt.figure()
+                    opsv.plot_mode_shape(1, sfac=100)
+                    plt.title('mode shape 1')
+                    #plt.show()
+                
+                    plt.figure()
+                    opsv.plot_mode_shape(2, sfac=100)
+                    plt.title('mode shape 2')
+                    #plt.show()
+                    
+                    plt.figure()
+                    opsv.plot_mode_shape(3, sfac=100)
+                    plt.title('mode shape 3')
+                
+                
+                
+                
+                # =============================================================================
+                # Assign Rayleigh Damping
+                # =============================================================================
+                
+                # ---- Rayleigh damping constants for SDOF system (omega1_ray = omega2_ray):
+                
+                    
+                omega1_ray = omega[0]
+                omega2_ray = omega[0]
+                
+                
+                alphaM = 2.0*dampRatio*omega1_ray*omega2_ray/(omega1_ray+omega2_ray)
+                betaKcurr = 0
+                betaKinit = 0
+                betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
+                
+                
+                ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
             
                 # =============================================================================
                 # Dynamic analysis
@@ -266,8 +264,8 @@ for loadfactor in [1, 3, 5]:
                 #read record
                 dt, nPts = ReadRecord(load_file, load_dat_file)
                 
-                
-                
+            
+            
                 # Define Recorders
                 output_directory = 'output_files'
                 
@@ -332,7 +330,8 @@ for loadfactor in [1, 3, 5]:
                 ops.integrator('Newmark',0.5, 0.25)  # integration method  gamma=0.5   beta=0.25
                 
                 ops.analysis('Transient')    #creates a dynamic analysis
-    
+                
+                
                 
                 # ---- Analyze model
                 
@@ -351,6 +350,7 @@ for loadfactor in [1, 3, 5]:
                 if ok == 0: print("-----------------Dynamic analysis successfully completed--------------------")
                 else: print(f"-----------------Analysis FAILED at time {current_time}--------------------")
                 
+
                 
                 #%%
                 
@@ -358,21 +358,24 @@ for loadfactor in [1, 3, 5]:
                 # plot analysis results
                 # =============================================================================
                 
+                # ops.remove('recorders') # to close recorders
+                # ops.remove('timeSeries',1) # to close timeSeries
+                # ops.remove('loadPattern',1) # to close timeSeries
+                ops.wipe()
                 
+                # Retrive data
+                base_shear = np.loadtxt(output_directory+'/2_Reaction_Base.out')
+                total_base_shear = -np.sum(base_shear,axis=1)
+                
+                time_drift_disp = np.loadtxt(output_directory+'/2_Dsp_Drift_Nodes.out')
+                
+                #time_topDisp = np.loadtxt(output_directory+'/2_groundmotion_top_disp.out')
+                #sectionDef = np.loadtxt(output_directory+'/2_groundmotion_section_def.out')
+                #sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
                 
                 
                 if plot_dynamic_analysis:
-                    ops.wipe() # to close recorders
                     
-                    # Retrive data
-                    base_shear = np.loadtxt(output_directory+'/2_Reaction_Base.out')
-                    total_base_shear = -np.sum(base_shear,axis=1)
-                    
-                    time_drift_disp = np.loadtxt(output_directory+'/2_Dsp_Drift_Nodes.out')
-                    
-                    #time_topDisp = np.loadtxt(output_directory+'/2_groundmotion_top_disp.out')
-                    #sectionDef = np.loadtxt(output_directory+'/2_groundmotion_section_def.out')
-                    #sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
                                               
                     # Top displacement over time
                     plt.figure()
@@ -515,8 +518,7 @@ for loadfactor in [1, 3, 5]:
                 df.loc[gm_idx] = [file_name, loadfactor, Energy_G, max_inter_drift, drift_cl,
                                   id_element, Energy_L, max_plastic_deform ]
                 gm_idx += 1
-
-
+                
 
 # export dataframe
 
