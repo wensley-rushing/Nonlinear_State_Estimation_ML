@@ -21,14 +21,15 @@ import sys
 #from Model_definition_3x3_frame import createModel
 #from Model_definition_2x1_frame import createModel
 
-#from gravityAnalysis import runGravityAnalysis
+from gravityAnalysis import runGravityAnalysis
 from ReadRecord import ReadRecord
 
 
 
 # turn on/off the plots by setting these to True or False
-plot_model = True
-#plot_modeshapes = False
+plot_model = False
+plot_defo_gravity = False
+plot_modeshapes = False
 plot_dynamic_analysis = True
 
 
@@ -56,7 +57,7 @@ g = 9.81
 # =============================================================================
 delta_y = 0.02
 
-define_model = '2x1'
+define_model = '3x3'
 
 if define_model == '1x1':
     from Model_definition_1x1_frame import createModel
@@ -95,7 +96,7 @@ elif define_model == '3x3':
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
-M = 1000 *kg 	  #kg		lumped mass at top corner nodes 
+M = 6000 *kg 	  #kg		lumped mass at top corner nodes 
 dampRatio = 0.02
 
 
@@ -108,7 +109,7 @@ df = pd.DataFrame(columns = ['Ground motion', 'Load factor', 'E - glob', 'Gl Dri
 
 
 loadfactor_idx = 0
-for loadfactor in [5, 10, 20]:
+for loadfactor in [1, 3, 5]:
     loadfactor_idx = loadfactor_idx + 1
     print()
     print('Loadfactor: %.2f' %(loadfactor))
@@ -125,9 +126,11 @@ for loadfactor in [5, 10, 20]:
     # # call function to create the model
     # =============================================================================
     
-    node_vec, el_vec = createModel(H1,L1,M)
-
+    node_vec, el_vec, col_vec = createModel(H1,L1,M)
     
+    beam_vec = [i for i in el_vec if i not in col_vec]
+    
+
     if plot_model:
         plt.figure()
         opsv.plot_model()
@@ -139,8 +142,8 @@ for loadfactor in [5, 10, 20]:
     # =============================================================================
     # Run gravity Analysis
     # =============================================================================
-    '''
-    runGravityAnalysis()
+    
+    runGravityAnalysis(beam_vec)
     
     if plot_defo_gravity: 
         plt.figure()
@@ -151,39 +154,47 @@ for loadfactor in [5, 10, 20]:
     
     # wipe analysis objects and set pseudo time to 0
     ops.wipeAnalysis()
-    ops.loadConst()
     ops.loadConst('-time', 0.0)
-    '''
-     
+    
+    
     
     # =============================================================================
     # Compute structural periods after gravity
     # =============================================================================
     
-    omega_sq = ops.eigen('-fullGenLapack', 2); # eigenvalue mode 1 and 2
+    omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1 and 2
     omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
     
     periods = 2*np.pi/omega
     
     print(f'First period T1 = {round(periods[0],3)} seconds')
+    print(f'Second period T2 = {round(periods[1],3)} seconds')
+    print(f'Third period T3 = {round(periods[2],3)} seconds')
+    
     
     
     # =============================================================================
     # Plot modeshapes
     # =============================================================================
-    '''
+    
     if plot_modeshapes:
         plt.figure()
-        opsv.plot_mode_shape(1, sfac=1)
+        opsv.plot_mode_shape(1, sfac=100)
         plt.title('mode shape 1')
         #plt.show()
     
         plt.figure()
-        opsv.plot_mode_shape(2, sfac=1)
+        opsv.plot_mode_shape(2, sfac=100)
         plt.title('mode shape 2')
         #plt.show()
+        
+        plt.figure()
+        opsv.plot_mode_shape(3, sfac=100)
+        plt.title('mode shape 3')
     
-    '''
+    
+    
+    
     # =============================================================================
     # Assign Rayleigh Damping
     # =============================================================================

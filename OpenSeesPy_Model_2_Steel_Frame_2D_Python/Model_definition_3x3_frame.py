@@ -53,6 +53,11 @@ def createModel(H1, L1, M):
                     2030, 2131, 2232, 2333, 3031, 3132, 3233,
                     3040, 3141, 3242, 3343, 4041, 4142, 4243]
     
+        col =       [1020, 1121, 1222, 1323,                         
+                    2030, 2131, 2232, 2333, 
+                    3040, 3141, 3242, 3343]
+        
+        
     
         ops.wipe()                                   # deletes everything that was defined before
         
@@ -191,7 +196,7 @@ def createModel(H1, L1, M):
         ops.element('forceBeamColumn', 4243,   *[42,43],  LinearGeomT, IPE200tag)
         
         
-        return nodes, elements
+        return nodes, elements, col
         
         
         print("--------------- Model SUCCESSFULLY defined - 2 storeys ---------------")
