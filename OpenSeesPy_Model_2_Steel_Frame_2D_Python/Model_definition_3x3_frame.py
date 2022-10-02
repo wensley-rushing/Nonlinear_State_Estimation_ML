@@ -58,7 +58,7 @@ def createModel(H1, L1, M):
                     3040, 3141, 3242, 3343]
         
         
-    
+        
         ops.wipe()                                   # deletes everything that was defined before
         
         ops.model('basic', '-ndm', 2, '-ndf', 3)  	# starts the model. Model 2 dimensions, 3 DOFs per node

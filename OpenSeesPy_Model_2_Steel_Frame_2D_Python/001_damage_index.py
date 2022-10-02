@@ -24,6 +24,8 @@ import sys
 from gravityAnalysis import runGravityAnalysis
 from ReadRecord import ReadRecord
 
+import time
+
 
 ops.wipe()
 
@@ -91,7 +93,7 @@ elif define_model == '3x3':
     drift_nodes = [13, 23, 33, 43]
     
     #Local DI
-    id_element = [1020]
+    id_element = [1020, 2030]
 #------------------------------------------------------------------------------
     
 
@@ -102,13 +104,15 @@ dampRatio = 0.02
 
 
 
-
+#%% Initialization 
 # Create Dataframe for results
 gm_idx = 0
-df = pd.DataFrame(columns = ['Ground motion', 'Load factor', 'E - glob', 'Gl Drift', 'Gl Drift - class', 'Element ID', 'E - elem', 'Plastic def. ele.'])
+df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
+                             'E - glob', 'Gl Drift', 'Gl Drift - class', 
+                             'Element ID', 'E - elem', 'Plastic def. ele.'])
  
     
-    
+#%% Import data    
 # Import multiple loads
 import os
 
@@ -348,7 +352,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 
                 if ok == 0: print("-----------------Dynamic analysis successfully completed--------------------")
-                else: print(f"-----------------Analysis FAILED at time {current_time}--------------------")
+                else: print(f"-----------------Analysis FAILED at time {current_time}--------------------"); ok = 1
                 
 
                 
@@ -463,6 +467,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out')
                 element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out')
                 
+                Energy_L = []
                 for el_id in range(len(id_element)):
                     
                     plt.figure()
@@ -478,8 +483,9 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
                     
                     
-                    Energy_L = np.trapz(DI_y, x=DI_x)
-                    print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_L))
+                    Energy_l = np.trapz(DI_y, x=DI_x)
+                    print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_l))
+                    Energy_L.append(Energy_l)
                     
                     corr = np.corrcoef(DI_x, DI_y)
                     Corr = corr[0][1]
@@ -495,7 +501,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 # Plastic deformation 
                 plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
-                
+                Max_plastic_deform = []
                 for el_id in range(len(id_element)):
                     plt.figure()
                     for i in range((el_id*3)+1,(el_id*3)+4):
@@ -510,13 +516,14 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     max_plastic_deforms = plastic_deform[-1:].tolist()
                     max_plastic_deform = max(max_plastic_deforms[0][1:], key=abs)
                     print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plastic_deform))
-            
+                    Max_plastic_deform.append(max_plastic_deform)
             
             #%% Record data in the dataframe
             
                 
-                df.loc[gm_idx] = [file_name, loadfactor, Energy_G, max_inter_drift, drift_cl,
-                                  id_element, Energy_L, max_plastic_deform ]
+                df.loc[gm_idx] = [ok, file_name, loadfactor, 
+                                  Energy_G, max_inter_drift, drift_cl,
+                                  id_element, Energy_L, Max_plastic_deform]
                 gm_idx += 1
                 
 
