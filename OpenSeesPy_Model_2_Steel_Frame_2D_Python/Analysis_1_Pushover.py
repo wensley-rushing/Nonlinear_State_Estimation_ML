@@ -36,7 +36,8 @@ import numpy as np
 
 
 
-from Model_definition_2D_frame import createModel
+#from Model_definition_2D_frame import createModel
+from Model_definition_3x3_frame import createModel
 from gravityAnalysis import runGravityAnalysis
 
 
@@ -89,7 +90,7 @@ M = 1000 *kg 	  #kg		lumped mass at top corner nodes
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M, st)
+createModel(H1,L1,M)
 
 
 
@@ -104,7 +105,7 @@ if plot_model:
 # =============================================================================
 # Run gravity Analysis
 # =============================================================================
-runGravityAnalysis()
+runGravityAnalysis([2021, 2122, 2223, 3031, 3132, 3233, 4041, 4142, 4243])
 
 
 if plot_defo_gravity:
@@ -128,9 +129,9 @@ ops.loadConst('-time', 0.0)
 # Define Recorders
 output_directory = 'output_files'
 ops.recorder('Node', '-file', output_directory+'/1_Pushover_top_disp.out',
-             '-node', 20,  '-dof', 1,  'disp')
+             '-node', 40,  '-dof', 1,  'disp')
 ops.recorder('Node', '-file', output_directory+'/1_Pushover_base_reactions.out',
-             '-node', 10,11,  '-dof', 1,  'reaction')
+             '-node', *[10,11,12,13],  '-dof', 1,  'reaction')
 
 
 # Define static load
@@ -142,7 +143,7 @@ ops.timeSeries('Linear', 1)     #create timeSeries with tag 1
 ops.pattern('Plain', 1,        1 )
 
 #load   (nodeTag, *loadValues)    loadValues in x direction, y dir, moment
-ops.load(20     , *[1,0,0]  )  # load in x direction in node 20
+ops.load(40     , *[1,0,0]  )  # load in x direction in node 20
 
 
 
@@ -163,7 +164,7 @@ ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
 
 
 #integrator('DisplacementControl',   nodeTag, dof, incr)
-ops.integrator('DisplacementControl',20,      1 ,  Dincr)
+ops.integrator('DisplacementControl',40,      1 ,  Dincr)
 
 ops.analysis('Static')    #creates a static analysis
 
