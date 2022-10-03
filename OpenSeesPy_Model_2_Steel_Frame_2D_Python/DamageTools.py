@@ -16,6 +16,7 @@ The functions include:
 #%% IMPORTS
 
 import numpy as np
+import matplotlib as plt
 
 
 
@@ -89,4 +90,69 @@ def CorrFuncs(X, m):
     
     
    
-    return sample_entropy
+    
+    
+def Yielding_point(x, y):
+    
+    x = np.insert(x, 0, 0)
+    y = np.insert(y, 0, 0)
+
+    point_x = [x[0],x[1]]
+    point_y = [y[0],y[1]]
+    K_i = abs(y[0]-y[1]) / abs(x[0]-x[1])
+
+    loc_min = np.where((y[1:-1] < y[0:-2]) * (y[1:-1] < y[2:]))[0] + 1
+    loc_min = loc_min[-1]
+
+    linear_y = np.arange(0, y[loc_min], 10)
+    linear_x = linear_y/K_i
+
+    dim = len(linear_y)
+
+    # plt.figure()
+    # plt.plot(x,y)
+    # plt.plot(linear_x, linear_y)
+    # plt.grid()
+    # plt.show()
+
+    for i in range(1, dim):  
+        
+        bilin_x = [0, linear_x[dim-i],x[loc_min]]
+        bilin_y = [0, linear_y[dim-i], y[loc_min]]
+        
+        # plt.figure()
+        # plt.plot(x,y)
+        # plt.plot(bilin_x, bilin_y)
+        # plt.title('Case %.0f: ' %(i))
+        # plt.grid()
+        # plt.show()
+        
+        # bilinear curve area
+        
+        A_tot_bilin = np.trapz(bilin_y, x=bilin_x)
+        A_1 = np.trapz(bilin_y[:2], x=bilin_x[:2])
+        A_2 = A_tot_bilin - A_1
+        
+        # real curve area
+        
+        A_tot_real = np.trapz(y[:loc_min+1], x=x[:loc_min+1])
+       # A_3 = np.trapz(y[:loc_min+1], x=x[:loc_min+1])
+        
+        diff = A_tot_bilin - A_tot_real
+        
+        # print('Case %.0f: %.1f-%.1f = %.1f' %(i,A_tot_bilin, A_tot_real , diff))
+        
+        if abs(diff) < 0.1:
+            print('Yielding point: (%.4f, %.1f)' %(linear_x[dim-i], linear_y[dim-i]))
+            print('Ultimate resistance point: (%.4f, %.1f)' %(x[loc_min], y[loc_min]))
+            break
+        
+    # print('Out of the loop')
+    return linear_x[dim-i], linear_y[dim-i], x[loc_min], y[loc_min] # yielding deformation and moment 
+                                                                        # and ultimate point (def and force)
+    
+
+
+
+
+
