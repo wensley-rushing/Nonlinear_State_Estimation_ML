@@ -5,37 +5,45 @@ Created on Sat Jan 29 18:29:09 2022
 @author: lucag
 """
 
+#%% IMPORTS
 
-
+# Import OpenSees
 import openseespy.opensees as ops
 import opsvis as opsv
 
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import sys
-
-
-#from Model_definition_2D_frame import createModel
-#from Model_definition_3x3_frame import createModel
-#from Model_definition_2x1_frame import createModel
-
+# Import analysis (OpenSees)
 from gravityAnalysis import runGravityAnalysis
 from ReadRecord import ReadRecord
 
+
+# Import plots and math
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+import sys
+import os
+
+# Import time-keeping
 import time
 
-
+# Wipe before anything...
 ops.wipe()
 
+
+#%% #%% Enable/Disable plots
 # turn on/off the plots by setting these to True or False
+
+# General structure
 plot_model = False
 plot_defo_gravity = False
 plot_modeshapes = False
-plot_dynamic_analysis = True
+
+# Dynamic analysis
+plot_dynamic_analysis = False
 
 
+#%% UNITS
 # =============================================================================
 # Units
 # =============================================================================
@@ -54,12 +62,14 @@ GPa = 1e9*Pa
 kg = 1
 g = 9.81
 
-
+#%% INPUTS
 # =============================================================================
 # Input parameters
 # =============================================================================
 delta_y = 0.02
 
+
+# Define structure and nodes/elements
 define_model = '3x3'
 
 if define_model == '1x1':
@@ -93,7 +103,7 @@ elif define_model == '3x3':
     drift_nodes = [13, 23, 33, 43]
     
     #Local DI
-    id_element = [1020, 2030, 2021]
+    id_element = [1020, 2030]
 #------------------------------------------------------------------------------
     
 
@@ -105,16 +115,111 @@ dampRatio = 0.02
 
 
 #%% Initialization 
+
 # Create Dataframe for results
 gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
                              'E - glob', 'Gl Drift', 'Gl Drift - class', 
-                             'Element ID', 'E - elem', 'Plastic def. ele.'])
+                             'Element ID', 'Section ID (E el.)', 'E el.', 'Max. Pla. def. el.', 'Res. Pla. def. el.'])
  
+#%% Time - tik
+global_tic_0 = time.time()
+
+#%% Gravity Analysis
+
+# =============================================================================
+# # call function to create the model
+# =============================================================================
+
+node_vec, el_vec, col_vec = createModel(H1,L1,M)
+
+beam_vec = [i for i in el_vec if i not in col_vec]
+
+
+if plot_model:
+    plt.figure()
+    opsv.plot_model()
+    plt.title('Structural Model')
+    #plt.show()  
+
+
+
+# =============================================================================
+# Run gravity Analysis
+# =============================================================================
+
+runGravityAnalysis(beam_vec)
+
+if plot_defo_gravity: 
+    plt.figure()
+    opsv.plot_defo(sfac = 10000) 
+    plt.title('Deformed shape - Gravity analysis')
+    #plt.show()  
+
+
+# wipe analysis objects and set pseudo time to 0
+ops.wipeAnalysis()
+ops.loadConst('-time', 0.0)
+
+
+
+# =============================================================================
+# Compute structural periods after gravity
+# =============================================================================
+
+omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1, 2, and 3
+omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
+
+periods = 2*np.pi/omega
+
+print(f'Period(s) of structure [s]: {np.around(periods, decimals = 4)}')
+
+
+# =============================================================================
+# Plot modeshapes
+# =============================================================================
+
+if plot_modeshapes:
+    for i in range(int(len(periods))):
+        plt.figure()
+        opsv.plot_mode_shape(i+1, sfac=100)
+        plt.title(f'mode shape {i+1}')
+        #plt.show()
+
+
+# =============================================================================
+# Assign Rayleigh Damping
+# =============================================================================
+
+# ---- Rayleigh damping constants for SDOF system (omega1_ray = omega2_ray):
+
     
+omega1_ray = omega[0]
+omega2_ray = omega[0]
+
+
+alphaM = 2.0*dampRatio*omega1_ray*omega2_ray/(omega1_ray+omega2_ray)
+betaKcurr = 0
+betaKinit = 0
+betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
+
+
+ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
+
+#%% Database
+ops.database('File', 'DataBase\\3x3-Initial')
+# Created the copy
+ops.save(199)
+
+#%% Time - General
+local_last = time.time()
+global_tic_1 = time.time()
+print('General analysis: %.4f [s]' %(global_tic_1 - global_tic_0 ))
+print()
+
+#sys.exit()
 #%% Import data    
 # Import multiple loads
-import os
 
 # Getting the work directory of loads .AT1 or .AT2 files
 folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
@@ -123,13 +228,13 @@ folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
 # r=root, d=directories, f = files
 for rdirs, dirs, files in os.walk(folder_loads):
     for file in files:
-        if file.endswith(".AT1") or file.endswith(".AT2"):
+        if rdirs == folder_loads and ( file.endswith(".AT1") or file.endswith(".AT2") ):
             #print(os.path.join(rdirs, file))
             #print(idx)
             #print(file)
             
             file_name = file[:-4]
-            print(file_name)
+            #print('Loading: ' + file_name)
             
             file_dat = file_name + '.dat'
             # print(file_dat)
@@ -157,110 +262,14 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
             
             loadfactor_idx = 0
-            for loadfactor in [1,2,3]:
+            for loadfactor in [1]:
                 loadfactor_idx = loadfactor_idx + 1
-                print()
-                print('Loadfactor: %.2f' %(loadfactor))
                 
-                if loadfactor_idx > 1:
-                    plot_model = False  
-            
-            
-            
-            
-            
-                # =============================================================================
-                # # call function to create the model
-                # =============================================================================
+                print('Load: ' + file_name + ' -- Loadfactor: %.2f' %(loadfactor))
+                            
+                ops.restore(199)
                 
-                node_vec, el_vec, col_vec = createModel(H1,L1,M)
-                
-                beam_vec = [i for i in el_vec if i not in col_vec]
-                
-
-                if plot_model:
-                    plt.figure()
-                    opsv.plot_model()
-                    plt.title('model')
-                    #plt.show()  
-                
-                
-                
-                # =============================================================================
-                # Run gravity Analysis
-                # =============================================================================
-                
-                runGravityAnalysis(beam_vec)
-                
-                if plot_defo_gravity: 
-                    plt.figure()
-                    opsv.plot_defo(sfac = 10000) 
-                    plt.title('deformed shape - gravity analysis')
-                    #plt.show()  
-                
-                
-                # wipe analysis objects and set pseudo time to 0
-                ops.wipeAnalysis()
-                ops.loadConst('-time', 0.0)
-                
-                
-                
-                # =============================================================================
-                # Compute structural periods after gravity
-                # =============================================================================
-                
-                omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1 and 2
-                omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
-                
-                periods = 2*np.pi/omega
-                
-                print(f'First period T1 = {round(periods[0],3)} seconds')
-                print(f'Second period T2 = {round(periods[1],3)} seconds')
-                print(f'Third period T3 = {round(periods[2],3)} seconds')
-                
-                
-                
-                # =============================================================================
-                # Plot modeshapes
-                # =============================================================================
-                
-                if plot_modeshapes:
-                    plt.figure()
-                    opsv.plot_mode_shape(1, sfac=100)
-                    plt.title('mode shape 1')
-                    #plt.show()
-                
-                    plt.figure()
-                    opsv.plot_mode_shape(2, sfac=100)
-                    plt.title('mode shape 2')
-                    #plt.show()
-                    
-                    plt.figure()
-                    opsv.plot_mode_shape(3, sfac=100)
-                    plt.title('mode shape 3')
-                
-                
-                
-                
-                # =============================================================================
-                # Assign Rayleigh Damping
-                # =============================================================================
-                
-                # ---- Rayleigh damping constants for SDOF system (omega1_ray = omega2_ray):
-                
-                    
-                omega1_ray = omega[0]
-                omega2_ray = omega[0]
-                
-                
-                alphaM = 2.0*dampRatio*omega1_ray*omega2_ray/(omega1_ray+omega2_ray)
-                betaKcurr = 0
-                betaKinit = 0
-                betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
-                
-                
-                ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
-            
+                #%% DYNAMIC ANALYSIS
                 # =============================================================================
                 # Dynamic analysis
                 # =============================================================================
@@ -272,13 +281,6 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
                 # Define Recorders
                 output_directory = 'output_files'
-                
-                # ops.recorder('Node', '-file', output_directory+'/2_groundmotion_top_disp.out',
-                #              '-time', '-node', max(ACC_Nodes),  '-dof', 1,  'disp')
-                # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_def.out',
-                #              '-ele', 1020,  'section', 1,  'deformation')
-                # ops.recorder('Element', '-file', output_directory+'/2_groundmotion_section_force.out',
-                #              '-ele', 1020,  'section', 1,  'force')
                 
                 
                 # Base reaction recorder
@@ -293,25 +295,29 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 # Plastic deformations (element)
                 ops.recorder('Element', '-file', output_directory+'/2_Plastic_Def.out',
-                              '-time', '-ele', *id_element, 'plasticDeformation ')
+                              '-time', '-ele', *id_element, 'plasticDeformation ') # [Axial, RotationalI, RotationalJ]
                 
                 # Section deformation () (local)
                 ops.recorder('Element', '-file', output_directory+'/2_Section_Force.out',
-                             '-ele', *id_element,  'section', 1,  'force')
+                             '-ele', *id_element,  'section',   'force')      # [Fx, Mx]
                 
                 ops.recorder('Element', '-file', output_directory+'/2_Section_Def.out',
-                             '-ele', *id_element,  'section', 1,  'deformation')
+                             '-ele', *id_element,  'section',   'deformation') # [axial-strain, curvature]
                 
                 
                 
                 # Recorder files for all nodes
-                #for nodes in ACC_Nodes:
-                #    ops.recorder('Node', '-file', output_directory+'/2_Acc_x_' + str(nodes) +'.out',
-                #                 '-time', '-node', nodes,  '-dof', 1,  'accel')
+                if len(str(gm_idx)) == 1:
+                    mod_gm_idx = f'00{gm_idx}'
+                elif len(str(gm_idx)) == 2:
+                    mod_gm_idx = f'0{gm_idx}'
+                        
+                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',
+                            '-time', '-node', *node_vec,  '-dof', 1,  'accel')
                 
                 
                 
-                #%% 
+                
                 # Define dynamic load (ground motion) in the horizontal direction
                 # ------------------
                 #time series with tag 1
@@ -343,21 +349,19 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 current_time = 0      	# start the time of the analysis
                 ok = 0				    # as long as ok remains 0.0 it means that the analysis converges
                 maxT =  (1+nPts)*dt;    # final time of the analysis
-                
+                #ops.setTime(0)
                 
                 while ok == 0 and current_time<maxT:
                     ok = ops.analyze(1,dt)
                     current_time = ops.getTime()
+                    #print(current_time)
                 
                 
-                
-                if ok == 0: print("-----------------Dynamic analysis successfully completed--------------------")
-                else: print(f"-----------------Analysis FAILED at time {current_time}--------------------"); ok = 1
+                if ok == 0: print("Dynamic analysis: SUCCESSFULL")
+                else: print(f"!! -- Analysis FAILED @ time {current_time} -- !!"); ok = -1
                 
 
-                
-                #%%
-                
+            
                 # =============================================================================
                 # plot analysis results
                 # =============================================================================
@@ -365,7 +369,13 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 # ops.remove('recorders') # to close recorders
                 # ops.remove('timeSeries',1) # to close timeSeries
                 # ops.remove('loadPattern',1) # to close timeSeries
-                ops.wipe()
+                
+                #ops.wipe() # Instead of ops.wipe() use:
+                ops.wipeAnalysis()
+                ops.remove('recorders')
+                
+                ops.remove('loadPattern', 1)
+                ops.remove('timeSeries', 1)
                 
                 # Retrive data
                 base_shear = np.loadtxt(output_directory+'/2_Reaction_Base.out')
@@ -399,23 +409,24 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     plt.grid()
                     #plt.show()
                     
-                    
-                #%% Energy (Global)
+                #%% Global Damage Index 
+                print('-- Global Damage Index:')
+                #%% --Energy (Global)
                 
                 # Damage index information of interest
-                DI_x = time_drift_disp[:,len(drift_nodes)] #Deformation (curvature) 
+                DI_x = time_drift_disp[:,-1] #Deformation at roof top (curvature) 
                 DI_y = total_base_shear/1000 #Force (Moment)
                 
                 
                 Energy_G = np.trapz(DI_y, x=DI_x)
-                print('Energy - Global: %.4f' %(Energy_G))
+                print('---- Energy - Global: %.4f' %(Energy_G))
                 
-                corr = np.corrcoef(DI_x, DI_y)
-                Corr = corr[0][1]
-                print('Correlation: %.4f' %(Corr))
+                #corr = np.corrcoef(DI_x, DI_y)
+                #Corr = corr[0][1]
+                #print('Correlation: %.4f' %(Corr))
                     
                     
-                # Interstorey drift (Global)
+                #%% --Interstorey drift (Global)
         
                 n_floors = len(time_drift_disp[0]) - 2 # do not count the columns for time and base node 
                 
@@ -423,9 +434,9 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 inter_drift = []
                 inter_time_drift = []
                 for i in range (0, n_floors):
-                    drift.append(abs(time_drift_disp[-1, i+2]) / H1) # residual drift
-                    inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # residual drift
-                    inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # residual drift
+                    drift.append(abs(time_drift_disp[-1, i+2]) / (3*H1)) # Residual drift
+                    inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # Residual Inter drift
+                    inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # Max Inter drift
                     
                 max_drift = max(drift)*100 # residual drift in percentage
                 max_inter_drift = max(inter_drift)*100
@@ -454,83 +465,234 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 elif max_inter_time_drift > 2.5:
                     drift_time_cl = 'Collapse'
                 
-                print('Max drift: ' + str(round(max_drift,4)))
-                print('Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
-                print('Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
+                print('---- Max drift: ' + str(round(max_drift,4)))
+                print('---- Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
+                print('---- Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
                     
-                    
-                    
-                #%% Local ---------------
                 
-                # Moment curvature curce
+                #%% --Park-Ang (Global)
+                # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du)
+                # Based on Article: 1.Park-Ang Damage Index-Based Framework ...
                 
-                element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out')
-                element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out')
+                PA_beta = 0.15
+                
+                PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
+                PA_E = Energy_G
+                
+                PA_Dy = 0.5*PA_Dm # Yiels deformation (Estimated)
+                PA_Du = 1.5*PA_Dm # Ultimate deformation (Estimated)
+                PA_Fy = 10000 # Yield strengh (Estimated)
+                
+                PA_G = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*PA_E/(PA_Fy*PA_Du)
+                
+                
+                
+                # Table 1
+                if PA_G < 0.11:
+                    PA_G_cl = 'Minor'
+                elif PA_G < 0.4:
+                    PA_G_cl = 'Moderate'
+                elif PA_G < 0.77:
+                    PA_G_cl = 'Severe'
+                elif PA_G >= 0.77:
+                    PA_G_cl = 'Collapse'
+               
+                
+                
+                print('---- Park-Ang Global: %.4f -- Damage Level: ' %(PA_G) + PA_G_cl)
+                
+                
+                    
+                #%% Local - Damage Index
+                print('-- Local Damage Index:')
+                #%% --Energy + Moment-Curvature Plot (Local)
+                
+                # Moment / Curvature (NO TIME)
+                element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out') # [Fx, Mx]
+                element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out') # [Axial Strain, curvature]
                 
                 Energy_L = []
-                for el_id in range(len(id_element)):
-                    
-                    plt.figure()
-                    plt.plot(element_section_defs[:,(el_id*2)+1],element_section_forces[:,(el_id*2)+1]/1000)
-                    plt.title('Dynamic analysis - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
-                    plt.xlabel('Curvature (-)')
-                    plt.ylabel('Moment (kNm)')
-                    plt.grid()
-                    
-                    
-                    # Damage index information of interest
-                    DI_x = element_section_defs[:,(el_id*2)+1] #Deformation (curvature) 
-                    DI_y = element_section_forces[:,(el_id*2)+1]/1000 #Force (Moment)
-                    
-                    
-                    Energy_l = np.trapz(DI_y, x=DI_x)
-                    print('Energy - Element %.0f: %.4f' %(id_element[el_id],Energy_l))
-                    Energy_L.append(Energy_l)
-                    
-                    corr = np.corrcoef(DI_x, DI_y)
-                    Corr = corr[0][1]
-                    print('Correlation - Element %.0f: %.4f' %(id_element[el_id],Corr))
-                    
-                    
-                    #max_plasic_deforms = plastic_deform[-1:].tolist()
-                    #max_plasic_deform = max(max_plasic_deforms[0][1:], key=abs)
-                    #print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plasic_deform))
-    
-                # Energy (Local)
-            
+                Energy_L_sec = []
                 
-                # Plastic deformation 
+                
+                # Park-Ang
+                # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du) , Dy = 0
+                # Based on Article: 2. Performance-based earthquake engineering design of ...
+                PA_beta = 0.15
+                
+                #PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
+                #PA_E = Energy_G
+                
+                PA_Dy = 0 # Yiels deformation (Estimated)
+                PA_Du = 100 # Ultimate deformation (Estimated)
+                PA_Fy = 1000 # Yield strengh (Estimated)
+                
+                PA_L = []
+                PA_L_sec = []
+               
+                
+               
+                # Assume same number of integration points for ALL elements
+                # Number if elements
+                num_el = len(id_element)
+                # Number of sections in total
+                num_sec = int(element_section_forces.shape[1])
+                # Number of integration points with 2 walues as output [Fx, Mx]
+                num_int = int( num_sec/(num_el*2) )
+                
+                
+                for el_id in range(int(num_el)):
+                    
+                    Energy_l_sec = []
+                    PA_l_sec = []
+                    for sec_id in range(int(num_int)):
+
+                        # Damage index information of interest
+                        DI_x = element_section_defs[:,(sec_id*2)+1 + (2*num_int)*el_id] #Deformation (curvature) 
+                        DI_y = element_section_forces[:,(sec_id*2)+1 + (2*num_int)*el_id]/1000 #Force (Moment)
+                        
+                        
+                        Energy_l = np.trapz(DI_y, x=DI_x)
+                        #print('Energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], sec_id+1, Energy_l))
+                        Energy_l_sec.append(Energy_l)
+                        
+                        
+                        #'''
+                        #Park-Ang
+                        #'''
+                        PA_Dm = abs(max(DI_x, key=abs))
+                        PA_l = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l/(PA_Fy*PA_Du)
+                        PA_l_sec.append(PA_l)
+                        
+                        
+                        
+                        
+                    Energy_L.append( max(Energy_l_sec) )
+                    Energy_L_sec.append( Energy_l_sec.index( max(Energy_l_sec) ) + 1 )
+                    
+                    print('---- Max energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], Energy_L_sec[el_id], Energy_L[el_id]))
+                    
+                    if plot_dynamic_analysis:
+                        plt.figure()
+                        plt.plot(DI_x,DI_y)
+                        plt.title('Dynamic analysis: Max E - Element ' + str(id_element[el_id]) + ' Section ' + str(Energy_L_sec[el_id]) + 
+                                  ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
+                        plt.xlabel('Curvature (-)')
+                        plt.ylabel('Moment (kNm)')
+                        plt.grid()  
+                        
+                        
+                        
+                    PA_L.append( max(PA_l_sec) )
+                    PA_L_sec.append( PA_l_sec.index( max(PA_l_sec) ) + 1 )
+                    
+                    # Table 1
+                    if PA_L[el_id] < 0.1:
+                        PA_L_cl = 'No Damage' 
+                    elif PA_L[el_id] < 0.2:
+                        PA_L_cl = 'Minor'
+                    elif PA_L[el_id] < 0.5:
+                        PA_L_cl = 'Moderate'
+                    elif PA_L[el_id] < 1:
+                        PA_L_cl = 'Severe'
+                    elif PA_L[el_id] >= 1:
+                        PA_L_cl = 'Collapse'
+                    
+                    
+                    
+                    
+                    print('---- Max PA_L - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], PA_L_sec[el_id], PA_L[el_id]) + ' Damage: ' + PA_L_cl)
+                    
+    
+                #%% --Plastic Deformation (Local)
+            
+                # Plastic deformation (+ Time)
                 plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
+                
+               
+                # Assume same number of integration points for ALL elements
+                
+                # Number if elements
+                num_el = len(id_element)
+                # Number of values in total, excludeing time
+                num_val = 3
+                
+                # Initialize
+                Res_plastic_deform = []
                 Max_plastic_deform = []
-                for el_id in range(len(id_element)):
-                    plt.figure()
-                    for i in range((el_id*3)+1,(el_id*3)+4):
-                        plt.plot(plastic_deform[:,0],plastic_deform[:,i], label=str(i))
-                    plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
-                    plt.xlabel('Time (s)')
-                    plt.ylabel('Plastic deformation (-)')
-                    plt.legend()
-                    plt.grid()
+                
+                
+                for el_id in range(num_el):
+                    
+                    if plot_dynamic_analysis:
+                        plt.figure()
+                        plt.plot(plastic_deform[:,0],plastic_deform[:,(el_id*3)+1], label= 'Axial Deformation')
+                        plt.plot(plastic_deform[:,0],plastic_deform[:,(el_id*3)+2], label= 'Rotation Node: ' + str(id_element[el_id])[:2])
+                        plt.plot(plastic_deform[:,0],plastic_deform[:,(el_id*3)+3], label= 'Rotation Node: ' + str(id_element[el_id])[2:])
+                            
+                        plt.title('Plastic Deformation - Element ' + str(id_element[el_id]) + ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
+                        plt.xlabel('Time (s)')
+                        plt.ylabel('Plastic deformation (-)')
+                        plt.legend()
+                        plt.grid()
                     
                     
-                    max_plastic_deforms = plastic_deform[-1:].tolist()
-                    max_plastic_deform = max(max_plastic_deforms[0][1:], key=abs)
-                    print('Max plastic defomation, el_%.0f: %0.4f' %(id_element[el_id], max_plastic_deform))
+                    # Permanent plastic deformation (At time = end) - Residual
+                    res_plastic_deforms = plastic_deform[-1,(el_id*3)+1:(el_id*3)+4].tolist()
+                    res_plastic_deform = max(res_plastic_deforms, key=abs)
+                    print('---- Residual plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], res_plastic_deform))
+                    Res_plastic_deform.append(res_plastic_deform)
+                    
+                    
+                    # Maximal plastic deformation (At time = t)
+                    max_plastic_deforms = [max(plastic_deform[:,(el_id*3)+1]), min(plastic_deform[:,(el_id*3)+1]),
+                                           max(plastic_deform[:,(el_id*3)+2]), min(plastic_deform[:,(el_id*3)+2]),
+                                           max(plastic_deform[:,(el_id*3)+3]), min(plastic_deform[:,(el_id*3)+3])]
+                    max_plastic_deform = max(max_plastic_deforms, key=abs)
+                    print('---- Max plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], max_plastic_deform))
                     Max_plastic_deform.append(max_plastic_deform)
+                    
+                    
+                
+                    
             
             #%% Record data in the dataframe
             
                 
                 df.loc[gm_idx] = [ok, file_name, loadfactor, 
                                   Energy_G, max_inter_drift, drift_cl,
-                                  id_element, Energy_L, Max_plastic_deform]
+                                  id_element, Energy_L_sec, Energy_L, Max_plastic_deform, Res_plastic_deform]
                 gm_idx += 1
                 
+                #%% Time - Dynmic loops
+                
+                local_toc = time.time()
+                   
+                print('Lap time: %.4f [s]' %(local_toc - local_last ))              
+                print('Total duration: %.4f [s]' %(local_toc - global_tic_0 ))
+                print()
+                
+                local_last = time.time()
+#%% Time  Estimations
+global_toc = time.time()
 
-# export dataframe
+print('Total for %.0f analyses: %.4f [s]' %(df.shape[0], global_toc - global_tic_0 ))
+total_analyses = 300
+print('Estimat for %.0f analyses: %.4f [s]' %(total_analyses, (global_toc - global_tic_0)/df.shape[0]*total_analyses ))
+print('-- Minutes: %.4f [min]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60 ))
+print('-- Hours: %.4f [hrs]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60760 ))
 
-df.to_csv(r'el_centro_dataframe.csv')  # export dataframe to cvs
+#%% Export dataframe
 
+df.to_csv(output_directory + r'/00_Index_Results.csv')  # export dataframe to cvs
+df.to_pickle(output_directory + "/00_Index_Results.pkl") 
+#unpickled_df = pd.read_pickle("./dummy.pkl")  
+
+Structure = pd.DataFrame(columns = ['Nodes'])
+Structure['Nodes'] = node_vec
+Structure.to_pickle(output_directory + "/00_Structure.pkl") 
+
+ 
 sys.exit()
 #%% ??
     # delta_max = abs(max(time_topDisp[:,1]))

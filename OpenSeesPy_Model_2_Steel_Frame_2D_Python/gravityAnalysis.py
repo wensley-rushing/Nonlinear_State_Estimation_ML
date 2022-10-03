@@ -27,8 +27,8 @@ def runGravityAnalysis(beam_vec):
     ops.pattern('Plain', 100,        100 )
     
     #eleLoad('-ele', *eleTags, '-type', '-beamUniform', Wy)
-    ops.eleLoad('-ele', *roof_beam, '-type', '-beamUniform', -2000*N/m)      # 140 N/m of uniformly distributed load on the beam
-    ops.eleLoad('-ele', *floor_beam, '-type', '-beamUniform', -3000*N/m)      # 140 N/m of uniformly distributed load on the beam
+    ops.eleLoad('-ele', *roof_beam, '-type', '-beamUniform', -200*N/m)      # 140 N/m of uniformly distributed load on the beam
+    ops.eleLoad('-ele', *floor_beam, '-type', '-beamUniform', -300*N/m)      # 140 N/m of uniformly distributed load on the beam
     
 
     # ---- Create Analysis
@@ -49,7 +49,8 @@ def runGravityAnalysis(beam_vec):
     ok = ops.analyze(n_steps_gravity)
     
 
-    if ok == 0: print("-----------------gravity analysis successfully run--------------------")
+    if ok == 0: print("Gravity analysis: SUCCESSFULL")
+    else: print("!! -- Gravity analysis: FAILED -- !!")
     
     
     return
