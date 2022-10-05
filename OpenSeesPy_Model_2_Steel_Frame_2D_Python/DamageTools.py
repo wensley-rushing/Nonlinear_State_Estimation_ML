@@ -5,12 +5,10 @@ Created on Wed Oct  5 13:36:33 2022
 @author: gabri
 """
 
-@ -82,32 +82,41 @@
-        
-Outputs:
-    R
 
-    
+import numpy as np
+
+   
 def Yielding_point(x, y):
     
     x = np.insert(x, 0, 0)
@@ -30,8 +28,10 @@ def Yielding_point(x, y):
     # plt.show()
 
 
-
-    loc_min = loc_min[0] # select the last min
+    if len(loc_min)==0:
+        loc_min = len(y)-1 # select the last min
+    else:
+        loc_min = loc_min[0]
 
     linear_y = np.arange(0, y[loc_min], 1)
     linear_x = linear_y/K_i
@@ -60,12 +60,14 @@ def Yielding_point(x, y):
         # plt.show()
         
         
+        A_tot_bilin = np.trapz(bilin_y[:loc_min+1], x=bilin_x[:loc_min+1])
+        
         # bilinear curve area
         
         A_tot_real = np.trapz(y[:loc_min+1], x=x[:loc_min+1])
        # A_3 = np.trapz(y[:loc_min+1], x=x[:loc_min+1])
         
-        diff = A_tot_bilin - A_tot_real
+        # diff = A_tot_bilin - A_tot_real
         
         # print('Case %.0f: %.1f-%.1f = %.1f' %(i,A_tot_bilin, A_tot_real , diff))
         diff.append(abs(A_tot_bilin - A_tot_real))

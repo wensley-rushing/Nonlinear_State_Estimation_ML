@@ -11,12 +11,12 @@ import opsvis as opsv
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 
-
-#from Model_definition_2D_frame import createModel
-from Model_definition_3x3_frame import createModel
+from Model_definition_beam_test_vertical import createModel
 from gravityAnalysis import runGravityAnalysis
+from DamageTools import Yielding_point
 
 
 
@@ -50,13 +50,13 @@ kg = 1
 # Input parameters
 # =============================================================================
 
-st = 2
+
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
-M = 1000 *kg 	  #kg		lumped mass at top corner nodes 
+M = 6000 *kg 	  #kg		lumped mass at top corner nodes 
 
-
+section_n = 5   # number of sections in 1 element
 
 
 
@@ -64,8 +64,7 @@ M = 1000 *kg 	  #kg		lumped mass at top corner nodes
 # # call function to create the model
 # =============================================================================
 
-createModel(H1,L1,M)
-
+createModel(H1, M)
 
 
 if plot_model:
@@ -75,38 +74,34 @@ if plot_model:
     plt.show()  
 
 
-
-# =============================================================================
-# Run gravity Analysis
-# =============================================================================
-runGravityAnalysis([2021, 2122, 2223, 3031, 3132, 3233, 4041, 4142, 4243])
-
-
-if plot_defo_gravity:
-    plt.figure()
-    opsv.plot_defo(sfac = 10000) 
-    plt.title('deformed shape - gravity analysis')
-    plt.show()  
-
-
-# wipe analysis objects and set pseudo time to 0
-ops.wipeAnalysis()
-ops.loadConst()
-ops.loadConst('-time', 0.0)
- 
-    
+   
 
 # =============================================================================
 # Pushover analysis
 # =============================================================================
 
 # Define Recorders
-output_directory = 'output_files'
-ops.recorder('Node', '-file', output_directory+'/001_Pushover_top_disp.out',
-             '-node', 40,  '-dof', 1,  'disp')
-ops.recorder('Node', '-file', output_directory+'/001_Pushover_base_reactions.out',
-             '-node', *[10,11,12, 13],  '-dof', 1,  'reaction')
 
+
+# Global P - top displ curve
+
+output_directory = 'output_files'
+ops.recorder('Node', '-file', output_directory+'/001_pushover_beam_glob_disp.out',
+             '-node', 20,  '-dof', 1,  'disp')
+ops.recorder('Node', '-file', output_directory+'/001_pushover_beam_glob_force.out',
+             '-node', 10,  '-dof', 1,  'reaction')
+
+
+# Local M-curvature curves
+
+output_directory = 'output_files'
+
+# Beam section
+
+ops.recorder('Element', '-file', output_directory+'/001_pushover_beam_force.out',
+             '-ele', 1020,  'section',  'force')
+ops.recorder('Element', '-file', output_directory+'/001_pushover_beam_deform.out',
+             '-ele', 1020,  'section',  'deformation')
 
 # Define static load
 # ------------------
@@ -117,14 +112,14 @@ ops.timeSeries('Linear', 1)     #create timeSeries with tag 1
 ops.pattern('Plain', 1,        1 )
 
 #load   (nodeTag, *loadValues)    loadValues in x direction, y dir, moment
-ops.load(40     , *[1,0,0]  )  # load in x direction in node 20
+ops.load(20     , *[1,0,0]  )  # load in x direction in node 20
 
 
 
 
 #Define max displacement and displacement increment
 
-Dmax  = 0.6*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
+Dmax  = 0.4*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
 Dincr = 0.004*m; 	# 4mm     increment of pushover
 
 
@@ -138,7 +133,7 @@ ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
 
 
 #integrator('DisplacementControl',   nodeTag, dof, incr)
-ops.integrator('DisplacementControl',40,      1 ,  Dincr)
+ops.integrator('DisplacementControl',20,      1 ,  Dincr)
 
 ops.analysis('Static')    #creates a static analysis
 
@@ -160,43 +155,24 @@ opsv.plot_defo(sfac = 1)
 plt.title('deformed shape - Pushover analysis')
 plt.show()  
 
-
-
-
-
 #%%
 
 # =============================================================================
-# plot pushover results
+# capacities calculation
 # =============================================================================
-
-
-
 
 ops.wipe() # to close recorders
 
-Pushover_topDisp = np.loadtxt(output_directory+'/001_Pushover_top_disp.out')
-Pushover_reactions = np.loadtxt(output_directory+'/001_Pushover_base_reactions.out')
+# Global 
 
-total_base_reaction = -np.sum(Pushover_reactions,axis=1)/1000
-
-x = [Pushover_topDisp[0],Pushover_topDisp[1]]
-y = [total_base_reaction[0],total_base_reaction[1]]
-slope = abs(y[0]-y[1]) / abs(x[0]-x[1])
-
-F_max  = abs(max(total_base_reaction))
-F_max_index = np.where(total_base_reaction == F_max)[0][0]
-
-delta_y = 0.8*F_max/slope
-delta_u = Pushover_topDisp[F_max_index]
-
+Pushover_topDisp = np.loadtxt(output_directory+'/001_pushover_beam_glob_disp.out')
+total_base_reaction = np.loadtxt(output_directory+'/001_pushover_beam_glob_force.out')
+total_base_reaction = -(total_base_reaction)/1000
 
 if plot_defo_Pushover:
     plt.figure()
     plt.plot(np.insert(Pushover_topDisp, 0, 0),np.insert(total_base_reaction, 0, 0))   #inserts 0 at the beginning
-    plt.plot(delta_y, 0.8*F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
-    plt.plot(delta_u, F_max, marker="o", markersize=5, markeredgecolor="red", markerfacecolor="green")
-    plt.title('Pushover curve')
+    plt.title('Pushover test: beam \n Global result')
     plt.xlabel('displacement top (m)')
     plt.ylabel('total base shear (kN)')
     plt.grid()
@@ -204,15 +180,46 @@ if plot_defo_Pushover:
 
 
 
+#%% Local 
+
+beam_moment = np.loadtxt(output_directory+'/001_pushover_beam_force.out')
+beam_moment = abs(beam_moment[:, 1::2])/1000 # select even columns - corresponding to moments
+
+beam_curv = np.loadtxt(output_directory+'/001_pushover_beam_deform.out')
+beam_curv = abs(beam_curv[:, 1::2]) # select even columns - corresponding to curvatures
+
+max_M = max(beam_moment.max(axis=0))
+
+for i in range(0, section_n):
+    
+    if max(beam_moment[:,i]) == max_M:                    # select critical cross section
+        print('Section [' + str(i+1) + '] is critical')
+        crit_sec = i
+        
+        
+    plt.figure()
+    plt.plot(beam_curv[:,i] ,beam_moment[:,i])
+    plt.xlabel('Curvature [-]')
+    plt.ylabel('Moment [kNm]')
+    plt.title('Beam moment - curvature plot \n in Section [' + str(i+1) + ']')
+    plt.grid()
+    plt.show()
 
 
 
+#%%
 
+curv_y, M_y, curv_u, M_u = Yielding_point(beam_curv[:,crit_sec], beam_moment[:,crit_sec])
 
+print('Beam: ult(%.4f  %.4f)  yiled(%.4f  %.4f)' %(curv_u, M_u, curv_y, M_y))  
 
-
-
-
-
-
-
+plt.figure()
+plt.plot(np.insert(beam_curv[:,crit_sec], 0, 0),np.insert(beam_moment[:,crit_sec], 0, 0))   #inserts 0 at the beginning
+plt.plot(curv_y,M_y, marker="x", markersize=7, markeredgecolor="red")
+plt.plot(curv_u, M_u, marker="x", markersize=7, markeredgecolor="green")
+plt.plot([0,curv_y, curv_u], [0,M_y,M_u], c='red')
+plt.title('Pushover test: beam')
+plt.xlabel('Curvature [-]')
+plt.ylabel('Moment [kNm]')
+plt.grid()
+plt.show()
