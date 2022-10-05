@@ -103,7 +103,7 @@ elif define_model == '3x3':
     drift_nodes = [13, 23, 33, 43]
     
     #Local DI
-    id_element = [1020, 2030]
+    id_element = [1121, 2122, 2131, 3132, 3141, 4142]
 #------------------------------------------------------------------------------
     
 
@@ -477,11 +477,11 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 PA_beta = 0.15
                 
                 PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
-                PA_E = Energy_G
+                PA_E = Energy_G*1000
                 
-                PA_Dy = 0.5*PA_Dm # Yiels deformation (Estimated)
-                PA_Du = 1.5*PA_Dm # Ultimate deformation (Estimated)
-                PA_Fy = 10000 # Yield strengh (Estimated)
+                PA_Dy = 0.0026 # Yiels deformation (Estimated)
+                PA_Du = 0.052 # Ultimate deformation (Estimated)
+                PA_Fy = 175000 # Yield strengh (Estimated)
                 
                 PA_G = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*PA_E/(PA_Fy*PA_Du)
                 
@@ -511,22 +511,12 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 element_section_forces = np.loadtxt(output_directory+'/2_Section_Force.out') # [Fx, Mx]
                 element_section_defs = np.loadtxt(output_directory+'/2_Section_Def.out') # [Axial Strain, curvature]
                 
+                
+                # Energy
                 Energy_L = []
                 Energy_L_sec = []
-                
-                
-                # Park-Ang
-                # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du) , Dy = 0
-                # Based on Article: 2. Performance-based earthquake engineering design of ...
-                PA_beta = 0.05
-                
-                #PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
-                #PA_E = Energy_G
-                
-                PA_Dy = 0 # Yiels deformation (Estimated)
-                PA_Du = 100 # Ultimate deformation (Estimated)
-                PA_Fy = 1000 # Yield strengh (Estimated)
-                
+
+                # Park and Ang
                 PA_L = []
                 PA_L_sec = []
                 PA_L_Cl = []
@@ -542,6 +532,23 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 
                 for el_id in range(int(num_el)):
+                    
+                    # Park and Ang
+                    # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du) , Dy = 0
+                    # Based on Article: 2. Performance-based earthquake engineering design of ...
+                    
+                    if id_element[el_id] in col_vec: # If columns elemnt
+                        PA_beta = 0.05  # Calibration parameter
+                        PA_Dy = 0 # Yiels deformation (Estimated)
+                        PA_Du = 0.016 # Ultimate deformation (Estimated)
+                        PA_Fy = 90000 # Yield strengh (Estimated)
+                    elif id_element[el_id] in beam_vec: # If beam element
+                        PA_beta = 0.05 # Calibration parameter
+                        PA_Dy = 0 # Yiels deformation (Estimated)
+                        PA_Du = 0.0215 # Ultimate deformation (Estimated)
+                        PA_Fy = 181000 # Yield strengh (Estimated)
+                        
+                        
                     
                     Energy_l_sec = []
                     PA_l_sec = []
@@ -561,7 +568,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                         #Park-Ang
                         #'''
                         PA_Dm = abs(max(DI_x, key=abs))
-                        PA_l = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l/(PA_Fy*PA_Du)
+                        PA_l = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l*1000/(PA_Fy*PA_Du)
                         PA_l_sec.append(PA_l)
                         
                         
@@ -714,6 +721,24 @@ for measure in damage_measures:
         
         #print(measure + ' ' + label + ': ' + str(value))
 
+# Control
+global_control = list(df_global.sum(axis = 1))
+global_control.count(global_control[0]) == len(global_control)
+
+# Plot
+for i in range(df_global.shape[0]):
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    plt_x = damage_labels
+    plt_y = list(df_global.iloc[i])
+    ax.bar(plt_x, plt_y)
+    
+    for j, v in enumerate(plt_y):
+        ax.text(j  , v, str(v), color='k', ha='center', fontweight='bold')
+    
+    plt.title('Global Damge Class \n' + df_global.index[i])
+    ax.yaxis.grid()
+    plt.show()
 
 #%% Local
 
@@ -742,18 +767,37 @@ for measure in damage_measures:
                 
                 #df_local[label][measure] = value
                 
-                
+# Control
+local_control = list(df_local_PA.sum(axis = 1))
+local_control.count(local_control[0]) == len(local_control)      
+
+
+
+# Plot
+
+fig = plt.figure()
+ax = fig.add_axes([0,0,1,1])
+plt_x = damage_labels
+plt_y = list(df_local_PA.sum(axis=0))
+ax.bar(plt_x, plt_y)
+
+for j, v in enumerate(plt_y):
+    ax.text(j  , v, str(v), color='k', ha='center', fontweight='bold')
+
+plt.title('Local Damge Class \n All elements')
+ax.yaxis.grid()
+plt.show()      
                 
 #%% Story wise
 damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
 
 damage_sorts = ['1B', '2B', '3B', '1C', '2C', '3C']
-sort_crit = [[2021, 2122, 2223], 
-             [3031, 3132, 3233],
-             [4041, 4142, 4243],
-             [1020, 1121, 1222, 1323],
-             [2030, 2131, 2232, 2333],
-             [3040, 3141, 3242, 3343]]
+sort_crit = [[2021, 2122, 2223],        # Beams 1st floor (1B)
+             [3031, 3132, 3233],        # Beams 2nd floor (2B)
+             [4041, 4142, 4243],        # Beams 3rd floor (3B)
+             [1020, 1121, 1222, 1323],  # Columns 1st floor (1C)
+             [2030, 2131, 2232, 2333],  # Columns 2nd floor (2C)
+             [3040, 3141, 3242, 3343]]  # Columns 3rd floor (3C)
 
 df_local_sort = pd.DataFrame(index = damage_sorts, columns = damage_labels)
 df_local_sort.fillna(0, inplace=True) # Replace nan with 0
@@ -773,7 +817,20 @@ for element in list(df_local_PA.index):
                 df_local_sort[label][ damage_sorts[crit] ] = value0 + value1 
             
     
+# Plot
+for i in range(df_local_sort.shape[0]):
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    plt_x = damage_labels
+    plt_y = list(df_local_sort.iloc[i])
+    ax.bar(plt_x, plt_y)
     
+    for j, v in enumerate(plt_y):
+        ax.text(j  , v, str(v), color='k', ha='center', fontweight='bold')
+    
+    plt.title('Local Damge Class \n Position:' + df_local_sort.index[i])
+    ax.yaxis.grid()
+    plt.show()
                 
 
 sys.exit()
