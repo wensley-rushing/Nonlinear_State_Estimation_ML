@@ -13,7 +13,7 @@ from define_RCSections import define_RCSections
 
 
 
-def createModel(L1, M):
+def createModel(H1, L1, M):
 
 
 #sketch of the structure  with node and element numbering
@@ -29,8 +29,8 @@ def createModel(L1, M):
 
 # 10				      11	
 #
-    nodes = [10, 11, 12]
-    elements = [1012]
+    nodes = [10, 11]
+    elements = [1011]
     
     
     ops.wipe()                                   # deletes everything that was defined before
@@ -48,8 +48,8 @@ def createModel(L1, M):
     #ops.node(10, 0.0(x), 0.0(y))   
     
     ops.node(10,    0,  0)
-    ops.node(11,    L1/2, 0)
-    ops.node(12,    L1, 0)
+    ops.node(11,    L1, 0)
+    
     
     
     
@@ -61,7 +61,7 @@ def createModel(L1, M):
     #fix 	nodeTag	    Dx	    Dy	     Rz
     
     ops.fix(10,      	1,	    1,	     1)       #fixed supports
-    ops.fix(12,      	1,	    1,	     1)       #fixed supports
+   # ops.fix(11,      	1,	    1,	     1)       #fixed supports
     
     
     
@@ -69,9 +69,8 @@ def createModel(L1, M):
     # -------------------------------
     
     #Mass 	Nodetag 	mx 		my 		mIz
-    #ops.mass(11,      	M,	    M,	     0)       #fixed supports
-    ops.mass(10,      	0,	    0,	     0)       #fixed supports
-    ops.mass(12,      	0,	    0,	     0)       #fixed supports
+    # ops.mass(20,      	M,	    M,	     0)       #fixed supports
+    ops.mass(11,      	M,	    M,	     0)       #fixed supports
     
     
     
@@ -79,7 +78,7 @@ def createModel(L1, M):
     # ----------------------------------
     #HEB200tag, IPE200tag = define_SteelSections() #defines nonlinear steel sections IPE200 and HEB200
     HEB200tag, IPE200tag = define_RCSections()
-    # column , beam
+    
     
     
     
@@ -97,16 +96,18 @@ def createModel(L1, M):
     
     # beamIntegration('Lobatto',    tag,        secTag,  Np)   Np = number of integration points
     ops.beamIntegration('Lobatto', HEB200tag, HEB200tag, 5)
-    ops.beamIntegration('Lobatto', IPE200tag, IPE200tag, 3)
+    ops.beamIntegration('Lobatto', IPE200tag, IPE200tag, 5)
     
     
     
     # Define element(s)
     
     #   element('forceBeamColumn', eleTag, *eleNodes, transfTag,   integrationTag)
-
+    #columns
+    # ops.element('forceBeamColumn', 1020,   *[10,20],  PDeltaGeomT, HEB200tag)
+    # ops.element('forceBeamColumn', 1121,   *[11,21],  PDeltaGeomT, HEB200tag)
     #beam
-    ops.element('forceBeamColumn', 1012,   *[10,12],  LinearGeomT, HEB200tag)
+    ops.element('forceBeamColumn', 1011,   *[10,11],  LinearGeomT, HEB200tag)
     
     return nodes, elements
     
