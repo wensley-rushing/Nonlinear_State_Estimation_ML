@@ -35,9 +35,9 @@ ops.wipe()
 # turn on/off the plots by setting these to True or False
 
 # General structure
-plot_model = False
-plot_defo_gravity = False
-plot_modeshapes = False
+plot_model = True
+plot_defo_gravity = True
+plot_modeshapes = True
 
 # Dynamic analysis
 plot_dynamic_analysis = False
@@ -119,8 +119,8 @@ dampRatio = 0.02
 # Create Dataframe for results
 gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
-                             'E - glob', 'Gl Drift', 'Gl Drift - class', 
-                             'Element ID', 'Section ID (E el.)', 'E el.', 'Max. Pla. def. el.', 'Res. Pla. def. el.'])
+                             'E - glob', 'Gl Drift', 'Gl Drift - class', 'PA g.', 'PA g. - class', 
+                             'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class'])
  
 #%% Time - tik
 global_tic_0 = time.time()
@@ -183,7 +183,7 @@ if plot_modeshapes:
     for i in range(int(len(periods))):
         plt.figure()
         opsv.plot_mode_shape(i+1, sfac=100)
-        plt.title(f'mode shape {i+1}')
+        plt.title(f'Mode Shape {i+1}')
         #plt.show()
 
 
@@ -214,7 +214,7 @@ ops.save(199)
 #%% Time - General
 local_last = time.time()
 global_tic_1 = time.time()
-print('General analysis: %.4f [s]' %(global_tic_1 - global_tic_0 ))
+print('Time keep: General analysis: %.4f [s]' %(global_tic_1 - global_tic_0 ))
 print()
 
 #sys.exit()
@@ -434,39 +434,39 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 inter_drift = []
                 inter_time_drift = []
                 for i in range (0, n_floors):
-                    drift.append(abs(time_drift_disp[-1, i+2]) / (3*H1)) # Residual drift
-                    inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # Residual Inter drift
+                    #drift.append(abs(time_drift_disp[-1, i+2]) / (3*H1)) # Residual drift
+                    #inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # Residual Inter drift
                     inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # Max Inter drift
                     
-                max_drift = max(drift)*100 # residual drift in percentage
-                max_inter_drift = max(inter_drift)*100
+                #max_drift = max(drift)*100 # residual drift in percentage
+                #max_inter_drift = max(inter_drift)*100
                 max_inter_time_drift = max(inter_time_drift)*100
                 
-                if max_inter_drift < 0.2:
-                    drift_cl = 'No damage'     
-                elif max_inter_drift <= 0.5:
-                    drift_cl = 'Repairable'     
-                elif max_inter_drift < 1.5:
-                    drift_cl = 'Irreparable'      
-                elif max_inter_drift < 2.5:
-                    drift_cl = 'Severe'
-                elif max_inter_drift > 2.5:
-                    drift_cl = 'Collapse'
+                # if max_inter_drift < 0.2:
+                #     drift_cl = 'No damage'     
+                # elif max_inter_drift <= 0.5:
+                #     drift_cl = 'Minor (Repairable)'     
+                # elif max_inter_drift < 1.5:
+                #     drift_cl = 'Moderate (Irreparable)'      
+                # elif max_inter_drift < 2.5:
+                #     drift_cl = 'Severe'
+                # elif max_inter_drift > 2.5:
+                #     drift_cl = 'Collapse'
                     
                     
                 if max_inter_time_drift < 0.2:
                     drift_time_cl = 'No damage'     
                 elif max_inter_time_drift <= 0.5:
-                    drift_time_cl = 'Repairable'     
+                    drift_time_cl = 'Minor'     
                 elif max_inter_time_drift < 1.5:
-                    drift_time_cl = 'Irreparable'      
+                    drift_time_cl = 'Moderate'      
                 elif max_inter_time_drift < 2.5:
                     drift_time_cl = 'Severe'
                 elif max_inter_time_drift > 2.5:
                     drift_time_cl = 'Collapse'
                 
-                print('---- Max drift: ' + str(round(max_drift,4)))
-                print('---- Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
+                #print('---- Max drift: ' + str(round(max_drift,4)))
+                #print('---- Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
                 print('---- Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
                     
                 
@@ -489,7 +489,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 # Table 1
                 if PA_G < 0.11:
-                    PA_G_cl = 'Minor'
+                    PA_G_cl = 'Minor'                
                 elif PA_G < 0.4:
                     PA_G_cl = 'Moderate'
                 elif PA_G < 0.77:
@@ -518,7 +518,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 # Park-Ang
                 # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du) , Dy = 0
                 # Based on Article: 2. Performance-based earthquake engineering design of ...
-                PA_beta = 0.15
+                PA_beta = 0.05
                 
                 #PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
                 #PA_E = Energy_G
@@ -529,7 +529,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 PA_L = []
                 PA_L_sec = []
-               
+                PA_L_Cl = []
                 
                
                 # Assume same number of integration points for ALL elements
@@ -588,7 +588,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     # Table 1
                     if PA_L[el_id] < 0.1:
-                        PA_L_cl = 'No Damage' 
+                        PA_L_cl = 'No damage' 
                     elif PA_L[el_id] < 0.2:
                         PA_L_cl = 'Minor'
                     elif PA_L[el_id] < 0.5:
@@ -598,14 +598,13 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     elif PA_L[el_id] >= 1:
                         PA_L_cl = 'Collapse'
                     
-                    
-                    
-                    
+                    PA_L_Cl.append(PA_L_cl)
+                
                     print('---- Max PA_L - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], PA_L_sec[el_id], PA_L[el_id]) + ' Damage: ' + PA_L_cl)
                     
     
                 #%% --Plastic Deformation (Local)
-            
+                '''
                 # Plastic deformation (+ Time)
                 plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
                 
@@ -652,7 +651,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     print('---- Max plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], max_plastic_deform))
                     Max_plastic_deform.append(max_plastic_deform)
                     
-                    
+                '''    
                 
                     
             
@@ -660,8 +659,8 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
                 
                 df.loc[gm_idx] = [ok, file_name, loadfactor, 
-                                  Energy_G, max_inter_drift, drift_cl,
-                                  id_element, Energy_L_sec, Energy_L, Max_plastic_deform, Res_plastic_deform]
+                                  Energy_G, max_inter_time_drift, drift_time_cl, PA_G, PA_G_cl,
+                                  id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl]
                 gm_idx += 1
                 
                 #%% Time - Dynmic loops
@@ -692,7 +691,91 @@ Structure = pd.DataFrame(columns = ['Nodes'])
 Structure['Nodes'] = node_vec
 Structure.to_pickle(output_directory + "/00_Structure.pkl") 
 
- 
+
+
+
+
+
+#%% Statistical overview
+
+#%% Global 
+
+    
+damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
+damage_measures = ['Gl Drift - class', 'PA g. - class']
+
+df_global = pd.DataFrame(index = damage_measures,columns = damage_labels)
+
+for measure in damage_measures:
+    for label in damage_labels:
+        value = df[df[measure] == label ].shape[0]
+        
+        df_global[label][measure] = value
+        
+        #print(measure + ' ' + label + ': ' + str(value))
+
+
+#%% Local
+
+    
+damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
+damage_measures = ['PA el. - class']
+
+unique_EL_ID = []
+for idx in list(df.index):
+    unique_EL_ID.extend(df['Element ID'][idx])
+    
+unique_EL_ID = np.unique(unique_EL_ID).tolist()
+
+df_local_PA = pd.DataFrame(index = unique_EL_ID, columns = damage_labels)
+df_local_PA.fillna(0, inplace=True) # Replace nan with 0
+
+
+for measure in damage_measures:
+    for idx in list(df.index):
+        for i in range(len(df['Element ID'][idx])):
+            for label in damage_labels:
+
+                
+                if df[measure][idx][i] == label:
+                    df_local_PA[label][ df['Element ID'][idx][i] ] += 1
+                
+                #df_local[label][measure] = value
+                
+                
+                
+#%% Story wise
+damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
+
+damage_sorts = ['1B', '2B', '3B', '1C', '2C', '3C']
+sort_crit = [[2021, 2122, 2223], 
+             [3031, 3132, 3233],
+             [4041, 4142, 4243],
+             [1020, 1121, 1222, 1323],
+             [2030, 2131, 2232, 2333],
+             [3040, 3141, 3242, 3343]]
+
+df_local_sort = pd.DataFrame(index = damage_sorts, columns = damage_labels)
+df_local_sort.fillna(0, inplace=True) # Replace nan with 0
+
+#sys.exit()
+
+for element in list(df_local_PA.index):
+    for crit in range( len(damage_sorts) ):
+        if element in sort_crit[crit]:
+        
+            
+            for label in damage_labels:
+                value0 = df_local_sort[label][ damage_sorts[crit] ]
+                value1 = df_local_PA[label][ element ]
+                #print([value0, value1])
+                
+                df_local_sort[label][ damage_sorts[crit] ] = value0 + value1 
+            
+    
+    
+                
+
 sys.exit()
 #%% ??
     # delta_max = abs(max(time_topDisp[:,1]))
