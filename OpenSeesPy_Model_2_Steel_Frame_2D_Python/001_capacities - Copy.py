@@ -200,7 +200,7 @@ plt.ylabel('total base shear (kN)')
 plt.grid()
 plt.show()
 
-
+print('Structure: ult(%.4f  %.4f)  yiled(%.4f  %.4f)' %(D_u, V_u, D_y, V_y))  
 
 sys.exit()
 
