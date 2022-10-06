@@ -27,8 +27,8 @@ def runGravityAnalysis(beam_vec):
     ops.pattern('Plain', 100,        100 )
     
     #eleLoad('-ele', *eleTags, '-type', '-beamUniform', Wy)
-    ops.eleLoad('-ele', *roof_beam, '-type', '-beamUniform', -200*N/m)      # 140 N/m of uniformly distributed load on the beam
-    ops.eleLoad('-ele', *floor_beam, '-type', '-beamUniform', -300*N/m)      # 140 N/m of uniformly distributed load on the beam
+    ops.eleLoad('-ele', *roof_beam, '-type', '-beamUniform', -7500*N/m)      # 140 N/m of uniformly distributed load on the beam
+    ops.eleLoad('-ele', *floor_beam, '-type', '-beamUniform', -9500*N/m)      # 140 N/m of uniformly distributed load on the beam
     
 
     # ---- Create Analysis

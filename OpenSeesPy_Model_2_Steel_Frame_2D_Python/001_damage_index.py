@@ -109,7 +109,7 @@ elif define_model == '3x3':
 
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
-M = 6000 *kg 	  #kg		lumped mass at top corner nodes 
+M = [4100, 2800 , 5300, 3300] *kg 	  #kg		lumped mass at top corner nodes - excel calculation
 dampRatio = 0.02
 
 
@@ -152,7 +152,7 @@ runGravityAnalysis(beam_vec)
 
 if plot_defo_gravity: 
     plt.figure()
-    opsv.plot_defo(sfac = 10000) 
+    opsv.plot_defo(sfac = 100) 
     plt.title('Deformed shape - Gravity analysis')
     #plt.show()  
 

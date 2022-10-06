@@ -116,20 +116,20 @@ def createModel(H1, L1, M):
         # -------------------------------
         
         #Mass 	Nodetag 	mx 		my 		mIz
-        ops.mass(20,      	M,	    M,	     0)       #fixed supports
-        ops.mass(21,      	M,	    M,	     0)       #fixed supports
-        ops.mass(22,      	M,	    M,	     0)       #fixed supports
-        ops.mass(23,      	M,	    M,	     0)       #fixed supports
+        ops.mass(20,      	M[3],	    M[3],	     0)       #fixed supports
+        ops.mass(21,      	M[2],	    M[2],	     0)       #fixed supports
+        ops.mass(22,      	M[2],	    M[2],	     0)       #fixed supports
+        ops.mass(23,      	M[3],	    M[3],	     0)       #fixed supports
         
-        ops.mass(30,      	M,	    M,	     0)       #fixed supports
-        ops.mass(31,      	M,	    M,	     0)       #fixed supports
-        ops.mass(32,      	M,	    M,	     0)       #fixed supports
-        ops.mass(33,      	M,	    M,	     0)       #fixed supports
+        ops.mass(30,      	M[3],	    M[3],	     0)       #fixed supports
+        ops.mass(31,      	M[2],	    M[2],	     0)       #fixed supports
+        ops.mass(32,      	M[2],	    M[2],	     0)       #fixed supports
+        ops.mass(33,      	M[3],	    M[3],	     0)       #fixed supports
         
-        ops.mass(40,      	M,	    M,	     0)       #fixed supports
-        ops.mass(41,      	M,	    M,	     0)       #fixed supports
-        ops.mass(42,      	M,	    M,	     0)       #fixed supports
-        ops.mass(43,      	M,	    M,	     0)       #fixed supports
+        ops.mass(40,      	M[1],	    M[1],	     0)       #fixed supports
+        ops.mass(41,      	M[0],	    M[0],	     0)       #fixed supports
+        ops.mass(42,      	M[0],	    M[0],	     0)       #fixed supports
+        ops.mass(43,      	M[1],	    M[1],	     0)       #fixed supports
         
     
     
