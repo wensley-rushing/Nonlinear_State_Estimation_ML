@@ -7,7 +7,12 @@ Created on Sat Jan 29 18:52:23 2022
 
 
 import openseespy.opensees as ops
+import opsvis as opsv
 import numpy as np
+
+import math
+
+import matplotlib.pyplot as plt
 
 
 Pa = 1;  MPa = Pa*1e6;  GPa = Pa*1e9
@@ -99,14 +104,16 @@ def define_RCSections():
     barAreaInt_col = np.pi*diaBarsInt_col**2/4	# area of longitudinal-reinforcement bars -- intermediate skin reinf
     AreaBars_col = [barAreaTop_col, barAreaBot_col, barAreaInt_col]
     
+    
+    #---------------------------------------------------------------------------------------------------
     # Define Beam geometry
     H_beam = 500*mm 		# Column Depth
     B_beam = 400*mm	# Column Width
     coverH_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to H
     coverB_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to B
     
-    numBarsTop_beam = 6		# number of longitudinal-reinforcement bars in steel layer. -- top
-    numBarsBot_beam = 3		# number of longitudinal-reinforcement bars in steel layer. -- bot
+    numBarsTop_beam = 3		# number of longitudinal-reinforcement bars in steel layer. -- top
+    numBarsBot_beam = 6		# number of longitudinal-reinforcement bars in steel layer. -- bot
     numBarsIntTot_beam = 0			# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
     NumBars_beam = [numBarsTop_beam, numBarsBot_beam, numBarsIntTot_beam]
     
@@ -177,11 +184,12 @@ def RCSection(secID, matTags, HSec, BSec, coverH, coverB, numBars, areaBars):
     coreZ = coverZ-coverB	# The distance from the section y-axis to the edge of the core concrete --  edge of the core concrete/inner edge of cover concreteset nfY 16;			# number of fibers for concrete in y-direction
     nfY = 20			# number of fibers for concrete in y-direction
     nfZ = 1				# number of fibers for concrete in z-direction
-    numBarsInt = numBars[2]/2	# number of intermediate bars per side  
+    numBarsInt = int(numBars[2]/2)	# number of intermediate bars per side  
 
 
 
     # Define Sections
+    ''' OLD Way
     #  section('Fiber', secTag)
     ops.section('Fiber', secID)
     #patch   ('quad', matTag, numSubdivIJ, numSubdivJK, *crdsI, *crdsJ, *crdsK, *crdsL)
@@ -197,5 +205,41 @@ def RCSection(secID, matTags, HSec, BSec, coverH, coverB, numBars, areaBars):
         ops.layer('straight', matTags[2], numBarsInt, areaBars[2],  -coreY, -coreZ,   coreY, -coreZ )	# intermediate skin reinf. -z
     ops.layer('straight', matTags[2], numBars[0], areaBars[0],   coreY,  coreZ,   coreY, -coreZ )	# top layer reinfocement
     ops.layer('straight', matTags[2], numBars[1], areaBars[1],  -coreY,  coreZ,  -coreY, -coreZ )	# bottom layer reinforcement
+    ''' 
+    
+    ''' List Way '''    
+    fiber_list = []
+    fiber_list.append(['section', 'Fiber', secID, '-GJ', 1.0e6])
+    
+    # Define Core patch
+    fiber_list.append(['patch', 'quad', matTags[1], nfZ, nfY,        -coreY, coreZ, -coreY, -coreZ, coreY, -coreZ, coreY, coreZ])
+    
+    # Define four cover patches
+    fiber_list.append(['patch', 'quad', matTags[0], 1, nfY,          -coverY, coverZ,  -coreY,   coreZ,  coreY,   coreZ, coverY, coverZ])
+    fiber_list.append(['patch', 'quad', matTags[0], 1, nfY,           -coreY, -coreZ, -coverY, -coverZ, coverY, -coverZ,  coreY, -coreZ])
+    fiber_list.append(['patch', 'quad', matTags[0], nfZ, 1,          -coverY, coverZ, -coverY, -coverZ, -coreY,  -coreZ, -coreY,  coreZ])
+    fiber_list.append(['patch', 'quad', matTags[0], nfZ, 1,            coreY,  coreZ,   coreY,  -coreZ, coverY, -coverZ, coverY, coverZ])
+    
+    #Define reinforcement (if any)
+    if numBars[0] != 0 and areaBars[0] != 0:
+        fiber_list.append(['layer', 'straight', matTags[2], numBars[0], areaBars[0], coreY, coreZ, coreY, -coreZ])   # Top reinforcement
+    if numBars[1] != 0 and areaBars[1] != 0:
+        fiber_list.append(['layer', 'straight', matTags[2], numBars[1], areaBars[1], -coreY, coreZ, -coreY, -coreZ]) # Bottom reinforcement
         
+    if numBarsInt != 0 and areaBars[2] != 0:
+        interY = coreY - coreY/ math.ceil( (numBarsInt+1)/2 )
+        
+        fiber_list.append(['layer', 'straight', matTags[2], numBarsInt, areaBars[2], -interY,  coreZ,   interY,  coreZ])  # Inter reinforcement +z
+        fiber_list.append(['layer', 'straight', matTags[2], numBarsInt, areaBars[2], -interY,  -coreZ,   interY,  -coreZ])  # Inter reinforcement -z
+        
+    # Reuses fiber_(sec)_list to define fiber section in OpenSees
+    opsv.fib_sec_list_to_cmds(fiber_list)
+    
+    # plt.figure()
+    # matcolor = ['r', 'lightgrey', 'gold', 'w', 'w', 'w']
+    # opsv.plot_fiber_section(fiber_list, matcolor=matcolor)
+    # plt.axis('equal')
+    # plt.show()
+    
     return
+

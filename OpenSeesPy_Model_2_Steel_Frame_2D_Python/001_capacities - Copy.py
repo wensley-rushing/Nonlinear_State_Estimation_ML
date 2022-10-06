@@ -131,8 +131,8 @@ ops.load(40     , *[1,0,0]  )  # load in x direction in node 20
 
 #Define max displacement and displacement increment
 
-Dmax  = 0.8*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
-Dincr = 0.004*m; 	# 4mm     increment of pushover
+Dmax  = 0.08*m; 	# 0.40m   maximum displacement of pushover. It could also be for example 0.1*$H1
+Dincr = 0.010*m; 	# 4mm     increment of pushover
 
 
 
