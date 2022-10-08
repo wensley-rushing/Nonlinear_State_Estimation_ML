@@ -35,10 +35,12 @@ folder_structure = r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonline
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
 Index_Results = pd.read_pickle( os.path.join(folder_structure, '00_Index_Results.pkl') )
 #[10, 11, 12, 13, 20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
-struc_nodes = list(Structure.Nodes)
+struc_nodes = Structure.Nodes[0]
+
+struc_periods = list(Structure.Periods[0])
 
 #%%
-load_IDs = ['003']
+load_IDs = ['000']
 load_Nodes = [23, 33, 43]
 
 load_Nodes_id = []
@@ -48,7 +50,7 @@ for i in range(len(load_Nodes)):
 # r=root, d=directories, f = files
 for rdirs, dirs, files in os.walk(folder_accs):
     for file in files:
-        if rdirs == folder_accs and file.endswith(".out") and file[3:6] in load_IDs:
+        if rdirs == folder_accs and file.endswith("Accs.out") and file[3:6] in load_IDs:
             #print(os.path.join(rdirs, file))
             #print(idx)
             print(file)
@@ -122,6 +124,12 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     #plot spectrogram (bottom subfigure)
                     #spl2 = x
                     Pxx, freqs, bins, im = ax2.specgram(x, Fs=fs, cmap='jet_r') # remove cmap for different result
+                    
+                    # line colour is white
+                    for periods in struc_periods:
+                        ax2.axhline(y = 1/periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
+                        ax2.text(t[0]-1.5, 1/periods, f'f$_{struc_periods.index(periods)+1}$', fontsize='small')
+                    
                     mappable = ax2.images[0]
                     plt.colorbar(mappable=mappable, cax=ax3, label='Amplitude [dB]')
                     

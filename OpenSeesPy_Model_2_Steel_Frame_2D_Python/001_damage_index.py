@@ -24,6 +24,9 @@ import pandas as pd
 import sys
 import os
 
+import warnings
+warnings.filterwarnings("ignore")
+
 # Import time-keeping
 import time
 
@@ -45,6 +48,11 @@ plot_modeshapes = True
 plot_ground_acc = True
 plot_dynamic_analysis = True
 
+
+#%% Folder structure
+
+# Define Recorders
+output_directory = 'output_files'
 
 #%% UNITS
 # =============================================================================
@@ -211,6 +219,18 @@ betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
 
 ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 
+
+#%% Create Structure DataFRame
+Structure = pd.DataFrame(columns = ['Nodes', 'Beam El', 'Column El', 'Periods'])
+Structure['Nodes'] = [node_vec]
+Structure['Beam El'] = [beam_vec]
+Structure['Column El'] = [col_vec]
+Structure['Periods'] = [periods]
+
+# General Structure
+Structure.to_pickle(output_directory + "/00_Structure.pkl")
+
+
 #%% Database
 ops.database('File', 'DataBase\\3x3-Initial')
 # Created the copy
@@ -296,8 +316,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
             
             
-                # Define Recorders
-                output_directory = 'output_files'
+                
                 
                 
                 # Base reaction recorder
@@ -715,18 +734,15 @@ print('Estimat for %.0f analyses: %.4f [s]' %(total_analyses, (global_toc - glob
 print('-- Minutes: %.4f [min]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60 ))
 print('-- Hours: %.4f [hrs]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60760 ))
 
-#%% Export dataframe
+#%% Export dataframes
 
+# General Structure
+Structure.to_pickle(output_directory + "/00_Structure.pkl") 
+
+# Results from Damage Index
 df.to_csv(output_directory + r'/00_Index_Results.csv')  # export dataframe to cvs
 df.to_pickle(output_directory + "/00_Index_Results.pkl") 
 #unpickled_df = pd.read_pickle("./dummy.pkl")  
-
-Structure = pd.DataFrame(columns = ['Nodes'])
-Structure['Nodes'] = node_vec
-Structure.to_pickle(output_directory + "/00_Structure.pkl") 
-
-
-
 
 
 
