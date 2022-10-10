@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from scipy import signal
-from scipy.fft import fftshift
+# from scipy import signal
+# from scipy.fft import fftshift
 
 
 #from Model_definition_2D_frame import createModel
@@ -25,9 +25,31 @@ import sys
 import os
 
 
-#%% Folder structure
+#%% Folders
 
-folder_structure = r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\output_files'
+folder_structure = 'output_files'
+output_capacity_directory = ('elements_capacity')
+
+#%% Load Capacity Files
+
+# AnySection
+
+AnySection = pd.read_csv((output_capacity_directory+'/anysection_curves.csv'), usecols = [1,2,3,4])
+AnySection.iloc[:,1] = - AnySection.iloc[:,1]
+AnySection.iloc[:,3] = - AnySection.iloc[:,3]
+
+col_yielding_idx = AnySection[AnySection.iloc[:,3]==56.06].index.values.astype(int)[0]
+beam_yielding_idx = AnySection[AnySection.iloc[:,1]==123.26].index.values.astype(int)[0]
+
+col_ult_idx = AnySection[AnySection.iloc[:,3]==67.04].index.values.astype(int)[0]
+beam_ult_idx = AnySection[AnySection.iloc[:,1]==127.04].index.values.astype(int)[0]
+
+# OpenSees Pushover
+
+column_capacity = pd.read_csv((output_capacity_directory + "/column_pushover.csv"), usecols = [1,2,3,4,5,6])
+beam_capacity = pd.read_csv((output_capacity_directory + "/beam_pushover.csv"), usecols = [1,2,3,4,5,6])
+
+
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -40,7 +62,7 @@ struc_elements = df_beta['Element ID'][0]
 #%%
 load_IDs = ['000', '001', '002', '003', '004', '005']
 load_Elements = [1121]
-values_Beta = [0.05, 0.1, 0.6]
+values_Beta = [0.05, 0.1, 0.7]
 
 load_Elements_id = []
 for i in range(len(load_Elements)):
@@ -59,13 +81,15 @@ for i in range(len(load_IDs)):
         
     load_IDs_id.append(idx)
     
-    GM = Index_Results['Ground motion'][idx]
-    LF = Index_Results['Load factor'][idx]
+    
             
     
 
 for i in load_IDs_id:
     for j in load_Elements_id:
+        
+        GM = Index_Results['Ground motion'][i]
+        LF = Index_Results['Load factor'][i]
     
         # df_beta = pd.DataFrame(columns = ['Element ID', 'beta', 'Section ID (PA el.)', 'PA el.', 'PA el. - class', 'PA T1 Time', 'PA T2 Time', 'PA el. Time', 'Curvature Time'])
         curvature = df_beta['Curvature Time'][i][j]
@@ -75,23 +99,75 @@ for i in load_IDs_id:
         PA_Beta_T1 = df_beta['PA T1 Time'][i][j]
         PA_Beta_T2 = df_beta['PA T2 Time'][i][j]
         
-        plt.figure()
-        plt.scatter(curvature,PA_idx, c = 'k', label=f'beta = {PA_Beta}')
         
         
+        
+        fig, ax = plt.subplots()
+        
+        twin1 = ax.twinx()
+        
+        if struc_elements[j] in Structure['Beam El'][0]:
+            ax.plot(AnySection.iloc[:beam_ult_idx,0], AnySection.iloc[:beam_ult_idx,1], "b-", label = 'AnySection')
+        else:
+            ax.plot(AnySection.iloc[:col_ult_idx,2], AnySection.iloc[:col_ult_idx,3], "b-", label = 'AnySection')
+            
         for betas in values_Beta:
             PA_Beta_T12  = np.array(PA_Beta_T1) + betas*np.array(PA_Beta_T2)
-            
-            plt.scatter(curvature,PA_Beta_T12, label=f'beta = {betas}', alpha = 0.8, s = 5)
+            twin1.scatter(curvature,PA_Beta_T12, label=f'beta = {betas}', alpha = 0.8, s = 5)
     
-        plt.title(f'PA Index vs. Curvature  Element {struc_elements[j]}, beta = {PA_Beta} \n {GM} , Lf = {LF}')
-        plt.xlabel('Curvature [-]')
-        plt.ylabel('PA Index [-]')
-        plt.legend()
-        plt.grid()
-        plt.xlim((0,0.10))
-        plt.ylim((0,10))
+        
+        twin1.axhline(y=1, color = 'black', linestyle = '--', linewidth=1)
+        twin1.text(0, 1.02, 'C')
+
+        twin1.axhline(y=0.5, color = 'black', linestyle = '--', linewidth=1)
+        twin1.text(0, 0.52, 'S')
+
+        twin1.axhline(y=0.2, color = 'black', linestyle = '--', linewidth=1)
+        twin1.text(0, 0.22, 'MO')
+
+        twin1.axhline(y=0.1, color = 'black', linestyle = '--', linewidth=1)
+        twin1.text(0, 0.12, 'MI')
+    
+        ax.set_title(f'PA Index and Element {struc_elements[j]} capacity\n {GM} , Lf = {LF}')
+        ax.set_xlabel('Curvature [-]')
+        ax.set_ylabel('Moment [kNm]')
+        twin1.set_ylabel('PA Index [-]')
+        
+        ax.yaxis.label.set_color('blue')
+        twin1.yaxis.label.set_color('black')
+        
+        tkw = dict(size=4, width=1.5)
+        ax.tick_params(axis='y', colors='blue', **tkw)
+        ax.tick_params(axis='x', **tkw)
+        twin1.tick_params(axis='y', colors='black', **tkw)
+        
+        
+        
+        ax.set_xlim(0, max(curvature)*1.2)
+        # ax.set_ylim(0, 70)
+        # twin1.set_ylim(0, 1.2)
+        
+        ax.legend(loc='center left', bbox_to_anchor=(1.15, 1))
+        twin1.legend(loc='center left', bbox_to_anchor=(1.15, 0.8))
         plt.show()
+        
+        # plt.figure()
+        # # plt.scatter(curvature,PA_idx, c = 'k', label=f'beta = {PA_Beta}')
+        
+        
+        # for betas in values_Beta:
+        #     PA_Beta_T12  = np.array(PA_Beta_T1) + betas*np.array(PA_Beta_T2)
+            
+        #     plt.scatter(curvature,PA_Beta_T12, label=f'beta = {betas}', alpha = 0.8, s = 5)
+    
+        # plt.title(f'PA Index vs. Curvature  Element {struc_elements[j]}, beta = {PA_Beta} \n {GM} , Lf = {LF}')
+        # plt.xlabel('Curvature [-]')
+        # plt.ylabel('PA Index [-]')
+        # plt.legend()
+        # plt.grid()
+        # plt.xlim((0,0.10))
+        # plt.ylim((0,10))
+        # plt.show()
     
 sys.exit()
     
