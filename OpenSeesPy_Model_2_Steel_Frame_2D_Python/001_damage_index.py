@@ -46,7 +46,7 @@ plot_modeshapes = True
 
 # Dynamic analysis
 plot_ground_acc = True
-plot_dynamic_analysis = True
+plot_dynamic_analysis = False
 
 
 #%% Folder structure
@@ -133,7 +133,9 @@ gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
                              'E - glob', 'Gl Drift', 'Gl Drift - class', 
                              'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class'])
- 
+
+df_beta = pd.DataFrame(columns = ['Element ID', 'beta', 'Section ID (PA el.)', 'PA el.', 'PA el. - class', 'PA T1 Time', 'PA T2 Time', 'PA el. Time', 'Curvature Time'])
+
 #%% Time - tik
 global_tic_0 = time.time()
 
@@ -247,7 +249,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -567,6 +569,13 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 PA_L_sec = []
                 PA_L_Cl = []
                 
+                PA_L_Beta = []
+                PA_L_Time = []
+                PA_L_T1 = []
+                PA_L_T2 = []
+                
+                PA_L_CUR = []
+                
                
                 # Assume same number of integration points for ALL elements
                 # Number if elements
@@ -598,6 +607,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     Energy_l_sec = []
                     PA_l_sec = []
+
                     for sec_id in range(int(num_int)):
 
                         # Damage index information of interest
@@ -619,9 +629,50 @@ for rdirs, dirs, files in os.walk(folder_loads):
                         
                         
                         
-                        
+                       
                     Energy_L.append( max(Energy_l_sec) )
                     Energy_L_sec.append( Energy_l_sec.index( max(Energy_l_sec) ) + 1 )
+                    
+                    
+                    # Determine PA - index over time for severe section
+                    max_sec_id = Energy_l_sec.index( max(Energy_l_sec) )
+                    # Damage index information of interest
+                    DI_x_sec = element_section_defs[:,(max_sec_id*2)+1 + (2*num_int)*el_id] #Deformation (curvature) 
+                    DI_y_sec = element_section_forces[:,(max_sec_id*2)+1 + (2*num_int)*el_id]/1000 #Force (Moment)
+                    
+                    
+                    PA_l_sec_Time = []
+                    PA_l_sec_cur = []
+                    
+                    PA_l_sec_T1 = []
+                    PA_l_sec_T2 = []
+                    for sec_time in range(1,len(DI_x_sec)):
+                        DI_x_sec_time = DI_x_sec[:sec_time]
+                        DI_y_sec_time = DI_y_sec[:sec_time]
+                        
+                        Energy_l_sec_time = np.trapz(DI_y_sec_time, x=DI_x_sec_time)
+                        
+                        #'''
+                        #Park-Ang
+                        #'''
+                        PA_Dm_sec_time = abs(max(DI_x_sec_time, key=abs))
+                        PA_l_sec_time = (PA_Dm_sec_time - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l_sec_time*1000/(PA_Fy*PA_Du)
+                       
+                        PA_l_sec_Time.append(PA_l_sec_time)
+                        PA_l_sec_T1.append( (PA_Dm_sec_time - PA_Dy)/(PA_Du - PA_Dy) )
+                        PA_l_sec_T2.append( Energy_l_sec_time*1000/(PA_Fy*PA_Du) )
+                        
+                        PA_l_sec_cur.append(PA_Dm_sec_time)
+                    
+                    PA_L_Time.append(PA_l_sec_Time)
+                    PA_L_T1.append(PA_l_sec_T1)
+                    PA_L_T2.append(PA_l_sec_T2)
+                    
+                    PA_L_Beta.append(PA_beta)
+                    PA_L_CUR.append(PA_l_sec_cur)
+                    
+                    
+                    
                     
                     print('---- Max energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], Energy_L_sec[el_id], Energy_L[el_id]))
                     
@@ -714,6 +765,13 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 df.loc[gm_idx] = [ok, file_name, loadfactor, 
                                   Energy_G, max_inter_time_drift, drift_time_cl,
                                   id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl]
+                
+                
+                #['Element ID', 'beta', 'Section ID (PA el.)', 
+                # 'PA el.', 'PA el. - class', 'PA el. Time', 'Curvature Time'])
+                df_beta.loc[gm_idx] = [id_element, PA_L_Beta , PA_L_sec, PA_L, PA_L_Cl, PA_L_T1, PA_L_T2,PA_L_Time, PA_L_CUR ]
+                              
+                
                 gm_idx += 1
                 
                 #%% Time - Dynmic loops
@@ -732,7 +790,15 @@ print('Total for %.0f analyses: %.4f [s]' %(df.shape[0], global_toc - global_tic
 total_analyses = 300
 print('Estimat for %.0f analyses: %.4f [s]' %(total_analyses, (global_toc - global_tic_0)/df.shape[0]*total_analyses ))
 print('-- Minutes: %.4f [min]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60 ))
-print('-- Hours: %.4f [hrs]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60760 ))
+print('-- Hours: %.4f [hrs]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60/60 ))
+
+print()
+
+num_total = df.shape[0]
+num_failed = -sum(df['OK=0'].tolist())
+num_sucess = num_total - num_failed
+print(f'-- Sucessfull Analysis: {num_sucess} of {num_total} - {round(num_sucess/num_total,2)} % ')
+print(f'-- Failed Analysis    : {num_failed} of {num_total} - {round(num_failed/num_total,2)} % ')
 
 #%% Export dataframes
 
@@ -743,6 +809,8 @@ Structure.to_pickle(output_directory + "/00_Structure.pkl")
 df.to_csv(output_directory + r'/00_Index_Results.csv')  # export dataframe to cvs
 df.to_pickle(output_directory + "/00_Index_Results.pkl") 
 #unpickled_df = pd.read_pickle("./dummy.pkl")  
+
+df_beta.to_pickle(output_directory + "/00_Beta_Verification.pkl") 
 
 
 
