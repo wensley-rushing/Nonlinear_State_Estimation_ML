@@ -12,7 +12,7 @@ import opsvis as opsv
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-
+import pandas as pd
 
 from Model_definition_beam_test_vertical import createModel
 from gravityAnalysis import runGravityAnalysis
@@ -58,6 +58,7 @@ M = 6000 *kg 	  #kg		lumped mass at top corner nodes
 
 section_n = 5   # number of sections in 1 element
 
+df = pd.DataFrame(columns = ['Curv', 'M', 'Yield - curv', 'Yield - M', 'Ult - curv', 'Ult - M'])
 
 
 # =============================================================================
@@ -207,9 +208,19 @@ for i in range(0, section_n):
 
 
 
+
 #%%
 
 curv_y, M_y, curv_u, M_u = Yielding_point(beam_curv[:,crit_sec], beam_moment[:,crit_sec])
+
+
+df.loc[:, 'Curv'] = np.insert(beam_curv[:,crit_sec], 0, 0)
+df.loc[:,'M'] = np.insert(beam_moment[:,crit_sec], 0, 0)
+df.loc[0, 'Yield - curv'] = curv_y
+df.loc[0, 'Yield - M'] = M_y
+df.loc[0, 'Ult - curv'] = curv_u
+df.loc[0, 'Ult - M'] = M_u
+
 
 print('Beam: ult(%.4f  %.4f)  yiled(%.4f  %.4f)' %(curv_u, M_u, curv_y, M_y))  
 
@@ -223,3 +234,7 @@ plt.xlabel('Curvature [-]')
 plt.ylabel('Moment [kNm]')
 plt.grid()
 plt.show()
+
+
+output_directory = ('elements_capacity')
+df.to_csv((output_directory + "/beam_pushover.csv"))

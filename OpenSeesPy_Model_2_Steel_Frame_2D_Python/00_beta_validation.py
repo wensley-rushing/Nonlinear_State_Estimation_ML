@@ -12,7 +12,7 @@ import openseespy.opensees as ops
 import opsvis as opsv
 
 
-
+output_capacity_directory = ('elements_capacity')
 output_directory = ('output_files')
 
 
@@ -27,15 +27,28 @@ col_M_d = col_M_d[:,1]/1000 #kNm
 Park_Ang_example = np.linspace(0, 1, 100)
 curvature_example = np.linspace(0, 0.06, 100)
 
-# Capacity
+#%% Load Capacity Files
 
-AnySection = pd.read_csv('anysection_curves.csv', usecols = [1,2,3,4])
+# AnySection
+
+AnySection = pd.read_csv((output_capacity_directory+'/anysection_curves.csv'), usecols = [1,2,3,4])
 AnySection.iloc[:,1] = - AnySection.iloc[:,1]
 AnySection.iloc[:,3] = - AnySection.iloc[:,3]
 
-col_yielding_idx = AnySection[AnySection.iloc[:,3]==67.04].index.values.astype(int)[0]
+col_yielding_idx = AnySection[AnySection.iloc[:,3]==56.06].index.values.astype(int)[0]
+beam_yielding_idx = AnySection[AnySection.iloc[:,1]==123.26].index.values.astype(int)[0]
 
-# Plot 1
+col_ult_idx = AnySection[AnySection.iloc[:,3]==67.04].index.values.astype(int)[0]
+beam_ult_idx = AnySection[AnySection.iloc[:,1]==127.04].index.values.astype(int)[0]
+
+# OpenSees Pushover
+
+column_capacity = pd.read_csv((output_capacity_directory + "/column_pushover.csv"), usecols = [1,2,3,4,5,6])
+beam_capacity = pd.read_csv((output_capacity_directory + "/beam_pushover.csv"), usecols = [1,2,3,4,5,6])
+
+
+
+# Plot 1: Park and Ang
 
 plt.figure()
 plt.plot(curvature_example, Park_Ang_example)
@@ -45,16 +58,34 @@ plt.title('Demand')
 plt.grid()
 plt.show()
 
-# Plot 2
+# Plot 2: Capacity - column
 
 plt.figure()
-plt.plot(AnySection.iloc[:col_yielding_idx,2], AnySection.iloc[:col_yielding_idx,3])
+plt.plot(AnySection.iloc[:col_ult_idx,2], AnySection.iloc[:col_ult_idx,3], label = 'AnySection')
+plt.plot(column_capacity.loc[:,'Curv'], column_capacity.loc[:,'M'], label = 'OpenSees')
 plt.xlabel('Curvature')
 plt.ylabel('Moment (kNm)')
-plt.title('Capacity')
+plt.title('Capacity - Column')
 plt.grid()
+plt.legend()
 plt.show()
 
+
+# Plot 3: Capacity - beam
+
+plt.figure()
+plt.plot(AnySection.iloc[:beam_ult_idx,0], AnySection.iloc[:beam_ult_idx,1], label = 'AnySection')
+plt.plot(beam_capacity.loc[:,'Curv'], beam_capacity.loc[:,'M'], label = 'OpenSees')
+plt.xlabel('Curvature')
+plt.ylabel('Moment (kNm)')
+plt.title('Capacity - Beam')
+plt.grid()
+plt.legend()
+plt.show()
+
+import sys
+
+sys.exit()
 
 #%% Merge plots
 
