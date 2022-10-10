@@ -70,6 +70,18 @@ twin1 = ax.twinx()
 
 p1, = ax.plot(AnySection.iloc[:col_yielding_idx,2], AnySection.iloc[:col_yielding_idx,3], "b-") #,label="Moment [kNm]")
 p2, = twin1.plot(curvature_example, Park_Ang_example, "r-") #, label="Park and Ang")
+
+twin1.axhline(y=1, color = 'black', linestyle = '--')
+twin1.text(0.06, 1.02, 'Collapse')
+
+twin1.axhline(y=0.5, color = 'black', linestyle = '--')
+twin1.text(0.06, 0.52, 'Severe')
+
+twin1.axhline(y=0.2, color = 'black', linestyle = '--')
+twin1.text(0.06, 0.22, 'Moderate')
+
+twin1.axhline(y=0.1, color = 'black', linestyle = '--')
+twin1.text(0.06, 0.12, 'Minor')
 # p3, = twin2.plot([0, 1, 2], [50, 30, 15], "g-", label="Velocity")
 
 ax.set_xlim(0, 0.06)

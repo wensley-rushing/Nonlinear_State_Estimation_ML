@@ -20,8 +20,11 @@ def Yielding_point(x, y):
     point_x = [x[0],x[1]]
     point_y = [y[0],y[1]]
     K_i = abs(y[0]-y[1]) / abs(x[0]-x[1])
-
+    
+    abs_max = np.where(y==max(y))[0][0]
     loc_min = np.where((y[1:-1] < y[0:-2]) * (y[1:-1] < y[2:]))[0] + 1
+    
+    dy = y[abs_max] - y [loc_min]
     
     # plt.figure()
     # plt.plot(x,y)
@@ -36,7 +39,7 @@ def Yielding_point(x, y):
     else:
         loc_min = loc_min[0]
 
-    linear_y = np.arange(0, y[loc_min], 1)
+    linear_y = np.arange(0, y[loc_min]+dy, 1) 
     linear_x = linear_y/K_i
 
     dim = len(linear_y)
@@ -72,7 +75,7 @@ def Yielding_point(x, y):
         
         # diff = A_tot_bilin - A_tot_real
         
-        # print('Case %.0f: %.1f-%.1f = %.1f' %(i,A_tot_bilin, A_tot_real , diff))
+        #print('Case %.0f: %.1f-%.1f = %.1f' %(i,A_tot_bilin, A_tot_real , diff))
         diff.append(abs(A_tot_bilin - A_tot_real))
         
       
