@@ -40,13 +40,13 @@ ops.wipe()
 # turn on/off the plots by setting these to True or False
 
 # General structure
-plot_model = True
-plot_defo_gravity = True
-plot_modeshapes = True
+plot_model = False
+plot_defo_gravity = False
+plot_modeshapes = False
 
 # Dynamic analysis
 plot_ground_acc = True
-plot_dynamic_analysis = False
+plot_dynamic_analysis = True
 
 
 #%% Folder structure
@@ -249,7 +249,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
+folder_loads = os.path.join(os.getcwd(), 'import_loads')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -593,15 +593,15 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     # Based on Article: 2. Performance-based earthquake engineering design of ...
                     
                     if id_element[el_id] in col_vec: # If columns elemnt
-                        PA_beta = 0.1  # Calibration parameter
+                        PA_beta = 0.05  # Calibration parameter
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.059 # Ultimate deformation (Estimated)
-                        PA_Fy = 56055 # Yield strengh (Estimated)
+                        PA_Du = 0.02 # Ultimate deformation (Estimated)
+                        PA_Fy = 48123 # Yield strengh (Estimated)
                     elif id_element[el_id] in beam_vec: # If beam element
-                        PA_beta = 0.1 # Calibration parameter
+                        PA_beta = 0.05 # Calibration parameter
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.046 # Ultimate deformation (Estimated)
-                        PA_Fy = 123255 # Yield strengh (Estimated)
+                        PA_Du = 0.02 # Ultimate deformation (Estimated)
+                        PA_Fy = 120000 # Yield strengh (Estimated)
                         
                         
                     
@@ -797,8 +797,8 @@ print()
 num_total = df.shape[0]
 num_failed = -sum(df['OK=0'].tolist())
 num_sucess = num_total - num_failed
-print(f'-- Sucessfull Analysis: {num_sucess} of {num_total} - {round(num_sucess/num_total,2)} % ')
-print(f'-- Failed Analysis    : {num_failed} of {num_total} - {round(num_failed/num_total,2)} % ')
+print(f'-- Sucessfull Analysis: {num_sucess} of {num_total} - {round(num_sucess/num_total*100,2)} % ')
+print(f'-- Failed Analysis    : {num_failed} of {num_total} - {round(num_failed/num_total*100,2)} % ')
 
 #%% Export dataframes
 
