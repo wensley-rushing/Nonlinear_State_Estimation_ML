@@ -136,5 +136,4 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     ax1.set_title(f'Response and spectogram Node {load_Nodes[i]} \n {GM} , Lf = {LF}')
                 
                 
-           
-sys.exit()            
+               
