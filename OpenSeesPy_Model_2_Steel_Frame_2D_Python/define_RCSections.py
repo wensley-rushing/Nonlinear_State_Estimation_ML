@@ -60,7 +60,7 @@ def define_RCSections():
     
     
     # Steel - Basic parameters for S550
-    Fy = 550*MPa 		# STEEL yield stress
+    Fy = 410*MPa 		# STEEL yield stress
     Es = 210*GPa 		# modulus of steel
     b = 0.02 			# strain-hardening ratio 
     R0 = 18 			# control the transition from elastic to plastic branches
@@ -235,11 +235,12 @@ def RCSection(secID, matTags, HSec, BSec, coverH, coverB, numBars, areaBars):
     # Reuses fiber_(sec)_list to define fiber section in OpenSees
     opsv.fib_sec_list_to_cmds(fiber_list)
     
-    # plt.figure()
-    # matcolor = ['r', 'lightgrey', 'gold', 'w', 'w', 'w']
-    # opsv.plot_fiber_section(fiber_list, matcolor=matcolor)
-    # plt.axis('equal')
-    # plt.show()
+    if False:
+        plt.figure()
+        matcolor = ['r', 'lightgrey', 'gold', 'w', 'w', 'w']
+        opsv.plot_fiber_section(fiber_list, matcolor=matcolor)
+        plt.axis('equal')
+        plt.show()
     
     return
 

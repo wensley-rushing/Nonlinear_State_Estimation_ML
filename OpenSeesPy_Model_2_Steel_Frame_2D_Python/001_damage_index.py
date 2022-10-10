@@ -24,8 +24,13 @@ import pandas as pd
 import sys
 import os
 
+import warnings
+warnings.filterwarnings("ignore")
+
 # Import time-keeping
 import time
+
+import DamageTools
 
 # Wipe before anything...
 ops.wipe()
@@ -40,8 +45,14 @@ plot_defo_gravity = True
 plot_modeshapes = True
 
 # Dynamic analysis
-plot_dynamic_analysis = False
+plot_ground_acc = True
+plot_dynamic_analysis = True
 
+
+#%% Folder structure
+
+# Define Recorders
+output_directory = 'output_files'
 
 #%% UNITS
 # =============================================================================
@@ -103,7 +114,8 @@ elif define_model == '3x3':
     drift_nodes = [13, 23, 33, 43]
     
     #Local DI
-    id_element = [1121, 2122, 2131, 3132, 3141, 4142]
+    #id_element = [1121, 2122, 2131, 3132, 3141, 4142]
+    ''' Element vecor defined in line 141'''
 #------------------------------------------------------------------------------
     
 
@@ -119,7 +131,7 @@ dampRatio = 0.02
 # Create Dataframe for results
 gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
-                             'E - glob', 'Gl Drift', 'Gl Drift - class', 'PA g.', 'PA g. - class', 
+                             'E - glob', 'Gl Drift', 'Gl Drift - class', 
                              'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class'])
  
 #%% Time - tik
@@ -132,8 +144,9 @@ global_tic_0 = time.time()
 # =============================================================================
 
 node_vec, el_vec, col_vec = createModel(H1,L1,M)
-
 beam_vec = [i for i in el_vec if i not in col_vec]
+
+id_element = el_vec
 
 
 if plot_model:
@@ -206,6 +219,18 @@ betaKcomm = 2.0*dampRatio/(omega1_ray+omega2_ray)
 
 ops.rayleigh(alphaM, betaKcurr, betaKinit, betaKcomm)
 
+
+#%% Create Structure DataFRame
+Structure = pd.DataFrame(columns = ['Nodes', 'Beam El', 'Column El', 'Periods'])
+Structure['Nodes'] = [node_vec]
+Structure['Beam El'] = [beam_vec]
+Structure['Column El'] = [col_vec]
+Structure['Periods'] = [periods]
+
+# General Structure
+Structure.to_pickle(output_directory + "/00_Structure.pkl")
+
+
 #%% Database
 ops.database('File', 'DataBase\\3x3-Initial')
 # Created the copy
@@ -222,7 +247,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\TT')
+folder_loads = os.path.join(os.getcwd(), 'import_loads')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -269,6 +294,18 @@ for rdirs, dirs, files in os.walk(folder_loads):
                             
                 ops.restore(199)
                 
+                #%% Plot Ground motion
+                
+                if plot_ground_acc:
+                    desc, npts, dtt, ttime, inp_acc = DamageTools.processNGAfile(load_file)
+                    
+                    plt.figure()
+                    plt.plot(ttime, inp_acc)
+                    plt.title('Ground acceleration \n' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
+                    plt.xlabel('time [s]')
+                    plt.ylabel('Acceleration [m/s\u00b2]')
+                    plt.grid()
+                
                 #%% DYNAMIC ANALYSIS
                 # =============================================================================
                 # Dynamic analysis
@@ -279,8 +316,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
             
             
-                # Define Recorders
-                output_directory = 'output_files'
+                
                 
                 
                 # Base reaction recorder
@@ -311,13 +347,22 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     mod_gm_idx = f'00{gm_idx}'
                 elif len(str(gm_idx)) == 2:
                     mod_gm_idx = f'0{gm_idx}'
-                        
+                  
+                # Accelerations   
                 ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',
-                            '-time', '-node', *node_vec,  '-dof', 1,  'accel')
+                            '-time','-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'accel')
+                
+                # Velocities   
+                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Vels.out',
+                            '-time', '-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'vel')
+                
+                # Displacements   
+                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Diss.out',
+                            '-time', '-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'disp')
                 
                 
                 
-                
+                #%%
                 # Define dynamic load (ground motion) in the horizontal direction
                 # ------------------
                 #time series with tag 1
@@ -474,6 +519,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 # DI = (Dm - Dy)/(Du - Dy) + beta E/(Fy Du)
                 # Based on Article: 1.Park-Ang Damage Index-Based Framework ...
                 
+                '''
                 PA_beta = 0.15
                 
                 PA_Dm = abs(max(time_drift_disp[:,-1], key=abs)) # Maximal roof displacement
@@ -500,7 +546,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 
                 print('---- Park-Ang Global: %.4f -- Damage Level: ' %(PA_G) + PA_G_cl)
-                
+                '''
                 
                     
                 #%% Local - Damage Index
@@ -538,15 +584,15 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     # Based on Article: 2. Performance-based earthquake engineering design of ...
                     
                     if id_element[el_id] in col_vec: # If columns elemnt
-                        PA_beta = 0.05  # Calibration parameter
+                        PA_beta = 0.1  # Calibration parameter
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.016 # Ultimate deformation (Estimated)
-                        PA_Fy = 90000 # Yield strengh (Estimated)
+                        PA_Du = 0.059 # Ultimate deformation (Estimated)
+                        PA_Fy = 56055 # Yield strengh (Estimated)
                     elif id_element[el_id] in beam_vec: # If beam element
-                        PA_beta = 0.05 # Calibration parameter
+                        PA_beta = 0.1 # Calibration parameter
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.0215 # Ultimate deformation (Estimated)
-                        PA_Fy = 181000 # Yield strengh (Estimated)
+                        PA_Du = 0.046 # Ultimate deformation (Estimated)
+                        PA_Fy = 123255 # Yield strengh (Estimated)
                         
                         
                     
@@ -666,7 +712,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
                 
                 df.loc[gm_idx] = [ok, file_name, loadfactor, 
-                                  Energy_G, max_inter_time_drift, drift_time_cl, PA_G, PA_G_cl,
+                                  Energy_G, max_inter_time_drift, drift_time_cl,
                                   id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl]
                 gm_idx += 1
                 
@@ -688,18 +734,15 @@ print('Estimat for %.0f analyses: %.4f [s]' %(total_analyses, (global_toc - glob
 print('-- Minutes: %.4f [min]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60 ))
 print('-- Hours: %.4f [hrs]' %( (global_toc - global_tic_0)/df.shape[0]*total_analyses/60760 ))
 
-#%% Export dataframe
+#%% Export dataframes
 
+# General Structure
+Structure.to_pickle(output_directory + "/00_Structure.pkl") 
+
+# Results from Damage Index
 df.to_csv(output_directory + r'/00_Index_Results.csv')  # export dataframe to cvs
 df.to_pickle(output_directory + "/00_Index_Results.pkl") 
 #unpickled_df = pd.read_pickle("./dummy.pkl")  
-
-Structure = pd.DataFrame(columns = ['Nodes'])
-Structure['Nodes'] = node_vec
-Structure.to_pickle(output_directory + "/00_Structure.pkl") 
-
-
-
 
 
 
@@ -709,7 +752,7 @@ Structure.to_pickle(output_directory + "/00_Structure.pkl")
 
     
 damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
-damage_measures = ['Gl Drift - class', 'PA g. - class']
+damage_measures = ['Gl Drift - class']
 
 df_global = pd.DataFrame(index = damage_measures,columns = damage_labels)
 
@@ -834,6 +877,13 @@ for i in range(df_local_sort.shape[0]):
                 
 
 sys.exit()
+
+
+
+
+#%%
+
+
 #%% ??
     # delta_max = abs(max(time_topDisp[:,1]))
 
