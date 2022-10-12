@@ -45,8 +45,8 @@ plot_defo_gravity = False
 plot_modeshapes = False
 
 # Dynamic analysis
-plot_ground_acc = False
-plot_dynamic_analysis = False
+plot_ground_acc = True
+plot_dynamic_analysis = True
 
 
 #%% Folder structure
@@ -182,7 +182,8 @@ ops.loadConst('-time', 0.0)
 # Compute structural periods after gravity
 # =============================================================================
 
-omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1, 2, and 3
+#omega_sq = ops.eigen('-fullGenLapack', 3); # eigenvalue mode 1, 2, and 3       # The -fullGenLapack option is VERY SLOW for moderate to large models
+omega_sq = ops.eigen(3); # eigenvalue mode 1, 2, and 3                          # Instead; default eigen solver
 omega = np.array(omega_sq)**0.5 # circular natural frequency of modes 1 and 2
 
 periods = 2*np.pi/omega
@@ -411,7 +412,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 else: print(f"!! -- Analysis FAILED @ time {current_time} -- !!"); ok = -1
                 
 
-            
+                #%%
                 # =============================================================================
                 # plot analysis results
                 # =============================================================================
@@ -438,27 +439,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 #sectionForce = np.loadtxt(output_directory+'/2_groundmotion_section_force.out')
                 
                 
-                if plot_dynamic_analysis:
-                    
-                                              
-                    # Top displacement over time
-                    plt.figure()
-                    plt.plot(time_drift_disp[:,0],time_drift_disp[:,len(drift_nodes)])
-                    plt.title('Dynamic analysis \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
-                    plt.xlabel('Time (s)')
-                    plt.ylabel('Top displacement node %.0f (m)' %(drift_nodes[-1]))
-                    plt.grid()
-                    #plt.show()
-                    
-                    # Hysterises loop Global (Base shear vs. top disp)
-                    plt.figure()
-                    plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
-                    plt.title('Dynamic analysis - Structure \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
-                    plt.xlabel('Roof displacement (m)')
-                    plt.ylabel('Total base shear (kN)')
-                    plt.grid()
-                    #plt.show()
-                    
+                                   
                 #%% Global Damage Index 
                 print('-- Global Damage Index:')
                 #%% --Energy (Global)
@@ -552,7 +533,30 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 print('---- Park-Ang Global: %.4f -- Damage Level: ' %(PA_G) + PA_G_cl)
                 '''
-                
+                #%% Plot Global
+                if plot_dynamic_analysis:
+                    
+                                              
+                    # Top displacement over time
+                    plt.figure()
+                    plt.plot(time_drift_disp[:,0],time_drift_disp[:,len(drift_nodes)])
+                    plt.title('Dynamic analysis \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor))
+                    plt.xlabel('Time (s)')
+                    plt.ylabel('Top displacement node %.0f (m)' %(drift_nodes[-1]))
+                    plt.grid()
+                    #plt.show()
+                    
+                    # Hysterises loop Global (Base shear vs. top disp)
+                    plt.figure()
+                    plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
+                    plt.title('Dynamic analysis - Structure \n' + 
+                              'GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) + '\n' + 
+                              f'Energy: {round(Energy_G,4)}, DI_Inter={round(max_inter_time_drift,4)} ({drift_time_cl})')
+                    plt.xlabel('Roof displacement (m)')
+                    plt.ylabel('Total base shear (kN)')
+                    plt.grid()
+                    #plt.show()
+                    
                     
                 #%% Local - Damage Index
                 print('-- Local Damage Index:')
@@ -598,17 +602,28 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     if id_element[el_id] in col_vec: # If columns elemnt
                         PA_beta = 0.05  # Calibration parameter
                         
-                        PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Fy = 48123 # Yield strengh (Estimated)
+                        # Moment & Curvature: Pos (+)  --> Bottom in _Tension
+                        PA_Dy_T = 0     # Yiels deformation (Curv_y [1/m])
+                        PA_Fy_T = 48123 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_T = 0.02  # Ultimate deformation (Curv_u [1/m])
                         
-                        PA_Du = 0.02 # Ultimate deformation (Estimated)
+                        # Moment & Curvature: Neg (-) --> Bottom in _Compression
+                        PA_Dy_C = 0     # Yiels deformation (Curv_y [1/m])
+                        PA_Fy_C = 48123 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_C = 0.02  # Ultimate deformation (Curv_u [1/m])
                         
                     elif id_element[el_id] in beam_vec: # If beam element
                         PA_beta = 0.05 # Calibration parameter
                         
-                        PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Fy = 119906 # Yield strengh (Estimated)
-                        PA_Du = 0.0139 # Ultimate deformation (Estimated)
+                        # Moment & Curvature: Pos (+)  --> Bottom in _Tension
+                        PA_Dy_T = 0      # Yiels deformation (Curv_y [1/m])
+                        PA_Fy_T = 119906 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_T = 0.0139 # Ultimate deformation (Curv_u [1/m])
+                        
+                        # Moment & Curvature: Neg (-) --> Bottom in _Compression
+                        PA_Dy_C = 0      # Yiels deformation (Curv_y [1/m])
+                        PA_Fy_C = 61270  # Yield strengh     (Mome_y [Nm])
+                        PA_Du_C = 0.01 # Ultimate deformation (Curv_u [1/m])
                         
                         
                         
@@ -632,7 +647,11 @@ for rdirs, dirs, files in os.walk(folder_loads):
                         #Park-Ang
                         #'''
                         PA_Dm = abs(max(DI_x, key=abs))
-                        PA_l = (PA_Dm - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l*1000/(PA_Fy*PA_Du)
+                        if max(DI_x, key=abs) > 0: # Largent Curvature (& Moment): Pos (+) _Tension
+                            PA_l = (PA_Dm - PA_Dy_T)/(PA_Du_T - PA_Dy_T) + PA_beta*Energy_l*1000/(PA_Fy_T*PA_Du_T)
+                        else:                      # Largent Curvature (& Moment): Neg (-) _Compression
+                            PA_l = (PA_Dm - PA_Dy_C)/(PA_Du_C - PA_Dy_C) + PA_beta*Energy_l*1000/(PA_Fy_C*PA_Du_C)
+                            
                         PA_l_sec.append(PA_l)
                         
                         
@@ -643,55 +662,61 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     
                     # Determine PA - index over time for severe section
-                    max_sec_id = Energy_l_sec.index( max(Energy_l_sec) )
-                    # Damage index information of interest
-                    DI_x_sec = element_section_defs[:,(max_sec_id*2)+1 + (2*num_int)*el_id] #Deformation (curvature) 
-                    DI_y_sec = element_section_forces[:,(max_sec_id*2)+1 + (2*num_int)*el_id]/1000 #Force (Moment)
-                    
-                    
-                    PA_l_sec_Time = []
-                    PA_l_sec_cur = []
-                    
-                    PA_l_sec_T1 = []
-                    PA_l_sec_T2 = []
-                    for sec_time in range(1,len(DI_x_sec)):
-                        DI_x_sec_time = DI_x_sec[:sec_time]
-                        DI_y_sec_time = DI_y_sec[:sec_time]
+                    if False:
+                        max_sec_id = Energy_l_sec.index( max(Energy_l_sec) )
+                        # Damage index information of interest
+                        DI_x_sec = element_section_defs[:,(max_sec_id*2)+1 + (2*num_int)*el_id] #Deformation (curvature) 
+                        DI_y_sec = element_section_forces[:,(max_sec_id*2)+1 + (2*num_int)*el_id]/1000 #Force (Moment)
                         
-                        Energy_l_sec_time = np.trapz(DI_y_sec_time, x=DI_x_sec_time)
                         
-                        #'''
-                        #Park-Ang
-                        #'''
-                        PA_Dm_sec_time = abs(max(DI_x_sec_time, key=abs))
-                        PA_l_sec_time = (PA_Dm_sec_time - PA_Dy)/(PA_Du - PA_Dy) + PA_beta*Energy_l_sec_time*1000/(PA_Fy*PA_Du)
-                       
-                        PA_l_sec_Time.append(PA_l_sec_time)
-                        PA_l_sec_T1.append( (PA_Dm_sec_time - PA_Dy)/(PA_Du - PA_Dy) )
-                        PA_l_sec_T2.append( Energy_l_sec_time*1000/(PA_Fy*PA_Du) )
+                        PA_l_sec_Time = []
+                        PA_l_sec_cur = []
                         
-                        PA_l_sec_cur.append(PA_Dm_sec_time)
-                    
-                    PA_L_Time.append(PA_l_sec_Time)
-                    PA_L_T1.append(PA_l_sec_T1)
-                    PA_L_T2.append(PA_l_sec_T2)
-                    
-                    PA_L_Beta.append(PA_beta)
-                    PA_L_CUR.append(PA_l_sec_cur)
+                        PA_l_sec_T1 = []
+                        PA_l_sec_T2 = []
+                        for sec_time in range(1,len(DI_x_sec)):
+                            DI_x_sec_time = DI_x_sec[:sec_time]
+                            DI_y_sec_time = DI_y_sec[:sec_time]
+                            
+                            Energy_l_sec_time = np.trapz(DI_y_sec_time, x=DI_x_sec_time)
+                            
+                            #'''
+                            #Park-Ang
+                            #'''
+                            PA_Dm_sec_time = abs(max(DI_x_sec_time, key=abs))
+                            if max(DI_x_sec_time, key=abs) > 0: # Largent Curvature (& Moment): Pos (+) _Tension
+                                PA_l_sec_time = (PA_Dm_sec_time - PA_Dy_T)/(PA_Du_T - PA_Dy_T) + PA_beta*Energy_l_sec_time*1000/(PA_Fy_T*PA_Du_T)
+                            
+                            
+                                PA_l_sec_T1.append( (PA_Dm_sec_time - PA_Dy_T)/(PA_Du_T - PA_Dy_T) )
+                                PA_l_sec_T2.append( Energy_l_sec_time*1000/(PA_Fy_T*PA_Du_T) )
+                            else:                               # Largent Curvature (& Moment): Neg (-) _Compression
+                                PA_l_sec_time = (PA_Dm_sec_time - PA_Dy_C)/(PA_Du_C - PA_Dy_C) + PA_beta*Energy_l_sec_time*1000/(PA_Fy_C*PA_Du_C)
+                                
+                                
+                                PA_l_sec_T1.append( (PA_Dm_sec_time - PA_Dy_C)/(PA_Du_C - PA_Dy_C) )
+                                PA_l_sec_T2.append( Energy_l_sec_time*1000/(PA_Fy_C*PA_Du_C) )
+                            
+                           
+                            PA_l_sec_Time.append(PA_l_sec_time)
+                            #PA_l_sec_T1.append( (PA_Dm_sec_time - PA_Dy)/(PA_Du - PA_Dy) )
+                            #PA_l_sec_T2.append( Energy_l_sec_time*1000/(PA_Fy*PA_Du) )
+                            
+                            PA_l_sec_cur.append(PA_Dm_sec_time)
+                        
+                        PA_L_Time.append(PA_l_sec_Time)
+                        PA_L_T1.append(PA_l_sec_T1)
+                        PA_L_T2.append(PA_l_sec_T2)
+                        
+                        PA_L_Beta.append(PA_beta)
+                        PA_L_CUR.append(PA_l_sec_cur)
                     
                     
                     
                     
                     print('---- Max energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], Energy_L_sec[el_id], Energy_L[el_id]))
                     
-                    if plot_dynamic_analysis:
-                        plt.figure()
-                        plt.plot(DI_x,DI_y)
-                        plt.title('Dynamic analysis: Max E - Element ' + str(id_element[el_id]) + ' Section ' + str(Energy_L_sec[el_id]) + 
-                                  ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
-                        plt.xlabel('Curvature (-)')
-                        plt.ylabel('Moment (kNm)')
-                        plt.grid()  
+                      
                         
                         
                         
@@ -714,7 +739,17 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                     print('---- Max PA_L - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], PA_L_sec[el_id], PA_L[el_id]) + ' Damage: ' + PA_L_cl)
                     
-    
+                    #%% Plot Elements
+                    if plot_dynamic_analysis:
+                        plt.figure()
+                        plt.plot(DI_x,DI_y)
+                        plt.title('Dynamic analysis: Max E - Element ' + str(id_element[el_id]) + ' Section ' + str(Energy_L_sec[el_id]) + 
+                                  ' \n GM: ' + file_name + ' -  Loadfactor: ' + str(loadfactor) +
+                                  f' \n Energy: {round(Energy_L[el_id],4)}, PA={round(PA_L[el_id],4)} ({PA_L_cl})')
+                        plt.xlabel('Curvature (-)')
+                        plt.ylabel('Moment (kNm)')
+                        plt.grid()
+                        
                 #%% --Plastic Deformation (Local)
                 '''
                 # Plastic deformation (+ Time)
@@ -910,13 +945,15 @@ plt.show()
 #%% Story wise
 damage_labels = ['No damage', 'Minor', 'Moderate', 'Severe', 'Collapse']
 
-damage_sorts = ['1B', '2B', '3B', '1C', '2C', '3C']
+damage_sorts = ['1B', '2B', '3B', '1C', '2C', '3C', 'All Beams', 'All Columns']
 sort_crit = [[2021, 2122, 2223],        # Beams 1st floor (1B)
              [3031, 3132, 3233],        # Beams 2nd floor (2B)
              [4041, 4142, 4243],        # Beams 3rd floor (3B)
              [1020, 1121, 1222, 1323],  # Columns 1st floor (1C)
              [2030, 2131, 2232, 2333],  # Columns 2nd floor (2C)
-             [3040, 3141, 3242, 3343]]  # Columns 3rd floor (3C)
+             [3040, 3141, 3242, 3343], # Columns 3rd floor (3C)
+             [2021, 2122, 2223, 3031, 3132, 3233, 4041, 4142, 4243],                    # All Beams
+             [1020, 1121, 1222, 1323, 2030, 2131, 2232, 2333, 3040, 3141, 3242, 3343]]  # All Columns
 
 df_local_sort = pd.DataFrame(index = damage_sorts, columns = damage_labels)
 df_local_sort.fillna(0, inplace=True) # Replace nan with 0
