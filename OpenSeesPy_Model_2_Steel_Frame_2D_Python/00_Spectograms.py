@@ -27,9 +27,9 @@ import os
 
 #%% Folder structure
 
-folder_accs = r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\output_files\ACCS'
+folder_accs = r'output_files\ACCS'
 
-folder_structure = r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\output_files'
+folder_structure = r'output_files'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -40,7 +40,7 @@ struc_nodes = Structure.Nodes[0]
 struc_periods = list(Structure.Periods[0])
 
 #%%
-load_IDs = ['000']
+load_IDs = ['000', '001']
 load_Nodes = [23, 33, 43]
 
 load_Nodes_id = []
