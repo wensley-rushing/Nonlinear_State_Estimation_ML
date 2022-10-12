@@ -45,8 +45,8 @@ plot_defo_gravity = False
 plot_modeshapes = False
 
 # Dynamic analysis
-plot_ground_acc = True
-plot_dynamic_analysis = True
+plot_ground_acc = False
+plot_dynamic_analysis = False
 
 
 #%% Folder structure
@@ -301,6 +301,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 if plot_ground_acc:
                     desc, npts, dtt, ttime, inp_acc = DamageTools.processNGAfile(load_file)
                     
+                    
                     plt.figure()
                     plt.plot(ttime, inp_acc)
                     plt.title('Ground acceleration \n' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
@@ -316,10 +317,21 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 #read record
                 dt, nPts = ReadRecord(load_file, load_dat_file)
                 
-            
-            
+                
+                               
+                #%%
+                # Define dynamic load (ground motion) in the horizontal direction
+                # ------------------
+                #time series with tag 1
+                ops.timeSeries('Path', 1,'-filePath' ,load_dat_file, '-dt', dt,'-factor', loadfactor*g)
                 
                 
+                #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
+                ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
+                
+                
+                
+                #%%
                 
                 # Base reaction recorder
                 ops.recorder('Node', '-file', output_directory+'/2_Reaction_Base.out',
@@ -351,46 +363,19 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     mod_gm_idx = f'0{gm_idx}'
                   
                 # Accelerations   
-                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',
-                            '-time','-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'accel')
+                # ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',     # Relative acc
+                #             '-time','-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'accel')
+                
+                ops.recorder ('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',      # Absolute acc
+                                '-time','-dT', 0.02, '-timeSeries', 1, '-node',*node_vec,'-dof', 1, 'accel')
                 
                 # Velocities   
-                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Vels.out',
+                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Vels.out',         # Relative vel
                             '-time', '-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'vel')
                 
                 # Displacements   
-                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Diss.out',
+                ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Diss.out',         # Relative displ
                             '-time', '-dT', 0.02, '-node', *node_vec,  '-dof', 1,  'disp')
-                
-                
-                
-                #%%
-                # Define dynamic load (ground motion) in the horizontal direction
-                # ------------------
-                #time series with tag 1
-                ops.timeSeries('Path', 1,'-filePath' ,load_dat_file, '-dt', dt,'-factor', loadfactor*g)
-                
-                
-                # For measuring RELATIVE responses
-                if False:
-                    #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
-                    ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
-                
-                
-                # For measuring ABSOLUTE responses
-                if True:
-                    #pattern(   'MultiSupport', patternTag)
-                    ops.pattern('MultipleSupport', 1)
-                    #groundMotion( gmTag, ,'Series', '-accel', accelseriesTag)
-                    ops.groundMotion(101, 'Series', '-accel', 1)
-                    
-                    
-                    
-                    for sub_node in support_nodes:
-                        #imposedSupportMotion( nodeTag, ,dir, gmTag)
-                        ops.imposedMotion(sub_node,1,101)
-                
-                
                 
                 
                 # ---- Create Analysis
@@ -965,7 +950,8 @@ for i in range(df_local_sort.shape[0]):
     plt.title('Local Damge Class \n Position:' + df_local_sort.index[i])
     ax.yaxis.grid()
     plt.show()
-                
+    
+
 
 sys.exit()
 
