@@ -371,8 +371,26 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 ops.timeSeries('Path', 1,'-filePath' ,load_dat_file, '-dt', dt,'-factor', loadfactor*g)
                 
                 
-                #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
-                ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
+                # For measuring RELATIVE responses
+                if False:
+                    #pattern(   'UniformExcitation', patternTag, dir,'-accel', accelSeriesTag)
+                    ops.pattern('UniformExcitation', 1,          1,  '-accel', 1)
+                
+                
+                # For measuring ABSOLUTE responses
+                if True:
+                    #pattern(   'MultiSupport', patternTag)
+                    ops.pattern('MultipleSupport', 1)
+                    #groundMotion( gmTag, ,'Series', '-accel', accelseriesTag)
+                    ops.groundMotion(101, 'Series', '-accel', 1)
+                    
+                    
+                    
+                    for sub_node in support_nodes:
+                        #imposedSupportMotion( nodeTag, ,dir, gmTag)
+                        ops.imposedMotion(sub_node,1,101)
+                
+                
                 
                 
                 # ---- Create Analysis
@@ -594,14 +612,19 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     if id_element[el_id] in col_vec: # If columns elemnt
                         PA_beta = 0.05  # Calibration parameter
+                        
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.02 # Ultimate deformation (Estimated)
                         PA_Fy = 48123 # Yield strengh (Estimated)
+                        
+                        PA_Du = 0.02 # Ultimate deformation (Estimated)
+                        
                     elif id_element[el_id] in beam_vec: # If beam element
                         PA_beta = 0.05 # Calibration parameter
+                        
                         PA_Dy = 0 # Yiels deformation (Estimated)
-                        PA_Du = 0.02 # Ultimate deformation (Estimated)
-                        PA_Fy = 120000 # Yield strengh (Estimated)
+                        PA_Fy = 119906 # Yield strengh (Estimated)
+                        PA_Du = 0.0139 # Ultimate deformation (Estimated)
+                        
                         
                         
                     
