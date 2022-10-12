@@ -46,7 +46,12 @@ beam_ult_idx = AnySection[AnySection.iloc[:,1]==127.04].index.values.astype(int)
 column_capacity = pd.read_csv((output_capacity_directory + "/column_pushover.csv"), usecols = [1,2,3,4,5,6])
 beam_capacity = pd.read_csv((output_capacity_directory + "/beam_pushover.csv"), usecols = [1,2,3,4,5,6])
 
+# Equations
 
+column_capacity_IDARC_x = [0,0.0056, 0.02]
+column_capacity_IDARC_y = [0, 48.123, 59.33]
+beam_capacity_IDARC_x = [0,0.005, 0.0155]
+beam_capacity_IDARC_y = [0, 120, 147.4]
 
 # Plot 1: Park and Ang
 
@@ -63,11 +68,12 @@ plt.show()
 plt.figure()
 plt.plot(AnySection.iloc[:col_ult_idx,2], AnySection.iloc[:col_ult_idx,3], label = 'AnySection')
 plt.plot(column_capacity.loc[:,'Curv'], column_capacity.loc[:,'M'], label = 'OpenSees')
+plt.plot(column_capacity_IDARC_x, column_capacity_IDARC_y, label = 'IDARC')
 plt.xlabel('Curvature')
 plt.ylabel('Moment (kNm)')
 plt.title('Capacity - Column')
 plt.grid()
-plt.legend()
+plt.legend(loc='lower right')
 plt.show()
 
 
@@ -76,11 +82,12 @@ plt.show()
 plt.figure()
 plt.plot(AnySection.iloc[:beam_ult_idx,0], AnySection.iloc[:beam_ult_idx,1], label = 'AnySection')
 plt.plot(beam_capacity.loc[:,'Curv'], beam_capacity.loc[:,'M'], label = 'OpenSees')
+plt.plot(beam_capacity_IDARC_x, beam_capacity_IDARC_y, label = 'IDARC')
 plt.xlabel('Curvature')
 plt.ylabel('Moment (kNm)')
 plt.title('Capacity - Beam')
 plt.grid()
-plt.legend()
+plt.legend(loc='lower right')
 plt.show()
 
 import sys
