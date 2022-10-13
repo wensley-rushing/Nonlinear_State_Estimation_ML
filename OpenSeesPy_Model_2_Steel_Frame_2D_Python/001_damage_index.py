@@ -45,8 +45,8 @@ plot_defo_gravity = False
 plot_modeshapes = False
 
 # Dynamic analysis
-plot_ground_acc = True
-plot_dynamic_analysis = True
+plot_ground_acc = False
+plot_dynamic_analysis = False
 
 
 #%% Folder structure
@@ -250,7 +250,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\50_Motions_2')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -530,7 +530,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 #print('---- Max drift: ' + str(round(max_drift,4)))
                 #print('---- Max inter. drift: ' + str(round(max_inter_drift,4))  + ' - Class: ' + drift_cl)
-                print('---- Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
+                #!print('---- Max inter. time drift: ' + str(round(max_inter_time_drift,4))  + ' - Class: ' + drift_time_cl)
                     
                 
                 #%% --Park-Ang (Global)
@@ -746,7 +746,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     
                     
-                    print('---- Max energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], Energy_L_sec[el_id], Energy_L[el_id]))
+                    #!print('---- Max energy - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], Energy_L_sec[el_id], Energy_L[el_id]))
                     
                       
                         
@@ -769,7 +769,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     PA_L_Cl.append(PA_L_cl)
                 
-                    print('---- Max PA_L - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], PA_L_sec[el_id], PA_L[el_id]) + ' Damage: ' + PA_L_cl)
+                    #!print('---- Max PA_L - Element %.0f, Section %.0f: %.4f' %(id_element[el_id], PA_L_sec[el_id], PA_L[el_id]) + ' Damage: ' + PA_L_cl)
                     
                     #%% Plot Elements
                     if plot_dynamic_analysis:
