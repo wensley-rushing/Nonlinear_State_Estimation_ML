@@ -122,7 +122,7 @@ elif define_model == '3x3':
 H1 = 3.5*m        # height first floor
 L1 = 5.5*m        #m      length first span 
 M = [4100, 2800 , 5300, 3300] *kg 	  #kg		lumped mass at top corner nodes - excel calculation
-dampRatio = 0.02
+dampRatio = 0.03
 
 
 
@@ -211,7 +211,7 @@ if plot_modeshapes:
 
     
 omega1_ray = omega[0]
-omega2_ray = omega[0]
+omega2_ray = omega[2]
 
 
 alphaM = 2.0*dampRatio*omega1_ray*omega2_ray/(omega1_ray+omega2_ray)
@@ -402,10 +402,42 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 maxT =  (1+nPts)*dt;    # final time of the analysis
                 #ops.setTime(0)
                 
+                dt_analysis = 0.005
                 while ok == 0 and current_time<maxT:
-                    ok = ops.analyze(1,dt)
+                    ok = ops.analyze(1,dt_analysis)
+                    
+                    # if solution doesn't converge, then it will return a value different from 0
+                    
+                    if ok!= 0:
+                        print(f'time {current_time} - reducing the time step by half')
+                        ok = ops.analyze(1,dt_analysis/2)
+                    
+                    if ok!= 0:
+                        print(f'time {current_time} - reducing the time step by 10 times')
+                        ok = ops.analyze(1,dt_analysis/10)
+                        
+                    if ok!= 0:
+                        print(f'time {current_time} - changing solution algorithm')
+                        ops.algorithm('KrylovNewton') # or something else
+                        ok = ops.analyze(1,dt_analysis/10)
+                        
+                        #return to original settings
+                        ops.algorithm('Newton') # or what you had before
+                    
+                    if ok!= 0:
+                        print(f'time {current_time} - increasing the tolerance')
+                        # only do this if your initial tolerance was very small
+                        # do not increase too much https://portwooddigital.com/2021/02/28/norms-and-tolerance/
+                        ops.test('NormUnbalance', 1e-5, 100) # or something else
+                        ops.algorithm('KrylovNewton')        # or something else
+                        ok = ops.analyze(1,dt_analysis/10)
+                        
+                        #return to original settings
+                        ops.test('NormDispIncr', 1e-8, 100)     # or what you had before
+                        ops.algorithm('Newton')                 # or what you had before
+                    
+                    
                     current_time = ops.getTime()
-                    #print(current_time)
                 
                 
                 if ok == 0: print("Dynamic analysis: SUCCESSFULL")
@@ -600,30 +632,30 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     # Based on Article: 2. Performance-based earthquake engineering design of ...
                     
                     if id_element[el_id] in col_vec: # If columns elemnt
-                        PA_beta = 0.05  # Calibration parameter
+                        PA_beta = 0.15  # Calibration parameter
                         
                         # Moment & Curvature: Pos (+)  --> Bottom in _Tension
                         PA_Dy_T = 0     # Yiels deformation (Curv_y [1/m])
-                        PA_Fy_T = 48123 # Yield strengh     (Mome_y [Nm])
-                        PA_Du_T = 0.02  # Ultimate deformation (Curv_u [1/m])
+                        PA_Fy_T = 55100 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_T = 0.059  # Ultimate deformation (Curv_u [1/m])
                         
                         # Moment & Curvature: Neg (-) --> Bottom in _Compression
                         PA_Dy_C = 0     # Yiels deformation (Curv_y [1/m])
-                        PA_Fy_C = 48123 # Yield strengh     (Mome_y [Nm])
-                        PA_Du_C = 0.02  # Ultimate deformation (Curv_u [1/m])
+                        PA_Fy_C = 55100 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_C = 0.059  # Ultimate deformation (Curv_u [1/m])
                         
                     elif id_element[el_id] in beam_vec: # If beam element
-                        PA_beta = 0.05 # Calibration parameter
+                        PA_beta = 0.15 # Calibration parameter
                         
                         # Moment & Curvature: Pos (+)  --> Bottom in _Tension
                         PA_Dy_T = 0      # Yiels deformation (Curv_y [1/m])
-                        PA_Fy_T = 119906 # Yield strengh     (Mome_y [Nm])
-                        PA_Du_T = 0.0139 # Ultimate deformation (Curv_u [1/m])
+                        PA_Fy_T = 215380 # Yield strengh     (Mome_y [Nm])
+                        PA_Du_T = 0.057 # Ultimate deformation (Curv_u [1/m])
                         
                         # Moment & Curvature: Neg (-) --> Bottom in _Compression
                         PA_Dy_C = 0      # Yiels deformation (Curv_y [1/m])
-                        PA_Fy_C = 61270  # Yield strengh     (Mome_y [Nm])
-                        PA_Du_C = 0.01 # Ultimate deformation (Curv_u [1/m])
+                        PA_Fy_C = 215380  # Yield strengh     (Mome_y [Nm])
+                        PA_Du_C = 0.057 # Ultimate deformation (Curv_u [1/m])
                         
                         
                         

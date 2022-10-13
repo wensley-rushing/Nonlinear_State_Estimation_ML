@@ -112,14 +112,14 @@ def define_RCSections():
     coverH_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to H
     coverB_beam = 25*mm		# Column cover to reinforcing steel NA, parallel to B
     
-    numBarsTop_beam = 3		# number of longitudinal-reinforcement bars in steel layer. -- top
+    numBarsTop_beam = 6		# number of longitudinal-reinforcement bars in steel layer. -- top
     numBarsBot_beam = 6		# number of longitudinal-reinforcement bars in steel layer. -- bot
     numBarsIntTot_beam = 0			# number of longitudinal-reinforcement bars in steel layer. -- total intermediate skin reinforcement, symm about y-axis
     NumBars_beam = [numBarsTop_beam, numBarsBot_beam, numBarsIntTot_beam]
     
     
-    diaBarsTop_beam = 12*mm # Bar individual bar diameter top
-    diaBarsBot_beam = 12*mm # Bar individual bar diameter bottom
+    diaBarsTop_beam = 16*mm # Bar individual bar diameter top
+    diaBarsBot_beam = 16*mm # Bar individual bar diameter bottom
     diaBarsInt_beam = 0*mm # Bar individual bar diameter intermediate
     
     barAreaTop_beam = np.pi*diaBarsTop_beam**2/4	# area of longitudinal-reinforcement bars -- top
