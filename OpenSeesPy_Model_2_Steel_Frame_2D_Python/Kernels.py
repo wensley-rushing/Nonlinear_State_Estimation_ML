@@ -149,22 +149,22 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
    
 
 #%% Getting ws
-length_subvec = 25; length_step = 25
+length_subvec = 25; length_step = 5
 
 
 # Training - X
-load_IDs = ['000','001'] # Indicator if total time n
+load_IDs = ['000','001', '002', '003', '004', '005', '006', '007', '008', '009'] # Indicator if total time n
 load_Nodes_X = [23, 33, 43] # Indicator of dimension d
 
 # Training - Y
 #load_IDs : Same as for Training X
-load_Nodes_Y = [40]
+load_Nodes_Y = [32]
 
 df_ZX, df_ZY = load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=length_subvec, step_size=length_step)
 
 
 # Testing - X*
-load_IDss = ['002'] # Indicator if total time m
+load_IDss = ['010'] # Indicator if total time m
 load_Nodes_Xs = load_Nodes_X
 
 # Testing - Y*
@@ -184,7 +184,7 @@ def kernel_sum(df_ZX_s, df_ZX_t):
     index_s = range(len(df_ZX_s.iloc[1,0]))
     index_t = range(len(df_ZX_t.iloc[1,0]))
     
-    print(f'S: {index_s}, T: {index_t}')
+    #print(f'S: {index_s}, T: {index_t}')
     
         
     df_w = pd.DataFrame(columns = index_t , index = index_s)
@@ -228,7 +228,7 @@ K = pd.DataFrame(columns=[0,1,2,3], index=['K'])
 df_id = 0
 for dfs in [df_ZX, df_ZXs]:
     for dft in [df_ZX, df_ZXs]:
-        print(df_id)
+        #print(df_id)
         a = kernel_sum(dfs, dft)
         K[df_id]['K'] = a
         df_id += 1
@@ -253,10 +253,8 @@ kernel_sum(df_ZX_s, df_ZX_s)
 
 #%% Plots
 plt.figure()
-plt.plot(df_ZYs[40]['ACCS'][0], alpha=0.2)
-plt.plot(range(length_subvec,len(df_ZYs[40]['ACCS'][0]),length_step), mus)
-
-
-
+node_head = load_Nodes_Y[0]
+plt.plot(df_ZYs[node_head]['ACCS'][0], alpha=0.2)
+plt.plot(range(length_subvec,len(df_ZYs[node_head]['ACCS'][0]),length_step), mus)
 plt.grid()
 
