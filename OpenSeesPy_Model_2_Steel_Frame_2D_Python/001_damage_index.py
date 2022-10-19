@@ -250,7 +250,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\50_Motions_2')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -362,6 +362,8 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     mod_gm_idx = f'00{gm_idx}'
                 elif len(str(gm_idx)) == 2:
                     mod_gm_idx = f'0{gm_idx}'
+                elif len(str(gm_idx)) == 3:
+                    mod_gm_idx = f'{gm_idx}'
                   
                 # Accelerations   
                 # ops.recorder('Node', '-file', output_directory+f'/ACCS/ID_{mod_gm_idx}_Time_Node_Accs.out',     # Relative acc
