@@ -40,8 +40,8 @@ struc_nodes = Structure.Nodes[0]
 struc_periods = list(Structure.Periods[0])
 
 #%%
-load_IDs = ['000','001', '002', '003', '004', '005', '006', '007', '008', '009', '010']
-load_Nodes = [23, 33, 43, 32]
+load_IDs = ['010', '011']
+load_Nodes = [32]
 
 load_Nodes_id = []
 for i in range(len(load_Nodes)):
