@@ -18,6 +18,9 @@ import os
 # Import time-keeping
 import time
 
+# Create distance matrix faster
+from scipy.spatial import distance_matrix
+
 
 #%%
 def norm_p(x1, x2, p=2):
@@ -257,6 +260,13 @@ ker_toc = time.time()
 ker_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ker_toc))
 #print(f'END: Determine Kernel @ {ker_time}')
 print(f'Duration [sec]: {round((ker_toc-ker_tic),4)} - [min]: {round((ker_toc-ker_tic)/60,4)} - [hrs]: {round((ker_toc-ker_tic)/60/60,4)} \n')
+#%% Faster method - Test
+
+length_Zww = len(df_ZX.iloc[1,0])
+K0  = np.zeros((length_Zww,length_Zww))
+for i in df_ZX.columns.tolist():
+    K0 += np.exp( -1/(2*1)*(distance_matrix(df_ZX[i]['Z'],df_ZX[i]['Z'],p=2)**2))
+
 #%% Determine mean: mu and variance Sigma
 '''0: WW, 1: WS, 2: SW, 3: SS '''
 y = np.array(df_ZY[load_Nodes_Y[0]]['Yi'])
