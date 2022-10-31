@@ -149,9 +149,9 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 # Training data ---------------------------------------------------------------
 
 # Indicator if total time n
-load_IDs = ['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
-            '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
-            '130',  '098',  '040',  '078',  '297',  '012']
+load_IDs = ['182',  '086',  '247',  '149',  '052']#,  '094',  '250',  '138',  
+            # '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
+            # '130',  '098',  '040',  '078',  '297',  '012']
 
 # Training - X                                                                                 
 load_Nodes_X = [23, 33, 43] # Indicator of dimension d
@@ -199,6 +199,9 @@ tau2_ks = 1
 # Error scale for both WW and SS
 sigma2_error = 0
 Ker_par=[sigma2_ks, tau2_ks, sigma2_error]
+
+
+optimize_model = 1
 #%%
 
 # #%% Gaussian Process Model for Regression
@@ -260,10 +263,11 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
     # Create Overall Dataframe X
     columns = np.array(load_Nodes_X) # k ---> (p)
     #index = np.array(load_IDs) # i
-    df_ZX = pd.DataFrame(columns = columns , index = ['ACCS', 'Z'])
+    df_ZX = pd.DataFrame(columns = columns , index = ['ACCS', 'Z', 'Z_list'])
     for head in df_ZX.columns:
         df_ZX[head]['ACCS'] = []
         df_ZX[head]['Z'] = []
+        df_ZX[head]['Z_list'] = []
         
         
     # Create Overall Dataframe Y
@@ -318,6 +322,7 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
                     #(if step = 1 then the vector takes 1 step [1 new value + spits out 1 value] )
                     #(if step = L then the vector takes L steps NO OVERLAP [L new values + spits out L values] )
                     # Range of sub-vectors z_ik (i = last element in sub-vector)
+                    Zi = []
                     for i in range(l,len(accs)+1, move_step):
                         #print(f'i={i}--')
                         
@@ -327,6 +332,8 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
                             
                             z.append(accs[idx])
                         df_ZX[load_Nodes_X[j]]['Z'].append( z )
+                        Zi.append(z)
+                    df_ZX[load_Nodes_X[j]]['Z_list'].append( Zi )
                         #print(z)
                         
                 # Load Accelerations in nodes Y
@@ -347,16 +354,26 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
 # Training - X
 df_ZX, df_ZY = load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=length_subvec, step_size=length_step)
 
-X = []
-for Node in df_ZX.columns.tolist():
-    X.append(df_ZX[Node]['Z'])
+X = df_ZX[df_ZX.columns[0]]['Z']
+if len(list(df_ZX.columns)) > 1:
+    for Node in list(df_ZX.columns)[1:]:
+        X = np.append(X,df_ZX[Node]['Z'], axis=1)
     
-Y = []
-for Node in df_ZY.columns.tolist():
-    Y.append(df_ZY[Node]['Yi'])
+Y = df_ZY[df_ZY.columns[0]]['Yi']
+Y = np.array(Y).reshape(-1,1)
+
+
                        
 # Testing - X* 
 df_ZXs, df_ZYs = load_to_w(load_IDss, load_Nodes_Xs, load_Nodes_Ys, len_sub_vector=length_subvec , step_size=length_step)        
+
+Xs = df_ZXs[df_ZXs.columns[0]]['Z']
+if len(list(df_ZXs.columns)) > 1:
+    for Node in list(df_ZXs.columns)[1:]:
+        Xs = np.append(Xs,df_ZXs[Node]['Z'], axis=1)
+    
+Ys = df_ZYs[df_ZYs.columns[0]]['Yi']
+Ys = np.array(Ys).reshape(-1,1)
 
 # print('END - Convering to w-vectors')
 
@@ -453,14 +470,28 @@ KR = np.append(K[1]['K'],K[3]['K'] ,axis=0)
 K[4]['K'] = np.append(KL,KR ,axis=1)
 '''
 
+print('Subvector length:', length_subvec)
 # Based only on X values (Kernel 0 given total_dim=1)
-ker = GPy.kern.RBF(input_dim=1, variance=1., lengthscale=1., active_dims=[0], ARD = False) 
+len_idx = 0
+ker = GPy.kern.RBF(input_dim=length_subvec, variance=1., lengthscale=1., active_dims=list(range((len_idx)*length_subvec,(len_idx+1)*length_subvec,1)))
 
+print('Number of sensors:', len(df_ZX.columns))
 if len(df_ZX.columns) > 1:
     for ker_activate_id in range(1,len(df_ZX.columns)):
-        ker += GPy.kern.RBF(input_dim=1, variance=1., lengthscale=1., active_dims=[ker_activate_id], ARD = False) 
+        len_idx += 1
+        ker += GPy.kern.RBF(input_dim=length_subvec, variance=1., lengthscale=1., active_dims=list(range((len_idx)*length_subvec,(len_idx+1)*length_subvec,1)))
 
-print(ker)
+
+# Constrain Kernel
+if False:
+    print('Kernel constrain')
+    
+    for i in [1,2]:
+        ker[f'.*rbf_{i}.variance'].constrain_fixed()
+        ker[f'.*rbf_{i}.lengthscale'].constrain_fixed()
+
+
+#print(ker)
 
 
 #------------------------------------------------------------------------------
@@ -469,17 +500,83 @@ ker_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ker_toc))
 #print(f'END: Determine Kernel @ {ker_time}')
 print(f'Duration [sec]: {round((ker_toc-ker_tic),4)} - [min]: {round((ker_toc-ker_tic)/60,4)} - [hrs]: {round((ker_toc-ker_tic)/60/60,4)} \n')
 
+#%% Define Model / Optimize Model
 
+model_tic = time.time()
+model_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(model_tic))
+print(f'Determine Model @ {model_time}')
+#------------------------------------------------------------------------------
+
+model = GPy.models.GPRegression(X,Y,ker)
+
+# Constrain Model
+if False:
+    print('Model constrain \n')
+    model['.*Gaussian_noise.variance'].constrain_fixed()
+
+
+
+print('Non-optimized model', model, '\n')
+
+
+if optimize_model == 1:
+    
+    opt_tic = time.time()
+    opt_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(opt_tic))
+    print(f'--Optimize Model @ {opt_time}')
+    #--------------------------------------------------------------------------
+ 
+    model_optimizer_idx = 0
+    max_iters = 1000
+    model_optimizer = model.optimize(messages=True, ipython_notebook=False, max_iters=max_iters)
+    #model.optimize_restarts(num_restarts = 10)
+    
+    # if model_optimizer.status != 'Converged':
+    #     model_optimizer = model.optimize(optimizer='scg', 
+    #                                      messages=True, ipython_notebook=False, 
+    #                                      max_iters=max_iters)
+        
+        # model_optimizer_idx += 1
+    print('Optimized model \n', model)
+    
+    
+    
+#------------------------------------------------------------------------------    
+model_toc = time.time()
+model_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(model_toc))
+
+print(f'Duration [sec]: {round((model_toc-model_tic),4)} - [min]: {round((model_toc-model_tic)/60,4)} - [hrs]: {round((model_toc-model_tic)/60/60,4)} \n')
 
 #%% Plot of Kernel
-if False:
-    length_WW = len(df_ZX.iloc[1,0])
-    length_ss = len(df_ZXs.iloc[1,0])
+if True:
+    length_WW = len(X)
+    length_ss = len(Xs)
+    XXs = np.append(X,Xs, axis=0)
     
+    ker_X = XXs
+    
+    ker_var = [ker['.*rbf.variance'][0]]
+    ker_lengh_scale = [ker['.*rbf.lengthscale'][0]]
+    for i in [1,2]:
+        ker_var.append( ker[f'.*rbf_{i}.variance'][0] )
+        ker_lengh_scale.append( ker[f'.*rbf_{i}.lengthscale'][0] )
+    
+    model_noise = model['.*Gaussian_noise.variance'][0]
+    
+    # Rounding inputs
+    ker_var = list(np.around(np.array(ker_var),2))
+    ker_lengh_scale = list(np.around(np.array(ker_lengh_scale),2))
+    model_noise = round(model_noise,2)
+    
+    #---------------------------------------------------------------------------
     cm = 1/2.54  # centimeters in inches
-    fig, ax = plt.subplots(1, figsize=(20*cm, 15*cm))
+    fig, ax = plt.subplots(1, figsize=(20*cm, 17*cm))
     #plt.figure()
-    plt.imshow( K[4]['K'] , cmap = 'autumn' , interpolation = 'nearest' )
+    
+    #plt.matshow()
+    #plt.colorbar()
+    
+    plt.imshow(ker.K(ker_X) , cmap = 'autumn' , interpolation = 'nearest' )
     plt.colorbar();
     
     plt.axvline(x=length_WW, ls='--', linewidth=1, color='black')
@@ -499,13 +596,15 @@ if False:
     # General in figure
     fig.suptitle( 'Kernel Heat Map' )
     ax.set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
-                 f' $\sigma^2_k$ = {sigma2_ks}, $\u03C4^2_k$ = {tau2_ks}, $\sigma^2_\epsilon$ = {sigma2_error} \n' +
+                 f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
                  f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
                  x=0, y=1, ha='left', va='bottom', fontsize=7)
     #plt.show()
     
     plt.savefig(os.path.join(folder_hyperOpt,f'Kernel_l{length_subvec}_step{length_step}_sigma{sigma2_ks}_tau{tau2_ks}_error{sigma2_error}.png'))
-    plt.close()
+    #plt.close()
+    
+
 #%% Determine mean: mu and variance Sigma
 '''0: WW, 1: WS, 2: SW, 3: SS '''
 
@@ -517,23 +616,8 @@ Sigma = K[3]['K'] - K[2]['K'].dot( np.linalg.inv(K[0]['K']) ).dot(K[1]['K'])
 
 sigma_i = np.diagonal(Sigma)**.5
 '''
-
-m = GPy.models.GPRegression(X,Y,ker)
-
-
-sys.exit()
-#%% TEST - Obtain FULL Kernel 
-if False:
-    df_ZX_s = df_ZX.copy()
-    
-    for head in df_ZX_s.columns.tolist():
-        #print()
-        #print(df_ZX_s[head]['Z'])
-        df_ZX_s[head]['Z'].extend(df_ZXs[head]['Z'])
-        #print()
-        #print(df_ZX_s[head]['Z'])
-        
-    kernel_sum(df_ZX_s, df_ZX_s, sigma2_scale_factor=sigma2_ks, tau2_lenth_scale=tau2_ks)
+mus = model.predict(Xs)[0]
+sigma_i = model.predict(Xs)[1]**.5
 
 #%% Time - toc
 global_tic_1 = time.time()
@@ -549,10 +633,15 @@ def errors(y_true, y_pred):
     RMSE = ((y_pred - y_true)**2).mean() **.5
     
     SMSE = ((y_pred - y_true)**2).mean() / y_true.var()
-        
-    DIST = ((y_pred - y_true)**2).sum() **.5
-    DISTN = ((y_pred/y_true - 1)**2).sum() **.5
-    return RMSE, SMSE, DIST, DISTN
+    
+    MAE = (abs(y_pred - y_true)).mean()
+    MAPE = (abs((y_pred - y_true)/y_true)).mean()*100
+    
+    TRAC = ( np.dot(y_pred.T,y_true)**2 / (np.dot(y_true.T,y_true)*np.dot(y_pred.T,y_pred)) )[0][0]
+    # Dustance    
+    #DIST = ((y_pred - y_true)**2).sum() **.5
+    #DISTN = ((y_pred/y_true - 1)**2).sum() **.5
+    return RMSE, SMSE, MAE, MAPE, TRAC
 
 #%% Plot Predictions and errors
 if True:
@@ -561,7 +650,7 @@ if True:
     for IDss in load_IDss:
         columns.append(IDss + f'_{load_Nodes_Y[0]}')
     
-    df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'DIST'])
+    df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'MAE','MAPE', 'TRAC'])
     
     print('Plotting Routine')
     print('------------------------------------------------- \n')
@@ -586,10 +675,13 @@ if True:
         # Predict
         x_temp = np.arange(length_subvec,len(acc),length_step)*0.02 # range(length_subvec,len(acc),length_step)
         mus_temp = mus[temp:temp+len(x_temp)]
+        sigma_i_temp = sigma_i[temp:temp+len(x_temp)]
         
         ax[0].plot(x_temp, mus_temp, 
                  alpha=0.8, label='Predicted')
         
+        # ax[0].plot(x_temp, sigma_i_temp, 
+        #          alpha=0.8, label='SD')
         
         #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
         
@@ -607,9 +699,10 @@ if True:
         
         fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
         ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
-                        f' $\sigma^2_k$ = {sigma2_ks}, $\u03C4^2_k$ = {tau2_ks}, $\sigma^2_\epsilon$ = {sigma2_error} \n' +
-                        f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
-                        x=0, y=0.97, ha='left', va='bottom', fontsize=7)
+                     f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
+                     f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
+                        x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+        model_optimizer
         plt.xlabel('time [s]')
         fig.tight_layout()
         #plt.xlim(2000,3000)
@@ -620,41 +713,77 @@ if True:
         
         RMSE = []
         SMSE = []
-        DIST = []
-        DISTN = []
+        MAE = []
+        MAPE = []
+        TRAC = []
         for i in range(len(mus_temp)):
-            y_true = np.array(acc[length_subvec:len(acc):length_step][:i])
-            y_pred = mus_temp[:i]
+            y_true = np.array(acc[length_subvec:len(acc):length_step][:i]).reshape(-1,1)
+            y_pred = mus_temp[:i].reshape(-1,1)
             
-            RM, SM, D, DN = errors(y_true, y_pred)
+            RM, SM, MA, MP, TR = errors(y_true, y_pred)
             RMSE.append(RM)
             SMSE.append(SM)
-            DIST.append(D)
-            DISTN.append(DN)
+            MAE.append(MA)
+            MAPE.append(MP)
+            TRAC.append(TR)
               
         df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['RMSE'] = RMSE[-1]
         df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['SMSE'] = SMSE[-1]
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['DIST'] = DIST[-1]
+        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAE'] = MAE[-1]
+        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAPE'] = MAPE[-1]
+        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['TRAC'] = TRAC[-1]
             
         #plt.figure()
-        ax[1].plot(x_temp, DIST, alpha=1, label='Distance')
+        
+        # Plot errors
+        '''
+        #ax[1].plot(x_temp, DIST, alpha=1, label='Distance')
         #plt.plot(range(length_subvec,len(acc),length_step), DISTN, alpha=1, label='Distance - Norm')
         ax[1].plot(x_temp, RMSE, alpha=1, label='RMSE')
         #ax[1].plot(x_temp, SMSE, alpha=1, label='SMSE')
+        ax[1].plot(x_temp, MAE, alpha=1, label='MAE')
+        #ax[1].plot(x_temp, MAPE, alpha=1, label='MAPE')
+        ax[1].plot(x_temp, TRAC, alpha=1, label='TRAC')
+        
         
         #plt.xlabel('time [s]')
         ax[1].set_ylabel('Measure of error')
         ax[1].grid()
         ax[1].legend()
+        '''
         
-        ax[1].set_title(f' Error: Dist = {round(DIST[-1],2)}, RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}', 
-                     x=0, y=0.97, ha='left', va='bottom', fontsize=7)
+        # ax[1].fill_between(x_temp, (mus_temp+2*sigma_i_temp).flatten(), (mus_temp-2*sigma_i_temp).flatten(),
+        #          alpha=0.5, label='95-CI')
+        
+        ax[1].fill_between(x_temp, (2*sigma_i_temp).flatten(), (-2*sigma_i_temp).flatten(),
+                 alpha=0.8, label=u'\u00B1 2 STD', color='moccasin')
+        
+        ax[1].plot(x_temp, mus_temp, 
+                 alpha=0.8, label='Predicted', color='tab:orange')
+        
+               
+        #plt.xlabel('time [s]')
+        ax[1].set_ylabel('Standard deviation')
+        ax[1].grid()
+        ax[1].legend()
+        
+        if model_optimizer.status != 'Converged':
+            model_status = 'Failed'
+        else:
+            model_status = 'Converged'
+        
+        ax[1].set_title(f'Status: {model_status}         Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                     x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+        
+        
+        
+        
         
         
         temp += len(x_temp)
         
         plt.savefig(os.path.join(folder_hyperOpt,f'Predict_ACC_{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_sigma{sigma2_ks}_tau{tau2_ks}_error{sigma2_error}.png'))
-        plt.close()
+        #plt.close()
 
 #return df_error
     

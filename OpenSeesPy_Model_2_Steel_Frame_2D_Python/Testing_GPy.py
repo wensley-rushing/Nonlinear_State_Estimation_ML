@@ -21,8 +21,8 @@ X0 = np.random.uniform(-3.,3.,(20,1))
 Y0 = np.sin(X0) + np.random.randn(20,1)*0.05
 
 
-dim = 2
-N = 1000
+dim = 25
+N = 100
 X = np.random.rand(N,3*dim)
 
 
@@ -45,12 +45,12 @@ print('GPy:', kernel.K(X))
 print()
 
 print('Start optimizing')
-m.optimize(messages=True)
+#m.optimize(messages=True)
 #m.optimize_restarts(num_restarts = 10)
 
 #print(kernel)
 
-sys.exit()
+#sys.exit()
 kernel2  = 1.*np.exp(-1/(2*1.)* (distance_matrix(X[:,0*dim:1*dim],X[:,0*dim:1*dim],p=2)**2))
 kernel2 += 1.*np.exp(-1/(2*1.)* (distance_matrix(X[:,1*dim:2*dim],X[:,1*dim:2*dim],p=2)**2))
 kernel2 += 1.*np.exp(-1/(2*1.)* (distance_matrix(X[:,2*dim:3*dim],X[:,2*dim:3*dim],p=2)**2))
