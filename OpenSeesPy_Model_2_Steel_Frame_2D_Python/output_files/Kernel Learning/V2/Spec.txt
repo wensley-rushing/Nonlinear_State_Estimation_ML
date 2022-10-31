@@ -1,0 +1,14 @@
+Start time: 2022-10-20 15:10:14 
+
+Determine Kernel @ 2022-10-20 15:10:15
+Kernel: 0 @ 2022-10-20 15:10:15
+Kernel: 1 @ 2022-10-20 15:48:08
+Kernel: 2 @ 2022-10-20 16:03:13
+Kernel: 3 @ 2022-10-20 16:19:53
+Duration [sec]: 4569.7225 - [min]: 76.162 - [hrs]: 1.2694 
+
+End time: 4573.2100 [s]
+-- [min]:  76.2202 [min]
+-- [hrs]:  1.2703 [hrs]
+
+Plotting Routine
