@@ -60,7 +60,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_hyperOpt = r'output_files\Kernel Learning\HyperParameter Optimization'
+folder_figure_save = r'output_files\Figures'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -147,11 +147,13 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 #%% Input
 # Training data ---------------------------------------------------------------
+Train_data, Test_data = random_str_list(Index_Results, Train_procent = .015)
 
 # Indicator if total time n
-load_IDs = ['182',  '086',  '247',  '149',  '052']#,  '094',  '250',  '138',  
-            # '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
-            # '130',  '098',  '040',  '078',  '297',  '012']
+load_IDs = Train_data # 0.015 --> 5
+#load_IDs = ['182',  '086',  '247',  '149',  '052']#,  '094',  '250',  '138',  
+#             # '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
+#             # '130',  '098',  '040',  '078',  '297',  '012']
 
 # Training - X                                                                                 
 load_Nodes_X = [23, 33, 43] # Indicator of dimension d
@@ -167,7 +169,8 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 # Testing Data ----------------------------------------------------------------
 
 # Indicator if total time m
-load_IDss = ['292', '023']
+load_IDss = Test_data[:20] # 20
+#load_IDss = ['292', '023']
    
 # Testing - X*  (Same as X)                                                                             
 load_Nodes_Xs = load_Nodes_X
@@ -222,7 +225,10 @@ optimize_model = 1
 global_tic_0 = time.time()
 
 start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(global_tic_0))
+start_time_name = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(global_tic_0))
 print(f'Start time: {start_time}')
+
+
 
 #%% Understanding inputs
 
@@ -248,6 +254,24 @@ load_Nodes_Xs = Test_par[1]
 load_Nodes_Ys = Test_par[2]
 
 
+#%% Create Sub-folder for plots
+sub_folder_plots = f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_IDss)}_Time{start_time_name}'
+  
+# Create applicabe sub-folder
+os.mkdir(os.path.join(folder_figure_save, sub_folder_plots))
+
+#%%
+# Create bassi for error estimations
+df_error_basis = pd.DataFrame(columns = ['SubVec_Len', 'SubVec_Step', 'IN_EQs', 'OUT_EQs', 'IN_Nodes', 'OUT_Nodes'])
+df_error_basis['SubVec_Len'] = [length_subvec]
+df_error_basis['SubVec_Step'] = [length_step] #--------------------------------
+df_error_basis['IN_EQs'] = [load_IDs]
+df_error_basis['OUT_EQs'] = [load_IDss]
+df_error_basis['IN_Nodes'] = [load_Nodes_X]
+df_error_basis['OUT_Nodes'] = [load_Nodes_Ys]
+
+# General Structure
+df_error_basis.to_pickle(os.path.join(folder_figure_save, sub_folder_plots, '00_Basis.pkl'))
 
 #%% Function - Create w vectors
 def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_size=50):
@@ -601,7 +625,8 @@ if True:
                  x=0, y=1, ha='left', va='bottom', fontsize=7)
     #plt.show()
     
-    plt.savefig(os.path.join(folder_hyperOpt,f'Kernel_l{length_subvec}_step{length_step}_sigma{sigma2_ks}_tau{tau2_ks}_error{sigma2_error}.png'))
+    plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+                             f'KernelOpt_l{length_subvec}_step{length_step}_time{start_time_name}.png'))
     #plt.close()
     
 
@@ -782,10 +807,16 @@ if True:
         
         temp += len(x_temp)
         
-        plt.savefig(os.path.join(folder_hyperOpt,f'Predict_ACC_{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_sigma{sigma2_ks}_tau{tau2_ks}_error{sigma2_error}.png'))
+        plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+                                 f'Predict_ACC_EQ{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
         #plt.close()
 
 #return df_error
+#%% Save df_error
+#df.to_pickle(output_directory + "/00_Index_Results.pkl") 
+#unpickled_df = pd.read_pickle("./dummy.pkl")
+
+df_error.to_pickle( os.path.join(folder_figure_save,sub_folder_plots, '00_Error.pkl')  )
     
 sys.exit()
 #%% INPUT
