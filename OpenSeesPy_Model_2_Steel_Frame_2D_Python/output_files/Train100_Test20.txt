@@ -1,0 +1,10 @@
+Start time: 2022-10-31 16:20:34
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-10-31 16:20:39
+Subvector length: 25
+Number of sensors: 3
+Duration [sec]: 0.0832 - [min]: 0.0014 - [hrs]: 0.0 
+
+Determine Model @ 2022-10-31 16:20:39

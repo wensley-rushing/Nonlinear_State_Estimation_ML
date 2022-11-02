@@ -91,7 +91,7 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     
                    
                 # Spectogram 1    
-                if False:
+                if True:
                     f, t, Sxx = signal.spectrogram(x, fs,  mode='magnitude')
                     plt.figure()
                     im = plt.pcolormesh(t, f, Sxx, shading='gouraud')
@@ -105,7 +105,7 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     plt.show()
                 
                 # Spectogram 2
-                if False:
+                if True:
                     fig = plt.figure()
                     ax1 = fig.add_axes([0.1, 0.77, 0.7, 0.2]) #[left bottom width height]
                     ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)
