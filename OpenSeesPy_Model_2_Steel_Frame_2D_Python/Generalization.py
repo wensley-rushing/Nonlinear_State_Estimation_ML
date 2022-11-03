@@ -24,16 +24,16 @@ import sys
 import os
 
 # Import time-keeping
-import time
+#import time
 
 # Create distance matrix faster
-from scipy.spatial import distance_matrix
+#from scipy.spatial import distance_matrix
 
 # For GPy
 import GPy
 GPy.plotting.change_plotting_library('matplotlib')
 
-import pylab as pb
+#import pylab as pb
 
 #%%
 def unique_cols(df):
@@ -48,7 +48,7 @@ folder_data = r'output_files\Figures'
 prediction_node = 32
 
 num_in = 5
-num_out = 20
+num_out = 296
 
 df_Basis = pd.DataFrame(columns = ['SubVec_Len', 'SubVec_Step', 'IN_EQs', 'OUT_EQs', 'IN_Nodes', 'OUT_Nodes'])
 df_Error = pd.DataFrame(index = ['RMSE', 'SMSE', 'MAE', 'MAPE', 'TRAC'])
@@ -56,19 +56,28 @@ df_Error = pd.DataFrame(index = ['RMSE', 'SMSE', 'MAE', 'MAPE', 'TRAC'])
 #%%
 # r=root, d=directories, f = files
 for rdirs, dirs, files in os.walk(folder_data):
-    print('--------------------------------------------------------------------')
+    #print('--------------------------------------------------------------------')
     # print(rdirs)
     # print(dirs)
     # print(files)
     
     rdis_node_id = rdirs.find('node')+4
-    rdis_IN_id = rdirs.find('IN')+2
-    rdis_OUT_id = rdirs.find('OUT')+3
+    pred_node = str(prediction_node); len_pred_node = rdirs[rdis_node_id:].find('_')
     
-    if len(rdirs) > len(folder_data) and rdirs[rdis_node_id:rdis_node_id + len(str(prediction_node))] == str(prediction_node) and rdirs[rdis_IN_id:rdis_IN_id + len(str(num_in))] == str(num_in) and rdirs[rdis_OUT_id:rdis_OUT_id + len(str(num_out))] == str(num_out): # if subfolder
+    rdis_IN_id = rdirs.find('IN')+2
+    pred_IN = str(num_in); len_pred_IN = rdirs[rdis_IN_id:].find('_')
+    
+    rdis_OUT_id = rdirs.find('OUT')+3
+    pred_OUT = str(num_out); len_pred_OUT = rdirs[rdis_OUT_id:].find('_')
+    
+    if (len(rdirs) > len(folder_data)  and rdirs.count('\\') == 2               # if sub-folder
+        and rdirs[rdis_node_id:rdis_node_id + len_pred_node] == pred_node       # if 
+        and rdirs[rdis_IN_id:rdis_IN_id + len_pred_IN] == pred_IN 
+        and rdirs[rdis_OUT_id:rdis_OUT_id + len_pred_OUT] == pred_OUT):
         print(rdirs)
-        print(dirs)
-        print(files)
+        #print(dirs)
+        #print(files)
+        #print(rdirs[rdis_OUT_id:rdis_OUT_id + len_pred_OUT], pred_OUT)
     
     
         for file in files:
@@ -77,12 +86,14 @@ for rdirs, dirs, files in os.walk(folder_data):
                
                 unpickled_df = pd.read_pickle(os.path.join(rdirs, file))
                 df_Basis = pd.concat([df_Basis, unpickled_df], axis=0, ignore_index=True)
+                #print('Basis loaded')
                 
             elif file.endswith('Error.pkl'): 
                 
                 unpickled_df = pd.read_pickle(os.path.join(rdirs, file))
                 unpickled_df['comb'] = unpickled_df.values.tolist()
                 df_Error = pd.concat([df_Error, unpickled_df['comb']], axis=1, ignore_index=True)
+                print('Errors loaded')
                 
 if unique_cols(df_Basis)[2] == True:
     status_train ='All same training inputs'

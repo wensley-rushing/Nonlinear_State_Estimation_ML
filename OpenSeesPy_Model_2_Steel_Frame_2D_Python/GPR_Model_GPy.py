@@ -34,6 +34,52 @@ GPy.plotting.change_plotting_library('matplotlib')
 
 import pylab as pb
 
+#%% LOG FILE
+"""
+Transcript - direct print output to a file, in addition to terminal.
+
+Usage:
+    import transcript
+    transcript.start('logfile.log')
+    print("inside file")
+    transcript.stop()
+    print("outside file")
+"""
+
+#import sys
+
+class Transcript(object):
+
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
+        #self.log2 = open('logfile.txt', "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+    def flush(self):
+        # this flush method is needed for python 3 compatibility.
+        # this handles the flush command by doing nothing.
+        # you might want to specify some extra behavior here.
+        pass
+
+    def start(filename):
+        """Start transcript, appending print output to given filename"""
+        sys.stdout = Transcript(filename)
+    
+    def stop():
+        """Stop transcript and return print functionality to normal"""
+        sys.stdout.log.close()
+        sys.stdout = sys.stdout.terminal
+    
+    
+# Transcript.start('logfile0.txt')
+# print("inside file")
+# Transcript.stop()
+# print("outside file")
+
 
 #%% Function - P-Norm
 def norm_p(x1, x2, p=2):
@@ -169,7 +215,7 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 # Testing Data ----------------------------------------------------------------
 
 # Indicator if total time m
-load_IDss = Test_data[:20] # 20
+load_IDss = Test_data # 20
 #load_IDss = ['292', '023']
    
 # Testing - X*  (Same as X)                                                                             
@@ -226,7 +272,7 @@ global_tic_0 = time.time()
 
 start_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(global_tic_0))
 start_time_name = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(global_tic_0))
-print(f'Start time: {start_time}')
+#print(f'Start time: {start_time}') MOVED
 
 
 
@@ -235,13 +281,13 @@ print(f'Start time: {start_time}')
 # Creation of Ws
 length_subvec = W_par[0]
 length_step = W_par[1]
-print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}')
+#print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}') MOVED
 
 # Creation of kernel (Hyper-parameters)
 sigma2_ks = Ker_par[0]
 tau2_ks = Ker_par[1]
 sigma2_error = Ker_par[2]
-print(f'Hyper-parameters: Scale_Factor = {sigma2_ks}, Length_Factor = {tau2_ks}, Error_Factor = {sigma2_error} \n')
+#print(f'Hyper-parameters: Scale_Factor = {sigma2_ks}, Length_Factor = {tau2_ks}, Error_Factor = {sigma2_error} \n') MOVED
 
 # Training data
 load_IDs = Train_par[0]
@@ -259,6 +305,15 @@ sub_folder_plots = f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_
   
 # Create applicabe sub-folder
 os.mkdir(os.path.join(folder_figure_save, sub_folder_plots))
+
+
+Transcript.start(os.path.join(folder_figure_save, sub_folder_plots, '00_logfile.txt'))
+# print("inside file")
+print(f'Start time: {start_time}')
+print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}')
+print(f'Hyper-parameters: Scale_Factor = {sigma2_ks}, Length_Factor = {tau2_ks}, Error_Factor = {sigma2_error} \n')
+# Transcript.stop()
+# print("outside file")
 
 #%%
 # Create bassi for error estimations
@@ -330,7 +385,7 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
                 for j in range(len(load_Nodes_X)):
                     #time = time_Accs[:,0]
                     accs = time_Accs[:,load_Nodes_X_id[j]+1].tolist()
-                    #accs = [1,2,3,4,5]
+                    #accs = list(range(1,11, 1))
                     
                     df_ZX[load_Nodes_X[j]]['ACCS'].append( accs )
                     
@@ -364,7 +419,7 @@ def load_to_w(load_IDs, load_Nodes_X, load_Nodes_Y, len_sub_vector=100, step_siz
                 for j in range(len(load_Nodes_Y)):
                     #time = time_Accs[:,0]
                     accs = time_Accs[:,load_Nodes_Y_id[j]+1].tolist()
-                    #accs = [11,33,55,77,99]
+                    #accs = list(range(100,1100,100))
                     
                     df_ZY[load_Nodes_Y[j]]['ACCS'].append( accs )
                     
@@ -395,6 +450,16 @@ Xs = df_ZXs[df_ZXs.columns[0]]['Z']
 if len(list(df_ZXs.columns)) > 1:
     for Node in list(df_ZXs.columns)[1:]:
         Xs = np.append(Xs,df_ZXs[Node]['Z'], axis=1)
+        
+    
+df_Xs_list = pd.DataFrame(columns = [0], index = list(range(0,len(load_IDss))))
+for i in df_Xs_list.index.tolist():
+    df_Xs_list[0][i] = np.array(df_ZXs[df_ZXs.columns[0]]['Z_list'][i])
+    
+    if len(list(df_ZXs.columns)) > 1:
+        for Node in list(df_ZXs.columns)[1:]:
+            df_Xs_list[0][i] = np.append(df_Xs_list[0][i], df_ZXs[Node]['Z_list'][i], axis=1)
+
     
 Ys = df_ZYs[df_ZYs.columns[0]]['Yi']
 Ys = np.array(Ys).reshape(-1,1)
@@ -552,13 +617,31 @@ if optimize_model == 1:
  
     model_optimizer_idx = 0
     max_iters = 1000
-    model_optimizer = model.optimize(messages=True, ipython_notebook=False, max_iters=max_iters)
-    #model.optimize_restarts(num_restarts = 10)
     
-    # if model_optimizer.status != 'Converged':
-    #     model_optimizer = model.optimize(optimizer='scg', 
-    #                                      messages=True, ipython_notebook=False, 
-    #                                      max_iters=max_iters)
+    # Default optimization: L-BFGS-B (Scipy implementation
+    model_optimizer = model.optimize(messages=True, ipython_notebook=False, max_iters=max_iters)
+    #print(model_optimizer)
+    # status == 'Converged' or 'ErrorABNORMAL_TERMINATION_IN_LNSRCH'
+    
+    if True:
+        if model_optimizer.status.find('onverge') == -1:
+            print('Optimize using scg')
+            model_optimizer = model.optimize(optimizer='scg', 
+                                              messages=True, ipython_notebook=False, max_iters=max_iters)
+            #print(model_optimizer)
+            # status == 'converged - relative reduction in objective'
+            
+        if model_optimizer.status.find('onverge') == -1:
+            print('Optimize using lbfgs')
+            model_optimizer = model.optimize(optimizer='lbfgs', 
+                                              messages=True, ipython_notebook=False, max_iters=max_iters)
+            #print(model_optimizer)
+            
+        if model_optimizer.status.find('onverge') == -1:
+            print('Optimize using tnc')
+            model_optimizer = model.optimize(optimizer='tnc', 
+                                              messages=True, ipython_notebook=False, max_iters=max_iters)
+            #print(model_optimizer)
         
         # model_optimizer_idx += 1
     print('Optimized model \n', model)
@@ -575,9 +658,15 @@ print(f'Duration [sec]: {round((model_toc-model_tic),4)} - [min]: {round((model_
 if True:
     length_WW = len(X)
     length_ss = len(Xs)
-    XXs = np.append(X,Xs, axis=0)
     
-    ker_X = XXs
+    # Citerium if Xs kernel is 'small enough' then plot XXs, otherwise only plot X
+    if length_ss < 15000: 
+        ker_X = np.append(X,Xs, axis=0)
+        plot_fulle_ker = True
+    else:
+        ker_X = X
+        plot_fulle_ker = False
+        
     
     ker_var = [ker['.*rbf.variance'][0]]
     ker_lengh_scale = [ker['.*rbf.lengthscale'][0]]
@@ -594,7 +683,7 @@ if True:
     
     #---------------------------------------------------------------------------
     cm = 1/2.54  # centimeters in inches
-    fig, ax = plt.subplots(1, figsize=(20*cm, 17*cm))
+    fig, ax = plt.subplots(1, figsize=(20*cm, 18*cm))
     #plt.figure()
     
     #plt.matshow()
@@ -603,22 +692,32 @@ if True:
     plt.imshow(ker.K(ker_X) , cmap = 'autumn' , interpolation = 'nearest' )
     plt.colorbar();
     
-    plt.axvline(x=length_WW, ls='--', linewidth=1, color='black')
-    plt.axhline(y=length_WW, ls='--', linewidth=1, color='black')
+    
     
     # Test in figure
     font_size = 10; a_trans = 0.8
     plt.text(length_WW/2, length_WW/2, r'$K(W,W)$', 
              fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
-    plt.text(length_WW + length_ss/2, length_WW/2, r'$K(W,W^{*})$', 
-             fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
-    plt.text(length_WW/2, length_WW + length_ss/2, r'$K(W^{*},W)$', 
-             fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
-    plt.text(length_WW + length_ss/2, length_WW + length_ss/2, r'$K(W^{*},W^{*})$', 
-             fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
+    
+    if plot_fulle_ker == True:
+        plt.text(length_WW + length_ss/2, length_WW/2, r'$K(W,W^{*})$', 
+                 fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
+        plt.text(length_WW/2, length_WW + length_ss/2, r'$K(W^{*},W)$', 
+                 fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
+        plt.text(length_WW + length_ss/2, length_WW + length_ss/2, r'$K(W^{*},W^{*})$', 
+                 fontsize=font_size, color ='black', alpha=a_trans, va='center', ha='center')
+        
+        # Plot lines
+        plt.axvline(x=length_WW, ls='--', linewidth=1, color='black')
+        plt.axhline(y=length_WW, ls='--', linewidth=1, color='black')
+        
+        fig.suptitle( 'Kernel Heat Map - Training and Testing data' )
+    else:
+        fig.suptitle( 'Kernel Heat Map - Only Training data' )
     
     # General in figure
-    fig.suptitle( 'Kernel Heat Map' )
+    
+    
     ax.set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
                  f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
                  f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
@@ -629,28 +728,6 @@ if True:
                              f'KernelOpt_l{length_subvec}_step{length_step}_time{start_time_name}.png'))
     #plt.close()
     
-
-#%% Determine mean: mu and variance Sigma
-'''0: WW, 1: WS, 2: SW, 3: SS '''
-
-'''OLD
-y = np.array(df_ZY[load_Nodes_Y[0]]['Yi'])
-mus = K[2]['K'].dot( np.linalg.inv(K[0]['K']) ).dot(y)
-
-Sigma = K[3]['K'] - K[2]['K'].dot( np.linalg.inv(K[0]['K']) ).dot(K[1]['K'])
-
-sigma_i = np.diagonal(Sigma)**.5
-'''
-mus = model.predict(Xs)[0]
-sigma_i = model.predict(Xs)[1]**.5
-
-#%% Time - toc
-global_tic_1 = time.time()
-print('End time: %.4f [s]' %(global_tic_1 - global_tic_0 ))
-print('-- [min]:  %.4f [min]' %( (global_tic_1 - global_tic_0) /60))
-print('-- [hrs]:  %.4f [hrs]' %( (global_tic_1 - global_tic_0) /60/60))
-print()  
-
 
 #%% Function - Error
 
@@ -668,156 +745,328 @@ def errors(y_true, y_pred):
     #DISTN = ((y_pred/y_true - 1)**2).sum() **.5
     return RMSE, SMSE, MAE, MAPE, TRAC
 
-#%% Plot Predictions and errors
-if True:
-    
-    columns = []
-    for IDss in load_IDss:
-        columns.append(IDss + f'_{load_Nodes_Y[0]}')
-    
-    df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'MAE','MAPE', 'TRAC'])
-    
-    print('Plotting Routine')
-    print('------------------------------------------------- \n')
-    
-    temp = 0
-    for i in range(len(load_IDss)):
-        
-        cm = 1/2.54  # centimeters in inches
-        fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
-        # True acceleration vs. prediction ----------------------------------------
-        #plt.figure()
-        node_head = load_Nodes_Y[0] # Only one node : 32
-        
-        # True
-        acc = df_ZYs[node_head]['ACCS'][i]    
-        x_acc = np.arange(0,len(acc))*0.02
-        
-        ax[0].plot(x_acc, acc, 
-                 alpha=0.3, linewidth=3, label='True')
-        
-        
-        # Predict
-        x_temp = np.arange(length_subvec,len(acc),length_step)*0.02 # range(length_subvec,len(acc),length_step)
-        mus_temp = mus[temp:temp+len(x_temp)]
-        sigma_i_temp = sigma_i[temp:temp+len(x_temp)]
-        
-        ax[0].plot(x_temp, mus_temp, 
-                 alpha=0.8, label='Predicted')
-        
-        # ax[0].plot(x_temp, sigma_i_temp, 
-        #          alpha=0.8, label='SD')
-        
-        #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
-        
-        #plt.xlabel('time [s]')
-        ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
-        ax[0].grid()
-        ax[0].legend()
-        
-        
-        
-        idx = str3_to_int(load_IDss)[i]
-           
-        GM = Index_Results['Ground motion'][idx]
-        LF = Index_Results['Load factor'][idx]
-        
-        fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
-        ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
-                     f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
-                     f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
-                        x=0, y=0.97, ha='left', va='bottom', fontsize=10)
-        model_optimizer
-        plt.xlabel('time [s]')
-        fig.tight_layout()
-        #plt.xlim(2000,3000)
-    
-    
-        #% Error estimation ----------------------------------------------
-        
-        
-        RMSE = []
-        SMSE = []
-        MAE = []
-        MAPE = []
-        TRAC = []
-        for i in range(len(mus_temp)):
-            y_true = np.array(acc[length_subvec:len(acc):length_step][:i]).reshape(-1,1)
-            y_pred = mus_temp[:i].reshape(-1,1)
-            
-            RM, SM, MA, MP, TR = errors(y_true, y_pred)
-            RMSE.append(RM)
-            SMSE.append(SM)
-            MAE.append(MA)
-            MAPE.append(MP)
-            TRAC.append(TR)
-              
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['RMSE'] = RMSE[-1]
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['SMSE'] = SMSE[-1]
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAE'] = MAE[-1]
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAPE'] = MAPE[-1]
-        df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['TRAC'] = TRAC[-1]
-            
-        #plt.figure()
-        
-        # Plot errors
-        '''
-        #ax[1].plot(x_temp, DIST, alpha=1, label='Distance')
-        #plt.plot(range(length_subvec,len(acc),length_step), DISTN, alpha=1, label='Distance - Norm')
-        ax[1].plot(x_temp, RMSE, alpha=1, label='RMSE')
-        #ax[1].plot(x_temp, SMSE, alpha=1, label='SMSE')
-        ax[1].plot(x_temp, MAE, alpha=1, label='MAE')
-        #ax[1].plot(x_temp, MAPE, alpha=1, label='MAPE')
-        ax[1].plot(x_temp, TRAC, alpha=1, label='TRAC')
-        
-        
-        #plt.xlabel('time [s]')
-        ax[1].set_ylabel('Measure of error')
-        ax[1].grid()
-        ax[1].legend()
-        '''
-        
-        # ax[1].fill_between(x_temp, (mus_temp+2*sigma_i_temp).flatten(), (mus_temp-2*sigma_i_temp).flatten(),
-        #          alpha=0.5, label='95-CI')
-        
-        ax[1].fill_between(x_temp, (2*sigma_i_temp).flatten(), (-2*sigma_i_temp).flatten(),
-                 alpha=0.8, label=u'\u00B1 2 STD', color='moccasin')
-        
-        ax[1].plot(x_temp, mus_temp, 
-                 alpha=0.8, label='Predicted', color='tab:orange')
-        
-               
-        #plt.xlabel('time [s]')
-        ax[1].set_ylabel('Standard deviation')
-        ax[1].grid()
-        ax[1].legend()
-        
-        if model_optimizer.status != 'Converged':
-            model_status = 'Failed'
-        else:
-            model_status = 'Converged'
-        
-        ax[1].set_title(f'Status: {model_status}         Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
-                     x=0, y=0.97, ha='left', va='bottom', fontsize=10)
-        
-        
-        
-        
-        
-        
-        temp += len(x_temp)
-        
-        plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-                                 f'Predict_ACC_EQ{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
-        #plt.close()
+#%% Determine mean: mu and variance Sigma
+'''0: WW, 1: WS, 2: SW, 3: SS '''
 
-#return df_error
+'''OLD
+y = np.array(df_ZY[load_Nodes_Y[0]]['Yi'])
+mus = K[2]['K'].dot( np.linalg.inv(K[0]['K']) ).dot(y)
+
+Sigma = K[3]['K'] - K[2]['K'].dot( np.linalg.inv(K[0]['K']) ).dot(K[1]['K'])
+
+sigma_i = np.diagonal(Sigma)**.5
+'''
+
+# Errors
+columns = []
+for IDss in load_IDss:
+    columns.append(IDss + f'_{load_Nodes_Y[0]}')
+
+df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'MAE','MAPE', 'TRAC'])
+
+print('Plotting Routine')
+print('------------------------------------------------- \n')
+
+for i in df_Xs_list.index.tolist():
+    Xs_list = df_Xs_list[0][i]
+    
+    mus_EQ = model.predict(Xs_list)[0]
+    sigma_iEQ = model.predict(Xs_list)[1]**.5
+    
+    
+ 
+        
+    cm = 1/2.54  # centimeters in inches
+    fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
+    # True acceleration vs. prediction ----------------------------------------
+    #plt.figure()
+    node_head = load_Nodes_Y[0] # Only one node : 32
+    
+    # True
+    acc = df_ZYs[node_head]['ACCS'][i]    
+    x_acc = np.arange(0,len(acc))*0.02
+    
+    ax[0].plot(x_acc, acc, 
+             alpha=0.3, linewidth=3, label='True')
+    
+    
+    # Predict
+    mus_temp = mus_EQ
+    x_temp = (np.arange(0,len(mus_temp)) *length_step*0.02) + (length_subvec*0.02)
+    #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02 
+    
+    sigma_i_temp = sigma_iEQ
+    
+    ax[0].plot(x_temp, mus_temp, 
+             alpha=0.8, label='Predicted')
+    
+    # ax[0].plot(x_temp, sigma_i_temp, 
+    #          alpha=0.8, label='SD')
+    
+    #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
+    
+    #plt.xlabel('time [s]')
+    ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
+    ax[0].grid()
+    ax[0].legend()
+    
+    
+    
+    idx = str3_to_int(load_IDss)[i]
+       
+    GM = Index_Results['Ground motion'][idx]
+    LF = Index_Results['Load factor'][idx]
+    
+    fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
+    ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
+                 f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
+                 f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
+                    x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+    model_optimizer
+    plt.xlabel('time [s]')
+    fig.tight_layout()
+    #plt.xlim(2000,3000)
+
+
+    #% Error estimation ----------------------------------------------
+    
+    
+    RMSE = []
+    SMSE = []
+    MAE = []
+    MAPE = []
+    TRAC = []
+    for i in range(len(mus_temp)):
+        y_true = np.array(acc[length_subvec:len(acc):length_step][:i]).reshape(-1,1)
+        y_pred = mus_temp[:i].reshape(-1,1)
+        
+        RM, SM, MA, MP, TR = errors(y_true, y_pred)
+        RMSE.append(RM)
+        SMSE.append(SM)
+        MAE.append(MA)
+        MAPE.append(MP)
+        TRAC.append(TR)
+          
+    df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['RMSE'] = RMSE[-1]
+    df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['SMSE'] = SMSE[-1]
+    df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAE'] = MAE[-1]
+    df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAPE'] = MAPE[-1]
+    df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['TRAC'] = TRAC[-1]
+        
+    #plt.figure()
+    
+    # Plot errors
+    '''
+    #ax[1].plot(x_temp, DIST, alpha=1, label='Distance')
+    #plt.plot(range(length_subvec,len(acc),length_step), DISTN, alpha=1, label='Distance - Norm')
+    ax[1].plot(x_temp, RMSE, alpha=1, label='RMSE')
+    #ax[1].plot(x_temp, SMSE, alpha=1, label='SMSE')
+    ax[1].plot(x_temp, MAE, alpha=1, label='MAE')
+    #ax[1].plot(x_temp, MAPE, alpha=1, label='MAPE')
+    ax[1].plot(x_temp, TRAC, alpha=1, label='TRAC')
+    
+    
+    #plt.xlabel('time [s]')
+    ax[1].set_ylabel('Measure of error')
+    ax[1].grid()
+    ax[1].legend()
+    '''
+    
+    # ax[1].fill_between(x_temp, (mus_temp+2*sigma_i_temp).flatten(), (mus_temp-2*sigma_i_temp).flatten(),
+    #          alpha=0.5, label='95-CI')
+    
+    ax[1].fill_between(x_temp, (2*sigma_i_temp).flatten(), (-2*sigma_i_temp).flatten(),
+             alpha=0.8, label=u'\u00B1 2 STD', color='moccasin')
+    
+    ax[1].plot(x_temp, mus_temp, 
+             alpha=0.8, label='Predicted', color='tab:orange')
+    
+           
+    #plt.xlabel('time [s]')
+    ax[1].set_ylabel('Standard deviation')
+    ax[1].grid()
+    ax[1].legend()
+    
+    if model_optimizer.status != 'Converged':
+        model_status = 'Failed'
+    else:
+        model_status = 'Converged'
+    
+    ax[1].set_title(f'Opt. Status: {model_status}         Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                 x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
+    
+    
+    
+    plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+                             f'Predict_ACC_EQ{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+    #plt.close()
+    
+
+#%% OLD (Shift in time for large number of outputs...)
+if False: 
+    mus = model.predict(Xs)[0]
+    sigma_i = model.predict(Xs)[1]**.5
+    
+    #% Plot Predictions and errors
+    if True:
+        
+        columns = []
+        for IDss in load_IDss:
+            columns.append(IDss + f'_{load_Nodes_Y[0]}')
+        
+        df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'MAE','MAPE', 'TRAC'])
+        
+        print('Plotting Routine')
+        print('------------------------------------------------- \n')
+        
+        temp = 0
+        for i in range(len(load_IDss)):
+            
+            cm = 1/2.54  # centimeters in inches
+            fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
+            # True acceleration vs. prediction ----------------------------------------
+            #plt.figure()
+            node_head = load_Nodes_Y[0] # Only one node : 32
+            
+            # True
+            acc = df_ZYs[node_head]['ACCS'][i]    
+            x_acc = np.arange(0,len(acc))*0.02
+            
+            ax[0].plot(x_acc, acc, 
+                     alpha=0.3, linewidth=3, label='True')
+            
+            
+            # Predict
+            x_temp = np.arange(length_subvec,len(acc),length_step)*0.02 # range(length_subvec,len(acc),length_step)
+            mus_temp = mus[temp:temp+len(x_temp)]
+            sigma_i_temp = sigma_i[temp:temp+len(x_temp)]
+            
+            ax[0].plot(x_temp, mus_temp, 
+                     alpha=0.8, label='Predicted')
+            
+            # ax[0].plot(x_temp, sigma_i_temp, 
+            #          alpha=0.8, label='SD')
+            
+            #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
+            
+            #plt.xlabel('time [s]')
+            ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
+            ax[0].grid()
+            ax[0].legend()
+            
+            
+            
+            idx = str3_to_int(load_IDss)[i]
+               
+            GM = Index_Results['Ground motion'][idx]
+            LF = Index_Results['Load factor'][idx]
+            
+            fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
+            ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
+                         f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
+                         f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
+                            x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            model_optimizer
+            plt.xlabel('time [s]')
+            fig.tight_layout()
+            #plt.xlim(2000,3000)
+        
+        
+            #% Error estimation ----------------------------------------------
+            
+            
+            RMSE = []
+            SMSE = []
+            MAE = []
+            MAPE = []
+            TRAC = []
+            for i in range(len(mus_temp)):
+                y_true = np.array(acc[length_subvec:len(acc):length_step][:i]).reshape(-1,1)
+                y_pred = mus_temp[:i].reshape(-1,1)
+                
+                RM, SM, MA, MP, TR = errors(y_true, y_pred)
+                RMSE.append(RM)
+                SMSE.append(SM)
+                MAE.append(MA)
+                MAPE.append(MP)
+                TRAC.append(TR)
+                  
+            df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['RMSE'] = RMSE[-1]
+            df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['SMSE'] = SMSE[-1]
+            df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAE'] = MAE[-1]
+            df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['MAPE'] = MAPE[-1]
+            df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['TRAC'] = TRAC[-1]
+                
+            #plt.figure()
+            
+            # Plot errors
+            '''
+            #ax[1].plot(x_temp, DIST, alpha=1, label='Distance')
+            #plt.plot(range(length_subvec,len(acc),length_step), DISTN, alpha=1, label='Distance - Norm')
+            ax[1].plot(x_temp, RMSE, alpha=1, label='RMSE')
+            #ax[1].plot(x_temp, SMSE, alpha=1, label='SMSE')
+            ax[1].plot(x_temp, MAE, alpha=1, label='MAE')
+            #ax[1].plot(x_temp, MAPE, alpha=1, label='MAPE')
+            ax[1].plot(x_temp, TRAC, alpha=1, label='TRAC')
+            
+            
+            #plt.xlabel('time [s]')
+            ax[1].set_ylabel('Measure of error')
+            ax[1].grid()
+            ax[1].legend()
+            '''
+            
+            # ax[1].fill_between(x_temp, (mus_temp+2*sigma_i_temp).flatten(), (mus_temp-2*sigma_i_temp).flatten(),
+            #          alpha=0.5, label='95-CI')
+            
+            ax[1].fill_between(x_temp, (2*sigma_i_temp).flatten(), (-2*sigma_i_temp).flatten(),
+                     alpha=0.8, label=u'\u00B1 2 STD', color='moccasin')
+            
+            ax[1].plot(x_temp, mus_temp, 
+                     alpha=0.8, label='Predicted', color='tab:orange')
+            
+                   
+            #plt.xlabel('time [s]')
+            ax[1].set_ylabel('Standard deviation')
+            ax[1].grid()
+            ax[1].legend()
+            
+            if model_optimizer.status.find('onverge') == -1:
+                model_status = 'Failed'
+            else:
+                model_status = 'Converged'
+            
+            ax[1].set_title(f'Opt. Status: {model_status}         Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                         x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            
+            
+            
+            
+            
+            
+            temp += len(x_temp)
+            
+            plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+                                     f'Predict_ACC_EQ{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+            #plt.close()
+    
+    #return df_error
+
 #%% Save df_error
 #df.to_pickle(output_directory + "/00_Index_Results.pkl") 
 #unpickled_df = pd.read_pickle("./dummy.pkl")
 
 df_error.to_pickle( os.path.join(folder_figure_save,sub_folder_plots, '00_Error.pkl')  )
-    
+
+#%% Time - toc
+global_tic_1 = time.time()
+print('End time: %.4f [s]' %(global_tic_1 - global_tic_0 ))
+print('-- [min]:  %.4f [min]' %( (global_tic_1 - global_tic_0) /60))
+print('-- [hrs]:  %.4f [hrs]' %( (global_tic_1 - global_tic_0) /60/60))
+print() 
+
+# Ending write in file
+Transcript.stop()
 sys.exit()
 #%% INPUT
 
@@ -947,18 +1196,5 @@ sigma2_ks = 1; tau2_ks = 1; sigma2_error = 0
 
 #------------------------------------------------------------------------------ 
 sys.exit()
-#%%
 
-# Loops concerning sub-vectors W
-# for length_subvec in [10, 25, 50, 100]:
-#     for length_step in [5]: #[3, 5, 10, 15]:
-        
-#         # Loops concerning Kernel hyper-parameters
-#         for sigma2_ks in [1]:
-#             for tau2_ks in [1] :#[0.5, 1, 2, 4]:
-                
-#                 GPR(W_par=[length_subvec, length_step], 
-#                         Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-#                         Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-#                         Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys])
-                
+
