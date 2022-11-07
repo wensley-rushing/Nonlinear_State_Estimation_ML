@@ -21,7 +21,7 @@ import os
 import DamageTools
 
 
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\5_eartq')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
 output_directory = 'output_files'
 
 df_structure = pd.read_pickle( os.path.join(output_directory, '00_Structure.pkl') )
