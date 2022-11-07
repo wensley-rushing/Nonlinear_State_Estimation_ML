@@ -81,6 +81,6 @@ for j in plot_earth:
                 ax4.set_ylabel('Acc. [m/s\u00b2]')
                 ax4.set_xlabel('Period [s]')
 
-                ax1.set_title(f'Response')
+                ax1.set_title(f'Ground motion')
                 ax2.set_title(f'Spectogram')
                 ax4.set_title(f'Acceleration spectrum')
