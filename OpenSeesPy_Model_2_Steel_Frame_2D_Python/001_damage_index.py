@@ -45,14 +45,14 @@ plot_defo_gravity = False
 plot_modeshapes = False
 
 # Dynamic analysis
-plot_ground_acc = False
-plot_dynamic_analysis = False
+plot_ground_acc = True
+plot_dynamic_analysis = True
 
 
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_files'
+output_directory = 'output_files_Test'
 
 #%% UNITS
 # =============================================================================
@@ -250,7 +250,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\2_GMs')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
