@@ -1,0 +1,54 @@
+Start time: 2022-11-09 13:28:07
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-11-09 13:28:07
+Subvector length: 25
+Number of sensors: 1
+Duration [sec]: 0.002 - [min]: 0.0 - [hrs]: 0.0 
+
+Determine Model @ 2022-11-09 13:28:07
+Non-optimized model 
+Name : GP regression
+Objective : 1565.9173654779959
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |    1.0  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |    1.0  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
+
+--Optimize Model @ 2022-11-09 13:28:07
+Running L-BFGS-B (Scipy implementation) Code:
+  runtime   i      f              |g|        
+    00s00  0000   1.565917e+03           nan     01s11  0004   8.825044e+03   1.036471e+08     02s23  0008   2.240286e+04   3.445435e+07 
+    03s29  0012  -6.140662e+03   2.749047e+03     04s41  0016  -6.180147e+03   9.698092e+01     05s53  0020  -6.184926e+03   4.413178e+00     06s67  0024  -6.184948e+03   3.464531e-04 
+    07s28  0026  -6.184948e+03   5.026053e-06 
+Runtime:     07s28
+Optimization status: Converged
+
+Optimized model 
+ 
+Name : GP regression
+Objective : -6184.948092451134
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |                   value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |       3.389201366233421  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |       8.589303483179867  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |  4.4954760476673315e-07  |      +ve      |        
+Duration [sec]: 7.872 - [min]: 0.1312 - [hrs]: 0.0022 
+
+Plotting Routine
+------------------------------------------------- 
+
+0.4167083515263651 0.5780997954838979
+0.5995225417834639 1.2281917077648625
+End time: 10.0192 [s]
+-- [min]:  0.1670 [min]
+-- [hrs]:  0.0028 [hrs]
+
