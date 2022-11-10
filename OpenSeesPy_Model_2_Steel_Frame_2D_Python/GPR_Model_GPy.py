@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_random'
+folder_figure_save = r'output_files\Testing\Test_1_5dataset_selection'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1104,6 +1104,10 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 # Testing Data ----------------------------------------------------------------
 
+
+
+
+
 # Indicator if total time m
 #load_IDss = Test_data # 20
 load_IDss = ['202', '143']
@@ -1168,7 +1172,33 @@ if False:
 #             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
    
+
+df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
+
+
+
+for i in range(df_datasets.shape[0]):
+    load_IDs = df_datasets.loc[i, 'Train sets']
+    load_IDss = df_datasets.loc[i, 'Test sets']
+
+
+    Diff_Nodes = [22, 32, 42]
     
+    #for load_Nodes_X_el in [23]:
+    for j  in Diff_Nodes:  
+    
+        load_Nodes_X = [23, 43]# [load_Nodes_X_el]
+        load_Nodes_Y = j
+        print(load_Nodes_X, load_Nodes_Y)
+        
+        GPR(W_par=[length_subvec, length_step], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+
+sys.exit()
+
 Diff_Nodes = [22, 32, 42, 23, 33, 43]
 
 #for load_Nodes_X_el in [23]:

@@ -12,6 +12,7 @@ import os
 
 plot_all_sets = False
 plot_best_sets = True
+output_directory = 'output_files'
 
 
 def int_to_str3(list_int):
@@ -60,6 +61,7 @@ def random_loads(Index_Results, Train_procent = 0.07):
     return train_list, test_list
 
 output_directory = 'output_files'
+
 df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set'])
 
 def best_set(n_set):
@@ -152,6 +154,6 @@ for n in range(output_sets):
         plt.ylabel('Period')
         plt.show()
     
-
+df_datasets.to_pickle(output_directory + '/GM_datasets.pkl')
 
 
