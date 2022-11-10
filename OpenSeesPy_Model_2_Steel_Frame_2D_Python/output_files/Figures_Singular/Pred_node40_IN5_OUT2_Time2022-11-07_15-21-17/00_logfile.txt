@@ -1,0 +1,62 @@
+Start time: 2022-11-07 15:21:17
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-11-07 15:21:17
+Subvector length: 25
+Number of sensors: 1
+Duration [sec]: 0.003 - [min]: 0.0001 - [hrs]: 0.0 
+
+Determine Model @ 2022-11-07 15:21:17
+Non-optimized model 
+Name : GP regression
+Objective : 3676.7396084204915
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |    1.0  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |    1.0  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
+
+--Optimize Model @ 2022-11-07 15:21:18
+Running L-BFGS-B (Scipy implementation) Code:
+  runtime   i      f              |g|        
+    00s00  0000   3.676740e+03           nan     01s50  0001   3.676740e+03   1.958724e+05 
+    02s60  0002   3.131833e+03   3.900344e+05     04s24  0004  -5.227527e+03   3.704450e+04     06s10  0006   5.486832e+03   2.334261e+03     07s75  0008  -1.228354e+04   2.351425e+04     09s44  0010  -1.266977e+04   8.111211e+01     11s18  0012  -1.267161e+04   3.621107e+00     12s85  0014  -1.267206e+04   7.624266e+00 
+    14s53  0016  -1.267289e+04   3.639551e+00     16s20  0018  -1.267319e+04   7.064240e-02     17s80  0020  -1.267327e+04   2.104832e-01     19s40  0022  -1.267352e+04   2.602130e-02     20s92  0024  -1.267354e+04   2.222098e-02     22s55  0026  -1.267300e+04   1.729429e+01 
+    24s15  0028  -1.267354e+04   2.509746e-02     25s83  0030  -1.267354e+04   2.413850e-02     27s50  0032  -1.267354e+04   2.428113e-02     29s18  0034  -1.267354e+04   5.330638e-02     30s84  0036  -1.267354e+04   2.418386e-02     32s49  0038  -1.267354e+04   2.428113e-02     34s10  0040  -1.267354e+04   2.428113e-02     35s87  0042  -1.267354e+04   2.428113e-02     37s54  0044  -1.267354e+04   2.428113e-02     39s11  0046  -1.267354e+04   2.428113e-02     40s73  0048  -1.267329e+04   1.101402e+01     42s38  0050  -1.267354e+04   1.945743e-02     43s97  0052  -1.267354e+04   2.410058e-02     45s56  0054  -1.267354e+04   2.421876e-02     47s26  0056  -1.267354e+04   2.416325e-02     48s86  0058  -1.267354e+04   2.405580e-02     50s44  0060  -1.267354e+04   2.414434e-02     52s01  0062  -1.267354e+04   2.428113e-02     52s82  0063  -1.267354e+04   2.428113e-02 
+Runtime:     52s82
+Optimization status: ErrorABNORMAL_TERMINATION_IN_LNSRCH
+
+Optimize using scg
+Running Scaled Conjugate Gradients Code:
+  runtime   i      f              |g|        
+    00s00  0000  -1.267354e+04   2.428113e-02     01s58  0002  -1.267354e+04   2.428113e-02     03s22  0004  -1.267354e+04   2.410008e-02 
+    04s83  0006  -1.267354e+04   2.410008e-02     06s43  0008  -1.267354e+04   2.410008e-02     08s03  0010  -1.267354e+04   2.410008e-02     09s71  0012  -1.267354e+04   2.410008e-02     11s29  0014  -1.267354e+04   2.410008e-02     12s95  0016  -1.267354e+04   2.410008e-02     14s56  0018  -1.267354e+04   2.410008e-02 
+    16s35  0020  -1.267354e+04   2.410008e-02     18s14  0022  -1.267354e+04   2.410008e-02     19s82  0024  -1.267354e+04   2.410008e-02     21s45  0026  -1.267354e+04   2.410008e-02     23s10  0028  -1.267354e+04   2.410008e-02 
+Runtime:     23s10
+Optimization status: converged - relative reduction in objective
+
+Optimized model 
+ 
+Name : GP regression
+Objective : -12673.541365411786
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |                  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |     29.230622137794256  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |      24.91658277740432  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |  1.972578454459356e-12  |      +ve      |        
+Duration [sec]: 78.3724 - [min]: 1.3062 - [hrs]: 0.0218 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 80.8314 [s]
+-- [min]:  1.3472 [min]
+-- [hrs]:  0.0225 [hrs]
+

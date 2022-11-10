@@ -1,0 +1,61 @@
+Start time: 2022-11-07 15:37:08
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-11-07 15:37:08
+Subvector length: 25
+Number of sensors: 1
+Duration [sec]: 0.0021 - [min]: 0.0 - [hrs]: 0.0 
+
+Determine Model @ 2022-11-07 15:37:08
+Non-optimized model 
+Name : GP regression
+Objective : 3266.2035181666306
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |    1.0  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |    1.0  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
+
+--Optimize Model @ 2022-11-07 15:37:09
+Running L-BFGS-B (Scipy implementation) Code:
+  runtime   i      f              |g|        
+    00s00  0000   3.266204e+03           nan     01s53  0002   2.774625e+03   3.415372e+05 
+    03s10  0004   5.173016e+05   1.100160e+11     04s62  0006  -1.339852e+03   3.243377e+05     06s14  0008  -2.213274e+03   3.029355e+04     07s74  0010  -2.321673e+03   3.069833e+03     09s37  0012  -2.457812e+03   4.691474e+03 
+    10s98  0014  -2.553068e+03   4.266632e+03     12s60  0016  -2.618973e+03   1.979372e+03     14s13  0018  -2.703134e+03   5.412241e+02     15s71  0020  -2.755025e+03   5.510377e+03     17s23  0022  -2.786826e+03   2.542862e+02     18s85  0024  -2.799381e+03   9.162881e+02     20s48  0026  -2.811011e+03   1.102842e+02     22s16  0028  -2.815187e+03   2.747419e+01     23s75  0030  -2.815997e+03   8.359465e-01     25s41  0032  -2.816032e+03   4.603325e+00 
+    26s97  0034  -2.816038e+03   1.735525e-04     28s59  0036  -2.816038e+03   8.443393e-05     30s19  0038  -2.816038e+03   1.736017e-04     31s77  0040  -2.816038e+03   1.735525e-04     33s34  0042  -2.816038e+03   1.735525e-04     34s89  0044  -2.816038e+03   1.735525e-04     36s42  0046  -2.816038e+03   1.735525e-04     38s02  0048  -2.816038e+03   1.735525e-04     39s59  0050  -2.816018e+03   1.813283e+01     41s22  0052  -2.816038e+03   1.564947e-04     42s80  0054  -2.816038e+03   1.736129e-04     44s32  0056  -2.816038e+03   1.736053e-04     45s93  0058  -2.816038e+03   1.735769e-04     47s51  0060  -2.816038e+03   1.735922e-04     49s04  0062  -2.816038e+03   1.736182e-04     50s60  0064  -2.816038e+03   1.735525e-04     51s42  0065  -2.816038e+03   1.735525e-04 
+Runtime:     51s42
+Optimization status: ErrorABNORMAL_TERMINATION_IN_LNSRCH
+
+Optimize using scg
+Running Scaled Conjugate Gradients Code:
+  runtime   i      f              |g|        
+    00s00  0000  -2.816038e+03   1.735525e-04     01s59  0002  -2.816038e+03   1.735525e-04     03s15  0004  -2.816038e+03   1.729982e-04     04s83  0006  -2.816038e+03   1.729982e-04     06s41  0008  -2.816038e+03   1.729982e-04     07s94  0010  -2.816038e+03   1.729982e-04 
+    09s48  0012  -2.816038e+03   1.729982e-04     11s03  0014  -2.816038e+03   1.729982e-04     12s58  0016  -2.816038e+03   1.729982e-04     14s12  0018  -2.816038e+03   1.729982e-04     15s70  0020  -2.816038e+03   1.729982e-04     17s29  0022  -2.816038e+03   1.729982e-04     18s87  0024  -2.816038e+03   1.729982e-04     20s51  0026  -2.816038e+03   1.729982e-04 
+Runtime:     20s51
+Optimization status: converged - relative reduction in objective
+
+Optimized model 
+ 
+Name : GP regression
+Objective : -2816.038374354846
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |                  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |      791.7403880979149  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |     14.225066615191759  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |  0.0003630457205274473  |      +ve      |        
+Duration [sec]: 74.3512 - [min]: 1.2392 - [hrs]: 0.0207 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 76.6656 [s]
+-- [min]:  1.2778 [min]
+-- [hrs]:  0.0213 [hrs]
+
