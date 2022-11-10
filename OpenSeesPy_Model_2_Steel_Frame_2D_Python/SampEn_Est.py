@@ -48,9 +48,8 @@ struc_nodes = Structure.Nodes[0]
 
 struc_periods = list(Structure.Periods[0])
 
+#%% Estimate Entropy
 df_SampEn = pd.DataFrame(0,columns = struc_nodes, index = Index_Results.index)
-
-#%%
 
 # r=root, d=directories, f = files
 for rdirs, dirs, files in os.walk(folder_accs):
@@ -88,9 +87,8 @@ for rdirs, dirs, files in os.walk(folder_accs):
                 df_SampEn[struc_nodes[j-1]][idx] = SampEn
                 
             
-#%%
 df_SampEn.to_pickle(folder_structure + "/00_SampEn.pkl")
-#%%
+#%% Load
 df_SampEn = pd.read_pickle( os.path.join(folder_structure, '00_SampEn.pkl') ) 
 
 #%% 
@@ -171,5 +169,77 @@ plt.ylabel('SampEn')
 plt.savefig(os.path.join(folder_figure_save, 'All_ACC_Entropy.png'))
 #plt.close()
     
-    
+#%%
 
+def errors(y_true, y_pred):
+    RMSE = ((y_pred - y_true)**2).mean() **.5
+    
+    SMSE = ((y_pred - y_true)**2).mean() / y_true.var()
+    
+    MAE = (abs(y_pred - y_true)).mean()
+    MAPE = (abs((y_pred - y_true)/y_true)).mean()*100
+    
+    TRAC = np.dot(y_pred.T,y_true)**2 / (np.dot(y_true.T,y_true)*np.dot(y_pred.T,y_pred))
+    # Dustance    
+    #DIST = ((y_pred - y_true)**2).sum() **.5
+    #DISTN = ((y_pred/y_true - 1)**2).sum() **.5
+    return RMSE, SMSE, MAE, MAPE, TRAC
+#%%
+
+Errors = ['RMSE', 'SMSE', 'MAE', 'TRAC']
+df_Close_Error = pd.DataFrame( columns = Errors, index = Index_Results.index)
+
+for EQ in Index_Results.index:
+    for Error in Errors:
+    
+        df_Close_Error[Error][EQ] = pd.DataFrame(0, columns = struc_nodes, index = struc_nodes)
+        
+#%%      
+# r=root, d=directories, f = files
+for rdirs, dirs, files in os.walk(folder_accs):
+    for file in files:
+        
+        # Load Ground Motions for X/Y
+        if rdirs == folder_accs and file.endswith("Accs.out"):
+            #print(os.path.join(rdirs, file))
+            #print(idx)
+            #print('Loading file: ',file)
+            
+            time_Accs = np.loadtxt( os.path.join(folder_accs, file) )
+            
+            if file[3:6][0] != str(0):
+                idx = int(file[3:6])
+            elif file[3:6][1] != str(0):
+                idx = int(file[4:6])
+            else:
+                idx = int(file[5:6])
+                    
+            # GM = Index_Results['Ground motion'][idx]
+            # LF = Index_Results['Load factor'][idx]
+            # print('GM: ',GM ,'Loadfactor: ', LF)
+            print('EarthQuake ID: ', idx)
+            
+            
+            
+            # Load Accelerations in nodes X
+            for j in range(1,len(time_Accs[0])):
+                #time = time_Accs[:,0]
+                accs_j = np.array(time_Accs[:,j].tolist())
+                
+                # Load Accelerations in nodes X
+                for i in range(1,len(time_Accs[0])):
+                    #time = time_Accs[:,0]
+                    accs_i = np.array(time_Accs[:,i].tolist())
+                    
+                    
+                    
+                    RMSE, SMSE, MAE, MAPE, TRAC = errors(accs_j, accs_i)
+                    
+                    df_Close_Error['RMSE'][idx][struc_nodes[j-1]][struc_nodes[i-1]] = RMSE
+                    df_Close_Error['SMSE'][idx][struc_nodes[j-1]][struc_nodes[i-1]] = SMSE
+                    df_Close_Error['MAE'][idx][struc_nodes[j-1]][struc_nodes[i-1]] = MAE
+                    df_Close_Error['TRAC'][idx][struc_nodes[j-1]][struc_nodes[i-1]] = TRAC
+                    
+#%%                
+df_Close_Error.to_pickle(folder_structure + "/00_df_Close_Error.pkl")
+                
