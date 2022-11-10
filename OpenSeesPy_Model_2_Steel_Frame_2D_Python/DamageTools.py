@@ -209,7 +209,3 @@ def RS_function(data, delta, T, xi, Resp_type):
         elif Resp_type == 'SD':
             S[j] = np.max(np.abs(u1)) 
     return S
-
-
-
-#%%
