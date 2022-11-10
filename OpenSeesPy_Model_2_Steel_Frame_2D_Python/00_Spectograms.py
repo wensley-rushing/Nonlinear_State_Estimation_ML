@@ -27,9 +27,9 @@ import os
 
 #%% Folder structure
 
-folder_accs = r'output_files\ACCS'
+folder_accs = r'output_files_Test\ACCS'
 
-folder_structure = r'output_files'
+folder_structure = r'output_files_Test'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -40,8 +40,8 @@ struc_nodes = Structure.Nodes[0]
 struc_periods = list(Structure.Periods[0])
 
 #%%
-load_IDs = ['010', '011']
-load_Nodes = [32]
+load_IDs = ['000', '001']
+load_Nodes = [40]
 
 load_Nodes_id = []
 for i in range(len(load_Nodes)):
@@ -91,10 +91,10 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     
                    
                 # Spectogram 1    
-                if True:
+                if False:
                     f, t, Sxx = signal.spectrogram(x, fs,  mode='magnitude')
                     plt.figure()
-                    im = plt.pcolormesh(t, f, Sxx, shading='gouraud')
+                    im = plt.pcolormesh(t, f, Sxx, shading='gouraud') # gouraud
     
     
                     plt.colorbar(im, label='Magnitude')
@@ -105,7 +105,7 @@ for rdirs, dirs, files in os.walk(folder_accs):
                     plt.show()
                 
                 # Spectogram 2
-                if True:
+                if False:
                     fig = plt.figure()
                     ax1 = fig.add_axes([0.1, 0.77, 0.7, 0.2]) #[left bottom width height]
                     ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.60], sharex=ax1)

@@ -1,0 +1,34 @@
+Start time: 2022-11-09 10:48:49
+Sub-vector parameters: Length = 10, Step = 1
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-11-09 10:48:50
+Subvector length: 10
+Number of sensors: 2
+Duration [sec]: 0.0 - [min]: 0.0 - [hrs]: 0.0 
+
+Determine Model @ 2022-11-09 10:48:50
+Non-optimized model 
+Name : GP regression
+Objective : 11684.557302423358
+Number of Parameters : 5
+Number of Optimization Parameters : 5
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
+  [1msum.rbf.variance       [0;0m  |    1.0  |      +ve      |        
+  [1msum.rbf.lengthscale    [0;0m  |    1.0  |      +ve      |        
+  [1msum.rbf_1.variance     [0;0m  |    1.0  |      +ve      |        
+  [1msum.rbf_1.lengthscale  [0;0m  |    1.0  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
+
+--Optimize Model @ 2022-11-09 10:49:51
+Running L-BFGS-B (Scipy implementation) Code:
+  runtime   i      f              |g|        
+    00s00  0000   1.168456e+04           nan     56s70  0001   1.168456e+04   1.012331e+07  01m44s18  0002   8.118649e+03   1.545600e+07  02m49s40  0003  -1.052367e+04   2.471236e+07 
+ 03m38s49  0004   8.526183e+05   9.976339e+10  04m31s24  0005  -2.638758e+04   2.474520e+07  05m24s90  0006   1.693724e+03   2.998194e+09  06m14s36  0007  -4.397904e+04   1.583393e+07  07m14s49  0008  -4.257396e+04   1.136117e+08  08m05s08  0009  -4.814577e+04   1.111026e+06  08m59s00  0010   4.795345e+05   1.576312e+11  09m52s45  0011  -4.675628e+04   2.815965e+07  10m41s66  0012  -4.833829e+04   3.986402e+05 
+ 11m37s69  0013  -4.892831e+04   6.827643e+05  12m29s63  0014  -4.904545e+04   1.405270e+05  13m24s61  0015  -4.910648e+04   1.399742e+04  14m22s35  0016  -4.911962e+04   1.557903e+04  15m14s26  0017  -4.917572e+04   2.209055e+04  16m06s46  0018  -4.922755e+04   5.153058e+03  17m06s70  0019  -4.925413e+04   4.647594e+03  18m03s03  0020  -4.927180e+04   9.130808e+02  18m56s54  0021  -4.927961e+04   3.066600e+03  19m52s32  0022  -4.928471e+04   1.930924e+02  20m50s94  0023  -4.928736e+04   1.104777e+02  20m55s50  0024  -4.928736e+04   1.104777e+02 
+Runtime:  20m55s50
+Optimization status: None
+
+KeyboardInterrupt caught, calling on_optimization_end() to round things up

@@ -40,7 +40,7 @@ ops.wipe()
 # turn on/off the plots by setting these to True or False
 
 # General structure
-plot_model = False
+plot_model = True
 plot_defo_gravity = False
 plot_modeshapes = False
 
@@ -52,7 +52,7 @@ plot_dynamic_analysis = False
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_files'
+output_directory = 'output_linear_non'
 
 #%% UNITS
 # =============================================================================
@@ -132,7 +132,8 @@ dampRatio = 0.03
 gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
                              'E - glob', 'Gl Drift', 'Gl Drift - class', 
-                             'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class'])
+                             'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class',
+                             'LN_Node', 'LN_Energy', 'LN_Res_Def'])
 
 df_beta = pd.DataFrame(columns = ['Element ID', 'beta', 'Section ID (PA el.)', 'PA el.', 'PA el. - class', 'PA T1 Time', 'PA T2 Time', 'PA el. Time', 'Curvature Time'])
 
@@ -235,7 +236,7 @@ Structure.to_pickle(output_directory + "/00_Structure.pkl")
 
 
 #%% Database
-ops.database('File', 'DataBase\\3x3-Initial')
+ops.database('File', 'DataBase_linnon\\3x3-Initial')
 # Created the copy
 ops.save(199)
 
@@ -250,7 +251,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\2_GMs')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -604,6 +605,9 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 # Energy
                 Energy_L = []
                 Energy_L_sec = []
+                
+                Energy_L_LN = []
+                Energy_L_LN_sec = []
 
                 # Park and Ang
                 PA_L = []
@@ -693,6 +697,9 @@ for rdirs, dirs, files in os.walk(folder_loads):
                        
                     Energy_L.append( max(Energy_l_sec) )
                     Energy_L_sec.append( Energy_l_sec.index( max(Energy_l_sec) ) + 1 )
+                    
+                    Energy_L_LN.append([Energy_l_sec[0], Energy_l_sec[4]])
+                    Energy_L_LN_sec.append([ int(str(id_element[el_id])[:2]), int(str(id_element[el_id])[2:]) ])
                     
                     
                     # Determine PA - index over time for severe section
@@ -785,7 +792,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                         plt.grid()
                         
                 #%% --Plastic Deformation (Local)
-                '''
+                
                 # Plastic deformation (+ Time)
                 plastic_deform = np.loadtxt(output_directory+'/2_Plastic_Def.out')
                 
@@ -799,7 +806,11 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 # Initialize
                 Res_plastic_deform = []
+                Res_plastic_deform_LM = []
+                Res_plastic_deform_LM_sec = []
+                
                 Max_plastic_deform = []
+                Max_plastic_deform_LM = []
                 
                 
                 for el_id in range(num_el):
@@ -820,8 +831,11 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     # Permanent plastic deformation (At time = end) - Residual
                     res_plastic_deforms = plastic_deform[-1,(el_id*3)+1:(el_id*3)+4].tolist()
                     res_plastic_deform = max(res_plastic_deforms, key=abs)
-                    print('---- Residual plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], res_plastic_deform))
+                    #print('---- Residual plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], res_plastic_deform))
                     Res_plastic_deform.append(res_plastic_deform)
+                    
+                    Res_plastic_deform_LM.append(res_plastic_deforms[-2:])
+                    Res_plastic_deform_LM_sec.append([ int(str(id_element[el_id])[:2]), int(str(id_element[el_id])[2:]) ])
                     
                     
                     # Maximal plastic deformation (At time = t)
@@ -829,10 +843,10 @@ for rdirs, dirs, files in os.walk(folder_loads):
                                            max(plastic_deform[:,(el_id*3)+2]), min(plastic_deform[:,(el_id*3)+2]),
                                            max(plastic_deform[:,(el_id*3)+3]), min(plastic_deform[:,(el_id*3)+3])]
                     max_plastic_deform = max(max_plastic_deforms, key=abs)
-                    print('---- Max plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], max_plastic_deform))
+                    #print('---- Max plastic defomation, Element %.0f: %0.4e' %(id_element[el_id], max_plastic_deform))
                     Max_plastic_deform.append(max_plastic_deform)
-                    
-                '''    
+                    Max_plastic_deform_LM.append(max_plastic_deforms[-2:])
+                  
                 
                     
             
@@ -841,7 +855,8 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 df.loc[gm_idx] = [ok, file_name, loadfactor, 
                                   Energy_G, max_inter_time_drift, drift_time_cl,
-                                  id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl]
+                                  id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl,
+                                  Energy_L_LN_sec, Energy_L_LN, Res_plastic_deform_LM]
                 
                 
                 #['Element ID', 'beta', 'Section ID (PA el.)', 
