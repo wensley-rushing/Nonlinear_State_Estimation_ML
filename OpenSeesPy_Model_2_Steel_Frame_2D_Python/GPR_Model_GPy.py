@@ -1132,10 +1132,10 @@ Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 #Creation of sub-vecors W -----------------------------------------------------
 # Length of sub-vectors
-length_subvec = 10
+length_subvec = 25
 
 # Overlaping parameter (number of new values in sub-vector)
-length_step = 3
+length_step = 5
 W_par=[length_subvec, length_step]
 
 # Model Optimization Y/N
