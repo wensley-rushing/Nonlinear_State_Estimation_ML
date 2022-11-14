@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_1_5dataset_selection'
+folder_figure_save = r'output_files\Testing\Test_dataset_selection'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -254,8 +254,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 
 
-#%% Model Optimization Y/N
-optimize_model = 0
+
 #%% Gaussian Process Model for Regression
 def GPR(W_par=[25, 5], #[length_subvec, length_step], 
         Ker_par=[1, 1, 0], #[sigma2_ks, tau2_ks, sigma2_error],
@@ -800,7 +799,7 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
                  alpha=0.3, linewidth=3, label='True')
         
         
-        SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
+        # SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
         # Predict
         mus_temp = mus_EQ
         x_temp = (np.arange(0,len(mus_temp)) *length_step*0.02) + (length_subvec*0.02)
@@ -811,9 +810,9 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         ax[0].plot(x_temp, mus_temp, 
                  alpha=0.8, label='Predicted')
         
-        SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
+        # SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
         
-        print(SampEn_acc, SampEn_mus)
+        # print(SampEn_acc, SampEn_mus)
         # ax[0].plot(x_temp, sigma_i_temp, 
         #          alpha=0.8, label='SD')
         
@@ -1139,6 +1138,8 @@ length_subvec = 10
 length_step = 3
 W_par=[length_subvec, length_step]
 
+# Model Optimization Y/N
+optimize_model = 1
 
 # Creation of kernel ----------------------------------------------------------
 # Scale factor for each sensor
@@ -1188,12 +1189,12 @@ for i in [0]:
     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-    Diff_Nodes = [22, 32, 42]
+    Diff_Nodes = [42]
     
     #for load_Nodes_X_el in [23]:
     for j  in Diff_Nodes:  
     
-        load_Nodes_X = [23, 43]# [load_Nodes_X_el]
+        load_Nodes_X = [23]# [load_Nodes_X_el]
         load_Nodes_Y = [j]
         print(load_Nodes_X, load_Nodes_Y)
         
