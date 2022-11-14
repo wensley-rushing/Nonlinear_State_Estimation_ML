@@ -1180,16 +1180,15 @@ if False:
 
 
 
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_red.pkl')
+df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
-
-# for i in range(df_datasets.shape[0]):
-for i in [0]:
+for i in range(df_datasets.shape[0]):
     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-    Diff_Nodes = [42]
+    Diff_Nodes = [22, 32, 42]
     
     #for load_Nodes_X_el in [23]:
     for j  in Diff_Nodes:  
