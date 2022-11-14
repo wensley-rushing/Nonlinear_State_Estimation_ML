@@ -16,72 +16,34 @@ plot_best_sets = True
 output_directory = 'output_files'
 
 
-def int_to_str3(list_int):
-    
-    '''
-    Takes list of index (integers)
-    Reurns list index in (string) 000 format
-    E.g.:
-        0   --> '000'
-        20  --> '020'
-        100 --> '100'
-    '''
-    
-    list_str = []
-    for i in list_int:
-    
-        i_str = str(i)
-        
-        if len(i_str) == 1:
-            list_str.append( f'00{i_str}')
-        elif len(i_str) == 2:
-            list_str.append( f'0{i_str}')
-        else:
-            list_str.append( f'{i_str}')
-            
-    return list_str
 
-
-
-
-def getCurrentMemoryUsage():
-    ''' Memory usage in kB '''
-
-    with open('/proc/self/status') as f:
-        memusage = f.read().split('VmRSS:')[1].split('\n')[0][:-3]
-
-    return int(memusage.strip())
-
-def random_loads(Index_Results, Train_procent = 0.07):
+def random_set_loads(Index_Results, train_elements):
     # Remove all non valid alanysis
     Index_Results.drop(Index_Results['OK=0'][Index_Results['OK=0']!=0],axis=1, inplace=True)
     
     index_list = Index_Results.index.tolist()
     
-    # INPUT Percentage of traoning data (remaining will be test data)
-    proc_train = Train_procent
-    num_train = int( np.ceil(len(index_list)*proc_train) )
-    num_test = int( len(index_list)-num_train )
-    
-    # Draw random samples
-    train_list = random.sample(index_list,num_train)
-    test_list = random.sample(index_list,num_test)
-    
-    # Conver to string list  
+    train_list = random.sample(index_list, train_elements)
+    test_list = index_list
+    for i in train_list:
+        test_list.remove(i)
     
     return train_list, test_list
 
 output_directory = 'output_files'
 
-df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set'])
+df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set', 'Train eq. duration','Tot. duration'])
 
 def best_set(n_set):
     
-    var_set = [0, 0, 0]
+    var_set = [0, 0]
+    
     for i in range(n_set):
         
-        Train_data_temp, Test_data_temp = random_loads(Index_Results, Train_procent = set_dim)
+        Train_data_temp, Test_data_temp = random_set_loads(Index_Results, set_dim)
         
+        tot_duration = 0
+        train_duration = []
         acc_set_temp = []
         period_set_temp = []
         
@@ -93,6 +55,8 @@ def best_set(n_set):
                 if j == k:
                     acc_set_temp.append(df_eq.loc[j, 'Peak acc'])
                     period_set_temp.append(df_eq.loc[j, 'Peak T'])
+                    train_duration.append(df_eq.loc[j, 'Input time'][-1])
+                    tot_duration = tot_duration + df_eq.loc[j, 'Input time'][-1]
                     
                     
         var_temp = [np.var(acc_set_temp) , np.var(period_set_temp)]
@@ -114,7 +78,7 @@ def best_set(n_set):
             acc_set = acc_set_temp
             period_set = period_set_temp
             
-    return Train_data, Test_data, var_set, acc_set, period_set
+    return Train_data, Test_data, var_set, acc_set, period_set, train_duration, tot_duration
 
 df_eq = pd.read_pickle( os.path.join(output_directory, 'GM_spectra.pkl') )
 Index_Results = pd.read_pickle( os.path.join(output_directory, '00_Index_Results.pkl') )
@@ -129,9 +93,9 @@ print(f'Dataframe variance [amplitude, period]:', var_df)
 
 #%% 
 
-n_set = 5  # how many sets for each iteration: select the best output set out of 5 sets 
-output_sets = 3 # how many sets as output
-set_dim = 0.05 # number of earthquakes  out of the 301 per each dataset: 20 eart = 6.6% of 301, 15 eart =  5.98%
+n_set = 20  # how many sets for each iteration in the function 'best_set': select the best output set out of 5 sets 
+output_sets = 1 # how many sets as output
+set_dim = 20 # number of earthquakes for each train dataset
 
 
 
@@ -139,20 +103,21 @@ set_dim = 0.05 # number of earthquakes  out of the 301 per each dataset: 20 eart
 Train_sets = []
 Test_sets = []
 var_sets = []
+duration = 0
 
 for n in range(output_sets):
     
     var_set = [0, 0, 0]
 
-    while var_set[0] < 0.7 or var_set[1] < 0.07:
-        Train_data, Test_data, var_set, acc_set, period_set = best_set(n_set)
+    while var_set[0] < 0.6 or var_set[1] < 0.07 or duration > 840:
+        Train_data, Test_data, var_set, acc_set, period_set, train_duration , tot_duration = best_set(n_set)
         
         
     Train_sets.append(Train_data)
     Test_sets.append(Test_data)
     var_sets.append(var_set)
     
-    df_datasets.loc[n] = Train_data, Test_data, var_set
+    df_datasets.loc[n] = Train_data, Test_data, var_set, train_duration, tot_duration
     
     print(f'\n Set {n}, final set variance [amplitude, period]:', var_set)
     
@@ -166,6 +131,17 @@ for n in range(output_sets):
         plt.ylabel('Period')
         plt.show()
     
-# df_datasets.to_pickle(output_directory + '/GM_datasets.pkl')
+    
+#%% check: earthquakes included both in TRAIN and TEST
+
+for index in range(0, df_datasets.shape[0]):
+    for i in df_datasets.loc[index, 'Train sets']:
+        for j in df_datasets.loc[index, 'Test sets']:
+            if i == j:
+                print('MATCH test and train for index', i)
+        
+
+    
+df_datasets.to_pickle(output_directory + '/GM_datasets_duration_impl.pkl')
 
 
