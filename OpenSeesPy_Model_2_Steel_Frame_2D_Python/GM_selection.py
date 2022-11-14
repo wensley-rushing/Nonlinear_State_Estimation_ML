@@ -95,7 +95,7 @@ print(f'Dataframe variance [amplitude, period]:', var_df)
 
 n_set = 20  # how many sets for each iteration in the function 'best_set': select the best output set out of 5 sets 
 output_sets = 1 # how many sets as output
-set_dim = 20 # number of earthquakes for each train dataset
+set_dim = 5 # number of earthquakes for each train dataset
 
 
 
@@ -142,6 +142,6 @@ for index in range(0, df_datasets.shape[0]):
         
 
     
-df_datasets.to_pickle(output_directory + '/GM_datasets_duration_impl.pkl')
+df_datasets.to_pickle(output_directory + '/GM_datasets_5_earthquakes.pkl')
 
 

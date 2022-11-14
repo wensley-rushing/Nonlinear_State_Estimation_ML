@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_dataset_selection'
+folder_figure_save = r'output_files\Testing\Test_5_variance_GM'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1090,9 +1090,7 @@ Train_data, Test_data = random_str_list(Index_Results, Train_procent = .015)
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
 # load_IDs = ['108', '001', '231', '079', '251']
-load_IDs = ['094']  
-#             # '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
-#             # '130',  '098',  '040',  '078',  '297',  '012']
+load_IDs = ['052', '086', '149', '182', '247']
 
 # Training - X                                                                                 
 load_Nodes_X = [21, 23] # Indicator of dimension d
@@ -1178,11 +1176,13 @@ if False:
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
    
 
-
+#%%  Different datasets and different nodes to predict
 
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
-# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_red.pkl')
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
+# # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_red.pkl')
+
+df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
+
 
 for i in range(df_datasets.shape[0]):
     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
@@ -1202,22 +1202,35 @@ for i in range(df_datasets.shape[0]):
                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
+#%%  One dataset and different nodes to predict
+# Analysis: 5 Random Earthquakes (same used for coloured matrix and boxplots)
+#           Train on node 23, predict 22, 32, 42
 
-sys.exit()
 
-Diff_Nodes = [22, 32, 42, 23, 33, 43]
+# Index_Results = pd.read_pickle( os.path.join(folder_structure, '00_Index_Results.pkl') )
+# index_list = Index_Results.index.tolist()
 
-#for load_Nodes_X_el in [23]:
-for i  in range(len(Diff_Nodes[:-3])):  
+# load_IDs = ['052', '086', '149', '182', '247']
+# load_IDss = int_to_str3(index_list)
 
-    load_Nodes_X = [Diff_Nodes[i+3]]# [load_Nodes_X_el]
-    load_Nodes_Y = [Diff_Nodes[i]]
-    print(load_Nodes_X, load_Nodes_Y)
+# for k in load_IDs:
+#     load_IDss.remove(k)
+
+
+# Diff_Nodes = [22, 32, 42]
+
+# #for load_Nodes_X_el in [23]:
+# for i in Diff_Nodes:  
+
+#     load_Nodes_X = [23] # [load_Nodes_X_el]
+#     load_Nodes_Y = [i]
     
-    GPR(W_par=[length_subvec, length_step], 
-            Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-            Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-            Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#     GPR(W_par=[length_subvec, length_step], 
+#             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+    
+    
     
     
 sys.exit()
