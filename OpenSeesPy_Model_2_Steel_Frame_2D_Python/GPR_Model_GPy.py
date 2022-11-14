@@ -255,7 +255,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 
 #%% Model Optimization Y/N
-optimize_model = 1
+optimize_model = 0
 #%% Gaussian Process Model for Regression
 def GPR(W_par=[25, 5], #[length_subvec, length_step], 
         Ker_par=[1, 1, 0], #[sigma2_ks, tau2_ks, sigma2_error],
@@ -579,11 +579,11 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
     if False:
         print('Kernel constrain')
         
-        #for i in [1,2]:
-        if len(df_ZX.columns) > 1:
-            for i in range(1,len(df_ZX.columns)):
-                ker[f'.*rbf_{i}.variance'].constrain_fixed()
-                ker[f'.*rbf_{i}.lengthscale'].constrain_fixed()
+        for i in [0,1]:
+            if len(df_ZX.columns) > 1:
+                for i in range(1,len(df_ZX.columns)):
+                    ker[f'.*rbf_{i}.variance'].constrain_fixed()
+                    ker[f'.*rbf_{i}.lengthscale'].constrain_fixed()
     
     
     #print(ker)
@@ -613,6 +613,8 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
     
     print('Non-optimized model', model, '\n')
     
+    
+  
     
     if optimize_model == 1:
         
@@ -730,7 +732,7 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
                      f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
                      f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
                      x=0, y=1, ha='left', va='bottom', fontsize=7)
-        #plt.show()
+        #plt.show()q
         
         plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
                                  f'KernelOpt_l{length_subvec}_step{length_step}_time{start_time_name}.png'))
@@ -834,7 +836,7 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
                      f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
                      f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
                         x=0, y=0.97, ha='left', va='bottom', fontsize=10)
-        model_optimizer
+        # model_optimizer
         plt.xlabel('time [s]')
         fig.tight_layout()
         #plt.xlim(2000,3000)
@@ -899,18 +901,20 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         ax[1].grid()
         ax[1].legend()
         
-        if model_optimizer.status.find ('onverged') == -1:
-            model_status = 'Failed'
+        
+        if optimize_model == 1:
+            if model_optimizer.status.find ('onverged') == -1:
+                model_status = 'Failed'
+            else:
+                model_status = 'Converged'
         else:
-            model_status = 'Converged'
+            model_status = 'Not optimized'
         
         ax[1].set_title(f'Opt. Status: {model_status}, Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
                      x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
         
-        
-        
         plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-                                 f'Predict_ACC_EQ{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+                         f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
         plt.close()
         
     
@@ -1086,8 +1090,8 @@ Train_data, Test_data = random_str_list(Index_Results, Train_procent = .015)
 
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
-load_IDs = ['108', '001', '231', '079', '251']
-#,  '094',  '250',  '138',  
+# load_IDs = ['108', '001', '231', '079', '251']
+load_IDs = ['094']  
 #             # '156',  '251',  '248',  '073',  '163',  '025',  '258',  '249',  
 #             # '130',  '098',  '040',  '078',  '297',  '012']
 
@@ -1173,14 +1177,16 @@ if False:
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
    
 
+
+
 df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_red.pkl')
 
 
-
-for i in range(df_datasets.shape[0]):
-    load_IDs = df_datasets.loc[i, 'Train sets']
-    load_IDss = df_datasets.loc[i, 'Test sets']
-
+# for i in range(df_datasets.shape[0]):
+for i in [0]:
+    load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
+    load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
     Diff_Nodes = [22, 32, 42]
     
@@ -1188,7 +1194,7 @@ for i in range(df_datasets.shape[0]):
     for j  in Diff_Nodes:  
     
         load_Nodes_X = [23, 43]# [load_Nodes_X_el]
-        load_Nodes_Y = j
+        load_Nodes_Y = [j]
         print(load_Nodes_X, load_Nodes_Y)
         
         GPR(W_par=[length_subvec, length_step], 

@@ -29,21 +29,21 @@ for i in [0,1,3]:
     remove = -1
     
     Train_data_red = df_datasets.loc[i, 'Train sets'][:remove]
-    # Test_data_red = df_datasets.loc[i, 'Test sets']
-    # Test_data_red.append(df_datasets.loc[i, 'Train sets'][remove])
+    Test_data_red = df_datasets.loc[i, 'Test sets']
+    Test_data_red.append(df_datasets.loc[i, 'Train sets'][remove])
     
-    Test_data_red = []
+    # Test_data_red = []
     
     acc_set_red = []
     period_set_red = []
     
-    Test_data_red = list(range(1,301 + 1))
+    # Test_data_red = list(range(1,301 + 1))
     for j in Train_data_red:
         for k in df_eq.index:
             if j == k:
                 acc_set_red.append(df_eq.loc[j, 'Peak acc'])
                 period_set_red.append(df_eq.loc[j, 'Peak T'])
-                Test_data_red.remove(j)
+                # Test_data_red.remove(j)
 
     var_set_red = [ round(np.var(acc_set_red),3) , round(np.var(period_set_red),3)]
     

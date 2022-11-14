@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
+import random
 
 plot_all_sets = False
 plot_best_sets = True
@@ -40,7 +41,17 @@ def int_to_str3(list_int):
             
     return list_str
 
-import random
+
+
+
+def getCurrentMemoryUsage():
+    ''' Memory usage in kB '''
+
+    with open('/proc/self/status') as f:
+        memusage = f.read().split('VmRSS:')[1].split('\n')[0][:-3]
+
+    return int(memusage.strip())
+
 def random_loads(Index_Results, Train_procent = 0.07):
     # Remove all non valid alanysis
     Index_Results.drop(Index_Results['OK=0'][Index_Results['OK=0']!=0],axis=1, inplace=True)
@@ -83,6 +94,7 @@ def best_set(n_set):
                     acc_set_temp.append(df_eq.loc[j, 'Peak acc'])
                     period_set_temp.append(df_eq.loc[j, 'Peak T'])
                     
+                    
         var_temp = [np.var(acc_set_temp) , np.var(period_set_temp)]
         
         print(f'Set {i} variance [amplitude, period]:', var_temp)
@@ -117,9 +129,9 @@ print(f'Dataframe variance [amplitude, period]:', var_df)
 
 #%% 
 
-n_set = 5
-output_sets = 5
-set_dim = 0.066
+n_set = 5  # how many sets for each iteration: select the best output set out of 5 sets 
+output_sets = 3 # how many sets as output
+set_dim = 0.05 # number of earthquakes  out of the 301 per each dataset: 20 eart = 6.6% of 301, 15 eart =  5.98%
 
 
 
@@ -154,6 +166,6 @@ for n in range(output_sets):
         plt.ylabel('Period')
         plt.show()
     
-df_datasets.to_pickle(output_directory + '/GM_datasets.pkl')
+# df_datasets.to_pickle(output_directory + '/GM_datasets.pkl')
 
 
