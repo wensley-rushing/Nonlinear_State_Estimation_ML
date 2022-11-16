@@ -29,7 +29,7 @@ test_vec = [
 
 n_test = len(test_vec)
 
-nodes = [22]
+nodes = [42]
 
 for i in nodes: 
     
