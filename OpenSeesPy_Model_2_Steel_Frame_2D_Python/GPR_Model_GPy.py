@@ -1130,10 +1130,10 @@ Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 #Creation of sub-vecors W -----------------------------------------------------
 # Length of sub-vectors
-length_subvec = 25
+length_subvec = 10
 
 # Overlaping parameter (number of new values in sub-vector)
-length_step = 5
+length_step = 3
 W_par=[length_subvec, length_step]
 
 # Model Optimization Y/N
@@ -1178,10 +1178,9 @@ if False:
 
 #%%  Different datasets and different nodes to predict
 
-# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets.pkl')
-# # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_red.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
+df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
 
 
 for i in range(df_datasets.shape[0]):
