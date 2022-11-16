@@ -24,7 +24,7 @@ test_vec = [
             'Test 4\n5 high var GMs\nL=10 s=3\ntrain node [23]',
             'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]',
             'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]',
-            'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]',
+            # 'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]',
             ]
 
 n_test = len(test_vec)
