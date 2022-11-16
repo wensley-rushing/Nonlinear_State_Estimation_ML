@@ -1,0 +1,13 @@
+Test 1 and 2: folder Test_5_random_GM
+Test 3 and 4: folder Test_5_variance_GM
+Test 5 and 6: folder Test_dataset_selection
+Test 7: folder Test_dataset_selection\Test 7
+
+
+'Test 1\n5 random GMs\nL=25 s=5\ntrain node [23]'
+'Test 2\n5 random GMs\nL=10 s=3\ntrain node [23]'
+'Test 3\n5 high var GMs\nL=25 s=5\ntrain node [23]'
+'Test 4\n5 high var GMs\nL=10 s=3\ntrain node [23]'
+'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]'
+'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]'
+'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]'

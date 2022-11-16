@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import os
 import random
-
+import sys
 
 data_directory = 'output_files\Testing\Box_plots'
 
@@ -29,12 +29,14 @@ test_vec = [
 
 n_test = len(test_vec)
 
-nodes = [22]
+nodes = [22, 32, 42]
 
 for i in nodes: 
     
     df_TRAC = pd.DataFrame(columns=[])
     df_SMSE = pd.DataFrame(columns=[])
+     
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 20))
     
     j = 0
     
@@ -53,76 +55,121 @@ for i in nodes:
         df_SMSE[test_lab] = df.loc['SMSE']
     
         
-#%%
-
-
-
-for j in range(0, n_test):
-    
-
-
-fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 14))
-      
-    
+        # TRAC boxplot
+        axes[0].boxplot(df.loc['TRAC'].values.reshape(-1,1), widths=0.25, positions=[j])# labels = test_lab)        
+        axes[0].set_title('TRAC error',  y=1.05, fontweight="bold", fontsize = '12')
+        axes[0].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['TRAC'].values.reshape(-1,1).mean(),2)})", 
+                     va='bottom', ha='center', transform = axes[0].transAxes, fontsize = '12')
+        
+        # SMSE boxplot
+        axes[1].boxplot(df.loc['SMSE'].values.reshape(-1,1), widths=0.25, positions=[j]) #labels = test_lab)   
+        axes[1].set_title('SMSE error',  y=1.05, fontweight="bold", fontsize = '12')
+        axes[1].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['SMSE'].values.reshape(-1,1).mean(),2)})", 
+                     va='bottom', ha='center', transform = axes[1].transAxes, fontsize = '12')
        
+        # RMSE boxplot
+        
+        axes[2].boxplot(df.loc['RMSE'].values.reshape(-1,1), widths=0.25, positions=[j]) #labels = test_lab)   
+        axes[2].set_title('RMSE error',  y=1.05, fontweight="bold", fontsize = '12')
+        axes[2].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['RMSE'].values.reshape(-1,1).mean(),2)})", 
+                     va='bottom', ha='center', transform = axes[2].transAxes, fontsize = '12')
+        
+        
+        
+        j += 1    
     
-axes[0].boxplot(df_TRAC.iloc[:,range(0, n_test)])
-axes[0].set_title('TRAC error')
-
-# plot box plot
-axes[1].boxplot(df_SMSE.iloc[:,range(0, n_test)])
-axes[1].set_title('SMSE error')
-
-# adding horizontal grid lines
-for ax in axes:
-    ax.yaxis.grid(True)
-    ax.set_xticks([y+1 for y in range(n_test)])
     
-
-# add x-tick labels
-plt.setp(axes, xticks=[y+1 for y in range(n_test)],
-          xticklabels=[df_SMSE.columns][0])
-plt.suptitle('Node ' +str(i), fontsize = '14' )
-
-plt.subplots_adjust(left=0.1,
-                bottom=0.1,
-                right=0.9,
-                top=0.9,
-                wspace=0.4,
-                hspace=0.5)
-
-plt.show()
-fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
-plt.close()  
+    # adding horizontal grid lines
+    for ax in axes:
+        ax.yaxis.grid(True)
+        # ax.set_xticks([y+1 for y in range(n_test)])
         
-        # axes[0].boxplot(df_TRAC.iloc[:,j])
-        # axes[0].set_title('TRAC error')
+    
+    # add x-tick labels
+    plt.setp(axes, xticks=[y for y in range(n_test)],
+              xticklabels=[df_SMSE.columns][0])
+    plt.suptitle('Node ' +str(i), y=0.95, fontsize = '20', fontweight="bold" )
+    
+    plt.subplots_adjust(left=0.1,
+                    bottom=0.1,
+                    right=0.9,
+                    top=0.9,
+                    wspace=0.4,
+                    hspace=0.4)
         
-        # # plot box plot
-        # axes[1].boxplot(df_SMSE.iloc[:,j])
-        # axes[1].set_title('SMSE error')
-        
-        # # adding horizontal grid lines
-        # for ax in axes:
-        #     ax.yaxis.grid(True)
-        #     ax.set_xticks([1])
+    plt.show()
+    fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
+    plt.close()  
             
+
+sys.exit()
+
+# for j in range(0, n_test):
+    
+
+
+#     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 14))
+          
         
-        # # add x-tick labels
-        # plt.setp(axes, xticks=[1],
-        #           xticklabels=[df_SMSE.columns[j]])
-        # plt.suptitle('Node ' +str(i), fontsize = '14' )
+           
         
-        # plt.subplots_adjust(left=0.1,
-        #                 bottom=0.1,
-        #                 right=0.9,
-        #                 top=0.9,
-        #                 wspace=0.4,
-        #                 hspace=0.5)
+#     # axes[0].boxplot(df_TRAC.iloc[:,range(0, n_test)])
+#     # axes[0].set_title('TRAC error')
+    
+#     # # plot box plot
+#     # axes[1].boxplot(df_SMSE.iloc[:,range(0, n_test)])
+#     # axes[1].set_title('SMSE error')
+    
+#     # # adding horizontal grid lines
+#     # for ax in axes:
+#     #     ax.yaxis.grid(True)
+#     #     ax.set_xticks([y+1 for y in range(n_test)])
         
+    
+#     # # add x-tick labels
+#     # plt.setp(axes, xticks=[y+1 for y in range(n_test)],
+#     #           xticklabels=[df_SMSE.columns][0])
+#     # plt.suptitle('Node ' +str(i), fontsize = '14' )
+    
+#     # plt.subplots_adjust(left=0.1,
+#     #                 bottom=0.1,
+#     #                 right=0.9,
+#     #                 top=0.9,
+#     #                 wspace=0.4,
+#     #                 hspace=0.5)
+    
+#     # plt.show()
+#     # fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
+#     # plt.close()  
         
+#     axes[0].boxplot(df_TRAC.iloc[:,j])
+#     axes[0].set_title('TRAC error')
+    
+#     # plot box plot
+#     axes[1].boxplot(df_SMSE.iloc[:,j])
+#     axes[1].set_title('SMSE error')
+    
+#     # adding horizontal grid lines
+#     for ax in axes:
+#         ax.yaxis.grid(True)
+#         ax.set_xticks([1])
         
-        # j +=1
+    
+#     # add x-tick labels
+#     plt.setp(axes, xticks=[1],
+#               xticklabels=[df_SMSE.columns[j]])
+#     plt.suptitle('Node ' +str(i), fontsize = '14' )
+    
+#     plt.subplots_adjust(left=0.1,
+#                     bottom=0.1,
+#                     right=0.9,
+#                     top=0.9,
+#                     wspace=0.4,
+#                     hspace=0.5)
+    
+    
+    
+#     j +=1
         
 
 
