@@ -11,3 +11,4 @@ Test 7: folder Test_dataset_selection\Test 7
 'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]'
 'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]'
 'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]'
+'Test 8\n20 high var GMs\nL=10 s=3\ntrain node [33]'
