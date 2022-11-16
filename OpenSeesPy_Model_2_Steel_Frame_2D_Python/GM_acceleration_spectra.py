@@ -21,6 +21,32 @@ import os
 import DamageTools
 
 
+def int_to_str3(list_int):
+    
+    '''
+    Takes list of index (integers)
+    Reurns list index in (string) 000 format
+    E.g.:
+        0   --> '000'
+        20  --> '020'
+        100 --> '100'
+    '''
+    
+    list_str = []
+    for i in list_int:
+    
+        i_str = str(i)
+        
+        if len(i_str) == 1:
+            list_str.append( f'00{i_str}')
+        elif len(i_str) == 2:
+            list_str.append( f'0{i_str}')
+        else:
+            list_str.append( f'{i_str}')
+            
+    return list_str
+
+
 folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
 output_directory = 'output_files'
 
@@ -57,6 +83,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
     
     #Loops for n GM
     
+    
     for file in files:
         if rdirs == folder_loads and ( file.endswith(".AT1") or file.endswith(".AT2") ):
                                            
@@ -77,6 +104,8 @@ for rdirs, dirs, files in os.walk(folder_loads):
             if plot_spectra:
                 
                 i = n
+                
+                ID = int_to_str3([i])[0]
             
                 fig = plt.figure(figsize = (10,12))
                 plt.suptitle('GM: ' + str(df.loc[i,'Ground motion']), x=0.1, y=0.98, horizontalalignment='left', verticalalignment='top', fontweight='bold')
@@ -131,7 +160,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 ax2.set_title(f'Spectogram')
                 ax4.set_title(f'Acceleration spectrum')
                 
-                fig.savefig(os.path.join(output_directory, 'Figures', 'GM_spectra', f'{file[:-4]}.png'))
+                fig.savefig(os.path.join(output_directory, 'Figures', 'GM_spectra_ID', f'{ID}_{file[:-4]}.png'))
                 
             
                 
@@ -139,6 +168,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
             
             n += 1
+            
             
 
 # Export dataframe
