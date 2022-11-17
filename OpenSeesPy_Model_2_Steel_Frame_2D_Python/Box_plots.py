@@ -15,7 +15,7 @@ import sys
 data_directory = 'output_files\Testing\Box_plots'
 
 
-plot_box = False
+plot_box = True
 
 test_vec = [
             'Test 1\n5 random GMs\nL=25 s=5\ntrain node [23]',
@@ -32,14 +32,14 @@ test_vec = [
 
 n_test = len(test_vec)
 
-nodes = [22]
+nodes = [22, 32, 42]
 
 for i in nodes: 
     
     df_TRAC = pd.DataFrame(columns=[])
     df_SMSE = pd.DataFrame(columns=[])
      
-    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 20))
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(17, 22))
     
     j = 0
     
@@ -61,55 +61,52 @@ for i in nodes:
         
         df_SMSE[test_lab] = df.loc['SMSE']
     
+        df_TRAC.to_csv(os.path.join(data_directory, 'Excel', f'Node_{i}_TRAC.csv'))
+        
         if plot_box:
         
             # TRAC boxplot
-            axes[0].boxplot(df.loc['TRAC'].values.reshape(-1,1), widths=0.25, positions=[j])# labels = test_lab)        
+            axes[0].boxplot(df.loc['TRAC'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])        
             axes[0].set_title('TRAC error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[0].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['TRAC'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[0].transAxes, fontsize = '12')
             
             # SMSE boxplot
-            axes[1].boxplot(df.loc['SMSE'].values.reshape(-1,1), widths=0.25, positions=[j]) #labels = test_lab)   
+            axes[1].boxplot(df.loc['SMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])   
             axes[1].set_title('SMSE error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[1].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['SMSE'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[1].transAxes, fontsize = '12')
            
             # RMSE boxplot
             
-            axes[2].boxplot(df.loc['RMSE'].values.reshape(-1,1), widths=0.25, positions=[j]) #labels = test_lab)   
+            axes[2].boxplot(df.loc['RMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])   
             axes[2].set_title('RMSE error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[2].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['RMSE'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[2].transAxes, fontsize = '12')
-            
+               
         
-        
-           
-    
-    
-            # adding horizontal grid lines
-            for ax in axes:
-                ax.yaxis.grid(True)
-                # ax.set_xticks([y+1 for y in range(n_test)])
-                
-            
-            # add x-tick labels
-            plt.setp(axes, xticks=[y for y in range(n_test)],
-                      xticklabels=[df_SMSE.columns][0])
-            plt.suptitle('Node ' +str(i), y=0.95, fontsize = '20', fontweight="bold" )
-            
-            plt.subplots_adjust(left=0.1,
-                            bottom=0.1,
-                            right=0.9,
-                            top=0.9,
-                            wspace=0.4,
-                            hspace=0.4)
-                
-            plt.show()
-            # fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
-            plt.close() 
         
         j += 1 
+        
+    # adding horizontal grid lines
+    
+    plt.suptitle('Node ' +str(i), y=0.95, fontsize = '20', fontweight="bold" )
+    
+    for ax in axes:
+        ax.yaxis.grid(True)
+    
+    
+    plt.subplots_adjust(left=0.1,
+                    bottom=0.1,
+                    right=0.9,
+                    top=0.9,
+                    wspace=0.4,
+                    hspace=0.4)
+    
+    # fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
+    plt.show() 
+    
+        
             
 
 
