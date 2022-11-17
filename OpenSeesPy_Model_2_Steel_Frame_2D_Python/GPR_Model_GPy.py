@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_5_variance_GM'
+folder_figure_save = r'output_files\Testing\Test_10'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -913,7 +913,7 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
                      x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
         
         plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-                         f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+                          f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
         plt.close()
         
     
@@ -1130,10 +1130,10 @@ Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 #Creation of sub-vecors W -----------------------------------------------------
 # Length of sub-vectors
-length_subvec = 10
+length_subvec = 25
 
 # Overlaping parameter (number of new values in sub-vector)
-length_step = 3
+length_step = 5
 W_par=[length_subvec, length_step]
 
 # Model Optimization Y/N
@@ -1178,28 +1178,28 @@ if False:
 
 #%%  Different datasets and different nodes to predict
 
-# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
+# # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
 
 
-for i in range(df_datasets.shape[0]):
-    load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
-    load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
+# for i in range(df_datasets.shape[0]):
+#     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
+#     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-    Diff_Nodes = [22, 32, 42]
+#     Diff_Nodes = [22, 32, 42]
     
-    #for load_Nodes_X_el in [23]:
-    for j  in Diff_Nodes:  
+#     #for load_Nodes_X_el in [23]:
+#     for j  in Diff_Nodes:  
     
-        load_Nodes_X = [33]# [load_Nodes_X_el]
-        load_Nodes_Y = [j]
-        print(load_Nodes_X, load_Nodes_Y)
+#         load_Nodes_X = [33]# [load_Nodes_X_el]
+#         load_Nodes_Y = [j]
+#         print(load_Nodes_X, load_Nodes_Y)
         
-        GPR(W_par=[length_subvec, length_step], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#         GPR(W_par=[length_subvec, length_step], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
 #%%  One dataset and different nodes to predict
 # Analysis: 5 Random Earthquakes (same used for coloured matrix and boxplots)
@@ -1209,7 +1209,8 @@ for i in range(df_datasets.shape[0]):
 # Index_Results = pd.read_pickle( os.path.join(folder_structure, '00_Index_Results.pkl') )
 # index_list = Index_Results.index.tolist()
 
-# load_IDs = ['052', '086', '149', '182', '247']
+# # load_IDs = ['052', '086', '149', '182', '247']
+# load_IDs = int_to_str3([103, 165, 57, 43, 187, 154, 220, 37, 213, 45])
 # load_IDss = int_to_str3(index_list)
 
 # for k in load_IDs:
@@ -1229,7 +1230,39 @@ for i in range(df_datasets.shape[0]):
 #             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
     
+#%%
+import random
+
+df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
+
+train_LN = 'N'
+test_LN = 'N'
+
+if train_LN =='L':
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
+elif train_LN =='N':
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
     
+      
+        
+Diff_Nodes = [22, 32, 42]
+
+#for load_Nodes_X_el in [23]:
+for i in Diff_Nodes:  
+    
+    if test_LN =='L':
+        load_IDss = int_to_str3(df_datasets[i]['L'])
+    elif train_LN =='N':
+        load_IDss = int_to_str3(df_datasets[i]['N'])
+    
+    load_Nodes_X = [23] # [load_Nodes_X_el]
+    load_Nodes_Y = [i]
+    
+    GPR(W_par=[length_subvec, length_step], 
+            Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+            Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+            Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
     
     
 sys.exit()
