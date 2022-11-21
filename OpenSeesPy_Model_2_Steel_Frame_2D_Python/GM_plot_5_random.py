@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import os
 import random
+import sys
 
 def int_to_str3(list_int):
     
@@ -59,9 +60,9 @@ index_list = Index_Results.index.tolist()
 df_HV = pd.read_pickle( os.path.join(output_directory, 'GM_datasets_5_earthquakes.pkl') ) # read the high variance dataset for comparison
 
 
-df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set', 'Train eq. duration','Tot. duration'])
-        
 
+
+#%% Generation random dataset
 
 def random_set_loads(Index_Results, train_elements):
     # Remove all non valid alanysis
@@ -76,13 +77,64 @@ def random_set_loads(Index_Results, train_elements):
     
     return train_list, test_list       
 
-Train_data, Test_data = random_set_loads(Index_Results, 20)
+# Train_data, Test_data = random_set_loads(Index_Results, 20)
 
+# df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set', 'Train eq. duration','Tot. duration'])
+        
 
+#%% plot LN study
 
-sets = [Train_data       ]
+df_datasets = pd.read_pickle(output_directory + '/00_EQ_List.pkl')    
 
+case_vec = ['L','N']
 
+for case in case_vec:
+    
+    sets = []   
+
+    sets = [df_datasets[22][case], df_datasets[32][case], df_datasets[42][case]]
+    
+    nodes = [22, 32, 42]
+    i = 0
+    
+    
+    plt.figure()
+    plt.title(case + ' test dataset', fontsize = '8', loc = 'left')
+    
+    plt.scatter(df_eq.loc[:,'Peak acc'], df_eq.loc[:,'Peak T'], marker='x', color = 'b', label = 'Dataset')
+    
+    for plot_set in sets: 
+        
+        node = nodes[i]
+        
+        acc_set = []
+        period_set = []
+        
+        colors = ['k', 'r', 'g']
+        
+        for j in plot_set:
+            for k in df_eq.index:
+                if j == k:
+                    acc_set.append(df_eq.loc[j, 'Peak acc'])
+                    period_set.append(df_eq.loc[j, 'Peak T']   )       
+        
+        plt.scatter(acc_set, period_set, marker='x', label = f'Node {node}', color = colors[i])
+        
+        i +=1
+        
+    for period in struc_periods:
+        plt.axhline(period, linewidth=0.8, linestyle = '--')
+        plt.text(4.9, period ,f'{round(period,2)}', fontsize='small')
+    
+    
+    plt.xlabel('Amplitude')
+    plt.ylabel('Period')
+    plt.legend()
+        
+
+sys.exit()
+
+#%% Plot, general code
 
 for Train_data in sets: 
     # Test_data = index_list
@@ -112,7 +164,7 @@ for Train_data in sets:
         
     
         
-    df_datasets.loc[0] = int_to_str3(Train_data), Test_data, var, train_duration, tot_duration
+    # df_datasets.loc[0] = int_to_str3(Train_data), Test_data, var, train_duration, tot_duration
         
         
         
@@ -133,6 +185,6 @@ for Train_data in sets:
         
 
     
-# df_datasets.to_pickle(output_directory + '/GM_datasets_5_random_earthquakes.pkl')
+# df_datasets.to_pickle(output_directory + '/GM_datasets_20_random_earthquakes.pkl')
 
 

@@ -26,8 +26,14 @@ test_vec = [
             'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]',
             'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]',
             'Test 8\n20 high var GMs\nL=10 s=3\ntrain node [33]',
-            'Test 9\n10 high energy GMs\nL=25 s=5\ntrain node [23]',
-            'Test 10\n10 high error GMs\nL=25 s=5\ntrain node [23]'
+            # 'Test 9\n10 high energy GMs\nL=25 s=5\ntrain node [23]',
+            # 'Test 10\n10 high error GMs\nL=25 s=5\ntrain node [23]',
+            'Test 11\n20 random GMs\nL=25 s=5\ntrain node [23]',            
+            # 'Test 12\n10 random L GMs\ntrain node [23]\npredict L',
+            # 'Test 13\n10 random N GMs\ntrain node [23]\npredict N',
+            # 'Test 14\n29 random N GMs\ntrain node [23]\npredict N',
+            # 'Test 15\n10 random N GMs\ntrain node [23]\npredict L',
+            # 'Test 16\n10 random L GMs\ntrain node [23]\npredict N',
             ]
 
 n_test = len(test_vec)
@@ -103,7 +109,7 @@ for i in nodes:
                     wspace=0.4,
                     hspace=0.4)
     
-    # fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
+    fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
     plt.show() 
     
         

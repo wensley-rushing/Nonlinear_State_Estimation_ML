@@ -1178,30 +1178,31 @@ if False:
 
 #%%  Different datasets and different nodes to predict
 
-# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
+# # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
 
 
 
-for i in range(df_datasets.shape[0]):
-    load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
-    load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
+# for i in range(df_datasets.shape[0]):
+#     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
+#     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-    Diff_Nodes = [22, 32, 42]
+#     Diff_Nodes = [22, 32, 42]
     
-    #for load_Nodes_X_el in [23]:
-    for j  in Diff_Nodes:  
+#     #for load_Nodes_X_el in [23]:
+#     for j  in Diff_Nodes:  
     
-        load_Nodes_X = [23]# [load_Nodes_X_el]
-        load_Nodes_Y = [j]
-        print(load_Nodes_X, load_Nodes_Y)
+#         load_Nodes_X = [23]# [load_Nodes_X_el]
+#         load_Nodes_Y = [j]
+#         print(load_Nodes_X, load_Nodes_Y)
         
-        GPR(W_par=[length_subvec, length_step], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#         GPR(W_par=[length_subvec, length_step], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
 #%%  One dataset and different nodes to predict
+
 # Analysis: 5 Random Earthquakes (same used for coloured matrix and boxplots)
 #           Train on node 23, predict 22, 32, 42
 
@@ -1230,42 +1231,44 @@ for i in range(df_datasets.shape[0]):
 #             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
     
-#%%
+#%% Linear / non-linear study
 # import random
 
 # df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
+df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
 
-# train_LN = 'L'
-# test_LN = 'N'
+sys.exit()
+train_LN = 'L'
+test_LN = 'N'
 
-# if train_LN =='L':
-#     load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
-#     # load_IDs = int_to_str3(df_datasets[23]['L'])
-# elif train_LN =='N':
-#     load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
-#     # load_IDs = int_to_str3(df_datasets[23]['N'])
+if train_LN =='L':
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
+    # load_IDs = int_to_str3(df_datasets[23]['L'])
+elif train_LN =='N':
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
+    # load_IDs = int_to_str3(df_datasets[23]['N'])
     
       
         
-# Diff_Nodes = [22, 32, 42]
+Diff_Nodes = [22, 32, 42]
 
-# #for load_Nodes_X_el in [23]:
-# for i in Diff_Nodes:  
+#for load_Nodes_X_el in [23]:
+for i in Diff_Nodes:  
     
-#     if test_LN =='L':
-#         load_IDss = []
-#         load_IDss = int_to_str3(df_datasets[i]['L'])
-#     elif test_LN =='N':
-#         load_IDss = []
-#         load_IDss = int_to_str3(df_datasets[i]['N'])
+    if test_LN =='L':
+        load_IDss = []
+        load_IDss = int_to_str3(df_datasets[i]['L'])
+    elif test_LN =='N':
+        load_IDss = []
+        load_IDss = int_to_str3(df_datasets[i]['N'])
     
-#     load_Nodes_X = [23] # [load_Nodes_X_el]
-#     load_Nodes_Y = [i]
+    load_Nodes_X = [23] # [load_Nodes_X_el]
+    load_Nodes_Y = [i]
     
-#     GPR(W_par=[length_subvec, length_step], 
-#             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-#             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-#             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+    GPR(W_par=[length_subvec, length_step], 
+            Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+            Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+            Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
     
     
