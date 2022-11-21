@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
-
+import random
 
 def int_to_str3(list_int):
     
@@ -61,21 +61,26 @@ df_HV = pd.read_pickle( os.path.join(output_directory, 'GM_datasets_5_earthquake
 
 df_datasets = pd.DataFrame(columns = ['Train sets', 'Test sets', 'Variance train set', 'Train eq. duration','Tot. duration'])
         
-sets = [
-        # [15,91,98,154,158,165,176,177,187,210,215,230,240,276,287,291,296,299,], 
-        # [1,2,3,11,13,16,17,20,26,30,34,36,47,48,49,63,65,66,69,70,72,73,76,78,82,88,102,109,116,122,126,131,132,135,138,
-        #  140,146,152,157,166,193,199,200,211,236,241,242,243,246,248,252,253,254,258,259,262,263,],
-        # [7,9,10,15, 24,41,43,61, 79, 81, 85,90,91, 98, 99, 100,101, 105, 111,123,141,143,145,150,154,158,159,
-        #  161,165, 176,177,180, 187,188,194,195,201,210,213,214,215,217,220, 221,222,225, 227,230,234,237,239, 240,269,274,
-        #  275,276,279,287,290,291,296,299],
-        # [210, 37, 150, 42, 145, 43, 41, 143, 40, 214] 
-        # [103, 165, 57, 43, 187, 154, 220, 37, 213, 45]
-        [11]
-        
-        ]
-        
 
 
+def random_set_loads(Index_Results, train_elements):
+    # Remove all non valid alanysis
+    Index_Results.drop(Index_Results['OK=0'][Index_Results['OK=0']!=0],axis=1, inplace=True)
+    
+    index_list = Index_Results.index.tolist()
+    
+    train_list = random.sample(index_list, train_elements)
+    test_list = index_list
+    for i in train_list:
+        test_list.remove(i)
+    
+    return train_list, test_list       
+
+Train_data, Test_data = random_set_loads(Index_Results, 20)
+
+
+
+sets = [Train_data       ]
 
 
 
@@ -107,7 +112,7 @@ for Train_data in sets:
         
     
         
-    # df_datasets.loc[0] = int_to_str3(Train_data), Test_data, var, train_duration, tot_duration
+    df_datasets.loc[0] = int_to_str3(Train_data), Test_data, var, train_duration, tot_duration
         
         
         
