@@ -20,7 +20,9 @@ LL / LN study:
 
 'Test 12\n10 random L GMs\ntrain node [23]\npredict L'
 'Test 13\n10 random N GMs\ntrain node [23]\npredict N'
-'Test 14\n29 random N GMs\ntrain node [23]\npredict N'
+'Test 14\n29 N GMs\ntrain node [23]\npredict N'
 'Test 15\n10 random N GMs\ntrain node [23]\npredict L'
 'Test 16\n10 random L GMs\ntrain node [23]\npredict N'
+'Test 17\n26 high-N GMs\ntrain node [23]\npredict high-N'
+'Test 18\n20 L GMs\ntrain node [23]\npredict high-N'
 

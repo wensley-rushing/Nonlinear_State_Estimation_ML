@@ -18,22 +18,23 @@ data_directory = 'output_files\Testing\Box_plots'
 plot_box = True
 
 test_vec = [
-            'Test 1\n5 random GMs\nL=25 s=5\ntrain node [23]',
-            'Test 2\n5 random GMs\nL=10 s=3\ntrain node [23]',
-            'Test 3\n5 high var GMs\nL=25 s=5\ntrain node [23]',
-            'Test 4\n5 high var GMs\nL=10 s=3\ntrain node [23]',
+            # 'Test 1\n5 random GMs\nL=25 s=5\ntrain node [23]',
+            # 'Test 2\n5 random GMs\nL=10 s=3\ntrain node [23]',
+            # 'Test 3\n5 high var GMs\nL=25 s=5\ntrain node [23]',
+            # 'Test 4\n5 high var GMs\nL=10 s=3\ntrain node [23]',
             'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]',
-            'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]',
-            'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]',
-            'Test 8\n20 high var GMs\nL=10 s=3\ntrain node [33]',
+            # 'Test 6\n20 high var GMs\nL=10 s=3\ntrain node [23]',
+            # 'Test 7\n20 high var GMs\nL=25 s=5\ntrain node [33]',
+            # 'Test 8\n20 high var GMs\nL=10 s=3\ntrain node [33]',
             # 'Test 9\n10 high energy GMs\nL=25 s=5\ntrain node [23]',
             # 'Test 10\n10 high error GMs\nL=25 s=5\ntrain node [23]',
             'Test 11\n20 random GMs\nL=25 s=5\ntrain node [23]',            
-            # 'Test 12\n10 random L GMs\ntrain node [23]\npredict L',
-            # 'Test 13\n10 random N GMs\ntrain node [23]\npredict N',
-            # 'Test 14\n29 random N GMs\ntrain node [23]\npredict N',
-            # 'Test 15\n10 random N GMs\ntrain node [23]\npredict L',
-            # 'Test 16\n10 random L GMs\ntrain node [23]\npredict N',
+            'Test 12\n10 random L GMs\ntrain node [23]\npredict L',
+            'Test 13\n10 random N GMs\ntrain node [23]\npredict N',
+            'Test 14\n29 N GMs\ntrain node [23]\npredict N',
+            'Test 15\n10 random N GMs\ntrain node [23]\npredict L',
+            'Test 17\n26 high-N GMs\ntrain node [23]\npredict high-N',
+            'Test 18\n20 L GMs\ntrain node [23]\npredict high-N'
             ]
 
 n_test = len(test_vec)
@@ -67,7 +68,7 @@ for i in nodes:
         
         df_SMSE[test_lab] = df.loc['SMSE']
     
-        df_TRAC.to_csv(os.path.join(data_directory, 'Excel', f'Node_{i}_TRAC.csv'))
+        # df_TRAC.to_csv(os.path.join(data_directory, 'Excel', f'Node_{i}_TRAC.csv'))
         
         if plot_box:
         
@@ -109,7 +110,7 @@ for i in nodes:
                     wspace=0.4,
                     hspace=0.4)
     
-    fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}.png'))
+    fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}_LN_study.png'))
     plt.show() 
     
         
