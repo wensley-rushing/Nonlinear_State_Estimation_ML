@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_NN_all_test'
+folder_figure_save = r'output_files\Testing\Test_LN'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1235,15 +1235,15 @@ import random
 
 df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
 
-train_LN = 'N'
+train_LN = 'L'
 test_LN = 'N'
 
 if train_LN =='L':
-    # load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
-    load_IDs = int_to_str3(df_datasets[23]['L'])
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
+    # load_IDs = int_to_str3(df_datasets[23]['L'])
 elif train_LN =='N':
-    # load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
-    load_IDs = int_to_str3(df_datasets[23]['N'])
+    load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
+    # load_IDs = int_to_str3(df_datasets[23]['N'])
     
       
         
@@ -1253,8 +1253,10 @@ Diff_Nodes = [22, 32, 42]
 for i in Diff_Nodes:  
     
     if test_LN =='L':
+        load_IDss = []
         load_IDss = int_to_str3(df_datasets[i]['L'])
-    elif train_LN =='N':
+    elif test_LN =='N':
+        load_IDss = []
         load_IDss = int_to_str3(df_datasets[i]['N'])
     
     load_Nodes_X = [23] # [load_Nodes_X_el]
