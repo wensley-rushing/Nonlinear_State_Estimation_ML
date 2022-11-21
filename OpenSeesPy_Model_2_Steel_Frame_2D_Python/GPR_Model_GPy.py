@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_17_NN'
+folder_figure_save = r'output_files\Testing\Test_18_LN'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1237,7 +1237,7 @@ if False:
 # df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
 df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
 
-train_LN = 'N'
+train_LN = 'L'
 test_LN = 'N'
 
 if train_LN =='L':
