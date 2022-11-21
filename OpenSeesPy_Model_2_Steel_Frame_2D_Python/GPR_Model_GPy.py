@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\Testing\Test_18_LN'
+folder_figure_save = r'output_files\18_tests\Test_5'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -772,11 +772,14 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         columns.append(IDss + f'_{load_Nodes_Y[0]}')
     
     df_error = pd.DataFrame(columns = columns, index = ['RMSE', 'SMSE', 'MAE','MAPE', 'TRAC'])
+    df_values = pd.DataFrame(columns = ['T', 'TR', 'P'], index = load_IDss)
     
     print('Plotting Routine')
     print('------------------------------------------------- \n')
     
     for i in df_Xs_list.index.tolist():
+        #df_values = pd.DataFrame(columns = ['True', 'True_Reduced', 'Predicted'], index = [0])
+        
         Xs_list = df_Xs_list[0][i]
         
         mus_EQ = model.predict(Xs_list)[0]
@@ -792,28 +795,38 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         node_head = load_Nodes_Y[0] # Only one node : 32
         
         # True
-        acc = df_ZYs[node_head]['ACCS'][i]    
+        acc = df_ZYs[node_head]['ACCS'][i]
         x_acc = np.arange(0,len(acc))*0.02
         
-        ax[0].plot(x_acc, acc, 
-                 alpha=0.3, linewidth=3, label='True')
+        ax[0].plot(x_acc, acc,
+                  alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
+        
+        acc_reduced = acc[length_subvec-1:len(acc):length_step]
+        x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step*0.02) + (length_subvec*0.02)
+        
+        ax[0].plot(x_acc_reduced, acc_reduced,
+                  alpha=0.3, linewidth=2, label='True Red.', color = 'k')
         
         
-        # SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
+        
+        #SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
         # Predict
         mus_temp = mus_EQ
         x_temp = (np.arange(0,len(mus_temp)) *length_step*0.02) + (length_subvec*0.02)
-        #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02 
+        #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02
         
         sigma_i_temp = sigma_iEQ
         
-        ax[0].plot(x_temp, mus_temp, 
-                 alpha=0.8, label='Predicted')
+        ax[0].plot(x_temp, mus_temp,
+                 alpha=0.8,linewidth=1, label='Predicted', color = 'tab:orange')
         
-        # SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
+        # ax[0].plot(x_acc, acc,
+        #           alpha=0.8, linewidth=1, label='True')
         
-        # print(SampEn_acc, SampEn_mus)
-        # ax[0].plot(x_temp, sigma_i_temp, 
+        #SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
+        
+        #print(SampEn_acc, SampEn_mus)
+        # ax[0].plot(x_temp, sigma_i_temp,
         #          alpha=0.8, label='SD')
         
         #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
@@ -833,9 +846,9 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
         ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
                      f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
-                     f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}', 
+                     f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
                         x=0, y=0.97, ha='left', va='bottom', fontsize=10)
-        # model_optimizer
+        #model_optimizer
         plt.xlabel('time [s]')
         fig.tight_layout()
         #plt.xlim(2000,3000)
@@ -849,16 +862,16 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
         MAE = []
         MAPE = []
         TRAC = []
-        for i in range(len(mus_temp)):
-            y_true = np.array(acc[length_subvec:len(acc):length_step][:i]).reshape(-1,1)
-            y_pred = mus_temp[:i].reshape(-1,1)
-            
-            RM, SM, MA, MP, TR = errors(y_true, y_pred)
-            RMSE.append(RM)
-            SMSE.append(SM)
-            MAE.append(MA)
-            MAPE.append(MP)
-            TRAC.append(TR)
+        # for i in range(len(mus_temp)):
+        y_true = np.array(acc[length_subvec -1 :len(acc):length_step]).reshape(-1,1)
+        y_pred = mus_temp.reshape(-1,1)
+        
+        RM, SM, MA, MP, TR = errors(y_true, y_pred)
+        RMSE.append(RM)
+        SMSE.append(SM)
+        MAE.append(MA)
+        MAPE.append(MP)
+        TRAC.append(TR)
               
         df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['RMSE'] = RMSE[-1]
         df_error[f'{int_to_str3([idx])[0]}_{load_Nodes_Y[0]}']['SMSE'] = SMSE[-1]
@@ -916,6 +929,11 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
                           f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
         plt.close()
         
+        
+        # Save all Values in DF
+        df_values['T'][int_to_str3([idx])[0]] = acc
+        df_values['TR'][int_to_str3([idx])[0]] = y_true.tolist()
+        df_values['P'][int_to_str3([idx])[0]] = y_pred.tolist()
     
     #%% OLD (Shift in time for large number of outputs...)
     if False: 
@@ -1072,6 +1090,7 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
     #unpickled_df = pd.read_pickle("./dummy.pkl")
     
     df_error.to_pickle( os.path.join(folder_figure_save,sub_folder_plots, '00_Error.pkl')  )
+    df_values.to_pickle( os.path.join(folder_figure_save,sub_folder_plots, '00_Values.pkl')  )
     
     #%% Time - toc
     global_tic_1 = time.time()
@@ -1090,13 +1109,13 @@ Train_data, Test_data = random_str_list(Index_Results, Train_procent = .015)
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
 # load_IDs = ['108', '001', '231', '079', '251']
-load_IDs = ['052', '086', '149', '182', '247']
+load_IDs = ['052']
 
 # Training - X                                                                                 
-load_Nodes_X = [21, 23] # Indicator of dimension d
+load_Nodes_X = [23] # Indicator of dimension d
 
 # Training - Y
-load_Nodes_Y = [22]
+load_Nodes_Y = [23]
 
 # Combine it all
 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
@@ -1111,7 +1130,7 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 # Indicator if total time m
 #load_IDss = Test_data # 20
-load_IDss = ['202', '143']
+load_IDss = ['052']
 #load_IDss = ['023']  
 # load_IDss = int_to_str3(Index_Results.index.tolist())
 # for i in load_IDs:
@@ -1133,7 +1152,7 @@ Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 length_subvec = 25
 
 # Overlaping parameter (number of new values in sub-vector)
-length_step = 5
+length_step = 3
 W_par=[length_subvec, length_step]
 
 # Model Optimization Y/N
@@ -1178,28 +1197,30 @@ if False:
 
 #%%  Different datasets and different nodes to predict
 
-# # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
 
+df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
 
-# for i in range(df_datasets.shape[0]):
-#     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
-#     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-#     Diff_Nodes = [22, 32, 42]
+for i in range(df_datasets.shape[0]):
+    load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
+    load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
+
+    Diff_Nodes = [22, 32, 42]
     
-#     #for load_Nodes_X_el in [23]:
-#     for j  in Diff_Nodes:  
+    #for load_Nodes_X_el in [23]:
+    for j  in Diff_Nodes:  
     
-#         load_Nodes_X = [23]# [load_Nodes_X_el]
-#         load_Nodes_Y = [j]
-#         print(load_Nodes_X, load_Nodes_Y)
+        load_Nodes_X = [23]# [load_Nodes_X_el]
+        load_Nodes_Y = [j]
+        print(load_Nodes_X, load_Nodes_Y)
         
-#         GPR(W_par=[length_subvec, length_step], 
-#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+        GPR(W_par=[length_subvec, length_step], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
 #%%  One dataset and different nodes to predict
 
@@ -1235,39 +1256,40 @@ if False:
 # import random
 
 # df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
-df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
 
-train_LN = 'L'
-test_LN = 'N'
+# train_LN = 'L'
+# test_LN = 'N'
 
-if train_LN =='L':
-    # load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
-    load_IDs = int_to_str3(df_datasets[23]['L'])
-elif train_LN =='N':
-    # load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
-    load_IDs = int_to_str3(df_datasets[23]['N'])
+# if train_LN =='L':
+#     # load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=10))
+#     load_IDs = int_to_str3(df_datasets[23]['L'])
+# elif train_LN =='N':
+#     # load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=10))
+#     load_IDs = int_to_str3(df_datasets[23]['N'])
     
-      
+
+#%%
         
-Diff_Nodes = [22, 32, 42]
+# Diff_Nodes = [22, 32, 42]
 
-#for load_Nodes_X_el in [23]:
-for i in Diff_Nodes:  
+# #for load_Nodes_X_el in [23]:
+# for i in Diff_Nodes:  
     
-    if test_LN =='L':
-        load_IDss = []
-        load_IDss = int_to_str3(df_datasets[i]['L'])
-    elif test_LN =='N':
-        load_IDss = []
-        load_IDss = int_to_str3(df_datasets[i]['N'])
+#     if test_LN =='L':
+#         load_IDss = []
+#         load_IDss = int_to_str3(df_datasets[i]['L'])
+#     elif test_LN =='N':
+#         load_IDss = []
+#         load_IDss = int_to_str3(df_datasets[i]['N'])
     
-    load_Nodes_X = [23] # [load_Nodes_X_el]
-    load_Nodes_Y = [i]
+#     load_Nodes_X = [23] # [load_Nodes_X_el]
+#     load_Nodes_Y = [i]
     
-    GPR(W_par=[length_subvec, length_step], 
-            Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-            Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-            Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#     GPR(W_par=[length_subvec, length_step], 
+#             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
     
     
