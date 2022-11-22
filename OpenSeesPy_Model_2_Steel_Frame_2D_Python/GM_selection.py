@@ -142,6 +142,6 @@ for index in range(0, df_datasets.shape[0]):
         
 
     
-df_datasets.to_pickle(output_directory + '/GM_datasets_5_earthquakes.pkl')
+# df_datasets.to_pickle(output_directory + '/GM_datasets_5_earthquakes.pkl')
 
 

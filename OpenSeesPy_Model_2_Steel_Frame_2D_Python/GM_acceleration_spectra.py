@@ -54,7 +54,7 @@ df_structure = pd.read_pickle( os.path.join(output_directory, '00_Structure.pkl'
 struc_periods = list(df_structure.Periods[0])
 
 
-plot_spectra = True
+plot_spectra = False
 
 
 
@@ -95,7 +95,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
             # S_max[n] = max(S_acc[n, :])
             # T_max[n] = T[np.where(S_acc == S_max[n])[1][0]]
             
-            df.loc[n] = [file[:-4], dt, max(S_acc), T[np.where(S_acc == max(S_acc))[0][0]], time, inp_acc, S_acc]
+            df.loc[n] = [file[:-4], [dt], max(S_acc), T[np.where(S_acc == max(S_acc))[0][0]], time, inp_acc, S_acc]
             
             
             
@@ -173,7 +173,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
 
 # Export dataframe
 
-df.to_pickle(output_directory + '/GM_spectra.pkl')
+# df.to_pickle(output_directory + '/GM_spectra.pkl')
             
             
           
