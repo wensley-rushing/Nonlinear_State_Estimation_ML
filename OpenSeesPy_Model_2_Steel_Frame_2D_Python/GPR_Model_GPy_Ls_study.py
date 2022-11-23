@@ -303,11 +303,18 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
     load_Nodes_Ys = Test_par[2]
     
     
-    #%% Create Sub-folder for plots
+    #%% Create subfolders
+    
+    # Create Sub-folder for L, s values (1 folder per case)
+    sub_folder_Ls_case = f'L{W_par[0]}_s{W_par[1]}'
+    
+    os.mkdir(os.path.join(folder_figure_save, sub_folder_Ls_case))
+    
+    # Create Sub-folder for plots (1 folder per node)
     sub_folder_plots = f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_IDss)}_Time{start_time_name}'
       
-    # Create applicabe sub-folder
-    os.mkdir(os.path.join(folder_figure_save, sub_folder_plots))
+    # Create applicabe sub-folder per each node
+    os.mkdir(os.path.join(folder_figure_save, sub_folder_Ls_case, sub_folder_plots))
     
     
     Transcript.start(os.path.join(folder_figure_save, sub_folder_plots, '00_logfile.txt'))
