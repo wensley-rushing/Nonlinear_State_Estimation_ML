@@ -34,7 +34,7 @@ dataframe_index = ['s1','s2','s3', 's4','s5']
 plot_error = 'RMSE'   # which error should be plot
 index_error = errors.index(plot_error)
 
-plot_nodes = [22] # for which nodes
+plot_nodes = [22, 23, 32, 42] # for which nodes
 
 plot = True
 
@@ -52,13 +52,13 @@ for node in plot_nodes:
     
     i = Diff_Nodes.index(node)
     
-    folder_path = os.path.join(data_directory, f'node_{node}')
+    folder_node_path = os.path.join(data_directory, f'node_{node}')
     
     for l in L_parameter_values:
     
         for s in S_parameter_values:
             
-            folder_path = os.path.join(folder_path, f'L{l}_s{s}')
+            folder_path = os.path.join(folder_node_path, f'L{l}_s{s}')
             
             for rdirs, dirs, files in os.walk(folder_path):
                     
@@ -69,7 +69,7 @@ for node in plot_nodes:
                             
                             df = pd.read_pickle(os.path.join(folder_path, file))
                             
-                            mean = df.mean(axis=1)
+                            mean = df.mean(axis=0)
                             
                             if i == 0:
                                 df_node22[f'L{l}'][f's{s}'] = mean[plot_error]
@@ -83,7 +83,7 @@ for node in plot_nodes:
                             elif i == 3:
                                 df_node42[f'L{l}'][f's{s}'] = mean[plot_error]
                             
-                            break
+                        
                     
             
                                         
