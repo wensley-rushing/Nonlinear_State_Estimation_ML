@@ -256,7 +256,8 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 
 #%% Gaussian Process Model for Regression
-def GPR(W_par=[25, 5], #[length_subvec, length_step], 
+def GPR(sub_folder_Ls_case,
+        W_par=[25, 5], #[length_subvec, length_step], 
         Ker_par=[1, 1, 0], #[sigma2_ks, tau2_ks, sigma2_error],
         
         Train_par=[['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
@@ -305,16 +306,11 @@ def GPR(W_par=[25, 5], #[length_subvec, length_step],
     
     #%% Create subfolders
     
-    # Create Sub-folder for L, s values (1 folder per case)
-    sub_folder_Ls_case = f'L{W_par[0]}_s{W_par[1]}'
-    
-    os.mkdir(os.path.join(folder_figure_save, sub_folder_Ls_case))
-    
     # Create Sub-folder for plots (1 folder per node)
-    sub_folder_plots = f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_IDss)}_Time{start_time_name}'
+    sub_folder_plots = os.path.join( sub_folder_Ls_case, f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_IDss)}_Time{start_time_name}')
       
     # Create applicabe sub-folder per each node
-    os.mkdir(os.path.join(folder_figure_save, sub_folder_Ls_case, sub_folder_plots))
+    os.mkdir(os.path.join(folder_figure_save, sub_folder_plots))
     
     
     Transcript.start(os.path.join(folder_figure_save, sub_folder_plots, '00_logfile.txt'))
@@ -1245,20 +1241,28 @@ for k in load_IDs:
     load_IDss.remove(k)
 
 # L_parameter_values = [5, 10, 15, 20, 25, 30]
-L_parameter_values = [35,45,50,70]
+L_parameter_values = [35,40,45,50,70]
 S_parameter_values = [5]
 
 Diff_Nodes = [22, 32, 42]
 
 for length_subvec in L_parameter_values:
     for length_step in S_parameter_values:
+        
+        # Create Sub-folder for L, s values (1 folder per case)
+        sub_folder_Ls_case = f'L{length_subvec}_s{length_step}'
+        
+        os.mkdir(os.path.join(folder_figure_save, sub_folder_Ls_case))
+        
+        
         #for load_Nodes_X_el in [23]:
         for i in Diff_Nodes:  
         
             load_Nodes_X = [23] # [load_Nodes_X_el]
             load_Nodes_Y = [i]
             
-            GPR(W_par=[length_subvec, length_step], 
+            GPR(sub_folder_Ls_case,
+                W_par=[length_subvec, length_step], 
                     Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
                     Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
