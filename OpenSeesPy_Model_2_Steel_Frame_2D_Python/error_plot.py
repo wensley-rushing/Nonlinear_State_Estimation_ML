@@ -187,111 +187,166 @@ def int_to_str3(list_int):
             
     return list_int
 
-nodes = [22, 23, 32, 42]
-GM_indxs = np.arange(0,301)
+L_parameter_values = [1, 10, 20, 25, 40]
 
-# nodes = [22]
-# GM_indxs = np.arange(0,3)
+S_parameter_values = [1,2,3,4,5]
+
+# nodes = [22, 23, 32, 42]
+# GM_indxs = np.arange(0,301)
+
+nodes = [42]
+GM_indxs = [0,1,2,3]
+
+save_results = True
 
 for node in nodes:
     
-    df = pd.DataFrame(columns = ['GM index', 'RMSE'])
     
-    for gm_index in GM_indxs:
-        
-        gm = int_to_str3([gm_index])
-        
-        
-
-        # Set parameters
-        
-        length_subvec = 25
-        length_step = 4
-        
-        # Get subvectors for acceleration and time
-        
-        df_ZX, df_ZY = load_to_w(gm,[node],[],length_subvec,length_step)
-        
-        # Get entire signal: x_acc is time! 
-        
-        acc = df_ZX[node]['ACCS'][0]
-        x_acc = np.arange(0,len(acc))*0.02
-        
-        n_subvec = len(df_ZX.loc['Z'].tolist()[0])
-        
-        # Get reduced signal: it includes only the predicted points: two different methods
-        
-        y_true_red = np.array(acc[length_subvec -1 :len(acc):length_step]).reshape(-1,1)
-        y_true_red_2 = []
-        x_red = [] # time vector for reduced y vector
-        
-        for i in range(0, n_subvec):
+    if save_results: 
+        # Create subfolder
+    
+        node_folder = os.path.join(folder_output, f'node_{node}')
             
-            a = df_ZX.loc['Z'].tolist()[0][i][-1]
-            t = df_ZX.loc['Time_subvec'].tolist()[0][i][-1]
-            
-            y_true_red_2.append(a)  
-            x_red.append(t)
+        os.mkdir(node_folder)
+    
+    # Start analysis
+    
+    df = pd.DataFrame(columns = ['GM index', 'RMSE', 'Tails', 'Tails relevance'])
+    
+    
+    # Set parameters
+    
+    for length_subvec in L_parameter_values:
+        for length_step in S_parameter_values:
+    
+            if save_results: 
+                # Create subfolder
+                
+                Ls_case_folder = os.path.join(node_folder, f'L{length_subvec}_s{length_step}')
+                os.mkdir(Ls_case_folder)
             
             
-            if y_true_red_2[i] != y_true_red[i]:
-                print('Error 1 in the script!!!')
+            for gm_index in GM_indxs:
                 
-        if len(y_true_red_2) != n_subvec or len(x_red) != len(y_true_red_2):
-            print('Error 2 in the script!!!')
+                gm = int_to_str3([gm_index])        
         
+                
+                
+                
+                
+                # Get subvectors for acceleration and time
+                
+                df_ZX, df_ZY = load_to_w(gm,[node],[],length_subvec,length_step)
+                
+                # Get entire signal: x_acc is time! 
+                
+                acc = df_ZX[node]['ACCS'][0]
+                x_acc = np.arange(0,len(acc))*0.02
+                
+                n_subvec = len(df_ZX.loc['Z'].tolist()[0])
+                
+                # Get reduced signal: it includes only the predicted points: two different methods
+                
+                y_true_red = np.array(acc[length_subvec -1 :len(acc):length_step]).reshape(-1,1)
+                y_true_red_2 = []
+                x_red = [] # time vector for reduced y vector
+                
+                for i in range(0, n_subvec):
+                    
+                    a = df_ZX.loc['Z'].tolist()[0][i][-1]
+                    t = df_ZX.loc['Time_subvec'].tolist()[0][i][-1]
+                    
+                    y_true_red_2.append(a)  
+                    x_red.append(t)
+                    
+                    
+                    if y_true_red_2[i] != y_true_red[i]:
+                        print('Error 1 in the script!!!')
+                        
+                if len(y_true_red_2) != n_subvec or len(x_red) != len(y_true_red_2):
+                    print('Error 2 in the script!!!')
+                
+                
+                rmse = []
+                err = []
+                plot_curve = []
+                x_plot = []
+                j = 0
+                flag = 0
+                
+                tail_start = []
+                tail_end = []
+                
+                # For cycle: i is the index for the extended acceleration vector; j is used for the reduced acceleration vector
+                
+                for i in range(0,len(acc)):   
+                    
+                    if flag == 2:
+                        tail_end.append(acc[i])
+                    
+                    
+                    if x_acc[i] == x_red[0]: # if we are at the first value of the reduced vector we can start making estimations and measure
+                        flag += 1            # the error
+                        
+                        
+                    if flag == 1:  # measure the error
+                        if x_acc[i] == x_red[j]: # Make estimation: the two points match
+                            
+                            err.append((acc[i] - y_true_red_2[j])**2)
+                            plot_curve.append(y_true_red_2[j])
+                            j += 1
         
-        rmse = []
-        err = []
-        plot_curve = []
-        x_plot = []
-        j = 0
-        flag = 0
-        
-        
-        
-        
-        for i in range(0,len(acc)):   
+                            if  x_acc[i] == x_red[-1]:  # if we are at the last value of the reduced vector we cannot make any other estimation
+                                flag = 2
+                            
+                        else: # Make estimation: the two points do not match, we need to make linear regression
+                            
+                            inter = np.interp(x_acc[i] ,[x_red[j-1], x_red[j]], [y_true_red_2[j-1], y_true_red_2[j]]) 
+                            err.append((acc[i] - inter)**2)
+                            plot_curve.append(inter)
+                            
+                        x_plot.append(x_acc[i])
+                    
+                    # Points which have been excluded both from the error calculation and from the reduced vector    
+                    
+                    if flag == 0: 
+                        tail_start.append(acc[i])
+                    
+                        
+                        
+                        
+                rmse.append(math.sqrt(sum(err)/len(err)))
+                
+                
+                if np.mean(tail_start)>0.25: 
+                    tail_start_relevance = 1
+                else: 
+                    tail_start_relevance = 0
+                
+                if np.mean(tail_end)>0.25: 
+                    tail_end_relevance = 1
+                else: 
+                    tail_end_relevance = 0
+                    
+                tail = [[tail_start],[tail_end]]
+                tail_relevance = [tail_start_relevance, tail_end_relevance]
+                
+                df.loc[gm_index] = gm[0], rmse[0], tail, tail_relevance
+                
+                plt.figure()
+                plt.plot(x_acc, acc, label = 'Entire sign')
+                # plt.plot(x_red, y_true_red_2, label = 'Py pred', linestyle = '-', alpha = 0.7)
+                plt.plot(x_plot, plot_curve, label = 'Reduced sign', alpha = 0.6)
+                plt.suptitle(f'Node {node}', y=1.)
+                plt.title(f'GM ID: {gm[0]} - RMSE = {round(rmse[0],2)}', loc='Left', fontsize = 9)
+                plt.grid()
+                plt.legend()
+                if save_results: 
+                    plt.savefig(os.path.join(Ls_case_folder,'GM' + gm[0] + f'_Node_{node}_L={length_subvec}_s={length_step}.png'))
+                plt.close()
             
-            if x_acc[i] == x_red[0]: # if we are at the first value of the reduced vector we can start making estimations and measure
-                                        # the error
-                flag += 1
-                
-            if flag == 1:  # measure the error
-                
-                if x_acc[i] == x_red[j]:
-                    
-                    err.append((acc[i] - y_true_red_2[j])**2)
-                    plot_curve.append(y_true_red_2[j])
-                    
-                    j += 1
-                    if  x_acc[i] == x_red[-1]:  # if we are at the last value of the reduced vector we cannot make any other estimation
-                        flag = 0
-                    
-                else:
-                    
-                    inter = np.interp(x_acc[i] ,[x_red[j-1], x_red[j]], [y_true_red_2[j-1], y_true_red_2[j]]) 
-                    err.append((acc[i] - inter)**2)
-                    
-                    plot_curve.append(inter)
-                
-                x_plot.append(x_acc[i])
-                
-                
-                
-        rmse.append(math.sqrt(sum(err)/len(err)))
-        
-        df.loc[gm_index] = gm[0], rmse
-        
-        plt.figure()
-        plt.plot(x_acc, acc, label = 'Entire')
-        plt.plot(x_red, y_true_red_2, label = 'Reduced - python', linestyle = '-', alpha = 0.7)
-        plt.plot(x_plot, plot_curve, label = 'Reduced - calculation',  linestyle = ':', alpha = 0.7)
-        plt.grid()
-        plt.legend()
-        plt.savefig(os.path.join(folder_figure_save, f'node_{node}' ,gm[0] + f'_Node_{node}_L={length_subvec}_s={length_step}.png'))
-        
-    df.to_pickle(os.path.join(folder_output, f'Node_{node}_RMSE_true_reduced_signals.pkl'))
+            if save_results: 
+                df.to_pickle(os.path.join(Ls_case_folder, '00_RMSE_Error.pkl'))
                     
         
         

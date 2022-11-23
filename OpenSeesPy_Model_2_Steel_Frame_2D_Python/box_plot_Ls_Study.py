@@ -16,7 +16,7 @@ data_directory = r'output_files\18_tests\Ls_study'
 
 #%% Parameters of the study, does not need to be changed
 
-L_parameter_values = [5, 10, 15, 20, 25, 30]
+L_parameter_values = [5, 10, 15, 20, 25, 30, 35,40,45,50,70]
 
 S_parameter_values = [3,4,5,6,7]
 
@@ -24,7 +24,8 @@ Diff_Nodes = [22, 32, 42]
 
 errors = [ 'RMSE' , 'SMSE', 'MAE' , 'MAPE', 'TRAC']
 
-dataframe_headers = ['L5', 'L10', 'L15', 'L20', 'L25', 'L30']
+dataframe_headers = ['L5', 'L10', 'L15', 'L20', 'L25', 'L30', 'L35', 'L40', 'L45', 'L50', 'L70']
+
 
 dataframe_index = ['s3', 's4','s5','s6','s7']
 
@@ -46,6 +47,11 @@ df_node42 = pd.DataFrame( index = dataframe_index , columns = dataframe_headers)
 #%% Create the datasets
 
 for l in L_parameter_values:
+    
+    if l > 30:
+        S_parameter_values = [5]  # starting from L=35 the simulations has been ran only for s=5
+    
+    
     for s in S_parameter_values:
         
         folder_path = os.path.join(data_directory, f'L{l}_s{s}')
@@ -97,6 +103,7 @@ if plot:
         plt.pcolor(df_plot.values.tolist())
         plt.yticks(np.arange(0.5, len(df_plot.index), 1), df_plot.index)
         plt.xticks(np.arange(0.5, len(df_plot.columns), 1), df_plot.columns)
+        plt.title('Train set: 5 random GMs \nTest set: 296 GMs', loc='Left', fontsize = 9)
         plt.colorbar(label=f'{plot_error} Mean')
         
         # Lines
@@ -120,7 +127,7 @@ if plot:
                                     ha="center", va="center", color="w", fontsize='small')#, transform = ax.transAxes)
                 
         
-        plt.suptitle( 'Mean ' + plot_error + f' - Node {node}' )
+        plt.suptitle( 'Mean ' + plot_error + f' - Node {node}', y=1.02)
         plt.xlabel('Subvectors length')
         plt.ylabel('Subvectors step size')
         plt.show()
