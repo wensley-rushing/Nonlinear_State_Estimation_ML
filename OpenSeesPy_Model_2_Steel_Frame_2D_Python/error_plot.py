@@ -191,11 +191,11 @@ L_parameter_values = [1, 10, 20, 25, 40]
 
 S_parameter_values = [1,2,3,4,5]
 
-# nodes = [22, 23, 32, 42]
-# GM_indxs = np.arange(0,301)
+nodes =[42]
+GM_indxs = np.arange(0,301)
 
-nodes = [42]
-GM_indxs = [0,1,2,3]
+# nodes = [42]
+# GM_indxs = [0,1,2,3]
 
 save_results = True
 
