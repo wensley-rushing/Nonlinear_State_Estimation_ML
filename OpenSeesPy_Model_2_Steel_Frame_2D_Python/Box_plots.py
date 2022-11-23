@@ -110,21 +110,24 @@ for i in nodes:
         if plot_box:
         
             # TRAC boxplot
-            axes[0].boxplot(df.loc['TRAC'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])        
+            axes[0].boxplot(df.loc['TRAC'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])
+            axes[0].tick_params(axis='x', labelrotation=0, labelsize=12)
             axes[0].set_title('TRAC error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[0].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['TRAC'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[0].transAxes, fontsize = '12')
             axes[0].set_ylim(-0.1,1.1)
             
             # SMSE boxplot
-            axes[1].boxplot(df.loc['SMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])   
+            axes[1].boxplot(df.loc['SMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])  
+            axes[1].tick_params(axis='x', labelrotation=0, labelsize=12)
             axes[1].set_title('SMSE error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[1].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['SMSE'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[1].transAxes, fontsize = '12')
             axes[1].set_ylim(-0.1,1.1)
             # RMSE boxplot
             
-            axes[2].boxplot(df.loc['RMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab])   
+            axes[2].boxplot(df.loc['RMSE'].values.reshape(-1,1), widths=0.25, positions=[j], labels = [test_lab]) 
+            axes[2].tick_params(axis='x', labelrotation=0, labelsize=12)
             axes[2].set_title('RMSE error',  y=1.05, fontweight="bold", fontsize = '12')
             axes[2].text(x=(j+0.5)/(len(test_vec)) , y=1, s=f"({round(df.loc['RMSE'].values.reshape(-1,1).mean(),2)})", 
                           va='bottom', ha='center', transform = axes[2].transAxes, fontsize = '12')
