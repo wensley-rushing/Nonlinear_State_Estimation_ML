@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\18_tests\Ls_study'
+folder_figure_save = r'output_files\new_step\test'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -238,7 +238,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 # # Overlaping parameter (number of new values in sub-vector)
 # length_step = 5
-# W_par=[length_subvec, length_step]
+# W_par=[length_subvec, length_step, length_step_test]
 
 
 # # Creation of kernel ----------------------------------------------------------
@@ -257,7 +257,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 #%% Gaussian Process Model for Regression
 def GPR(sub_folder_Ls_case,
-        W_par=[25, 5], #[length_subvec, length_step], 
+        W_par=[25, 5, 1], #[length_subvec, length_step], 
         Ker_par=[1, 1, 0], #[sigma2_ks, tau2_ks, sigma2_error],
         
         Train_par=[['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
@@ -285,6 +285,7 @@ def GPR(sub_folder_Ls_case,
     # Creation of Ws
     length_subvec = W_par[0]
     length_step = W_par[1]
+    length_step_test = W_par[2]
     #print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}') MOVED
     
     # Creation of kernel (Hyper-parameters)
@@ -304,8 +305,7 @@ def GPR(sub_folder_Ls_case,
     load_Nodes_Ys = Test_par[2]
     
     
-    #%% Create subfolders
-    
+    #%% Create Sub-folder for plots
     # Create Sub-folder for plots (1 folder per node)
     sub_folder_plots = os.path.join( sub_folder_Ls_case, f'Pred_node{load_Nodes_Ys[0]}_IN{len(load_IDs)}_OUT{len(load_IDss)}_Time{start_time_name}')
       
@@ -450,7 +450,7 @@ def GPR(sub_folder_Ls_case,
     
                            
     # Testing - X* 
-    df_ZXs, df_ZYs = load_to_w(load_IDss, load_Nodes_Xs, load_Nodes_Ys, len_sub_vector=length_subvec , step_size=length_step)        
+    df_ZXs, df_ZYs = load_to_w(load_IDss, load_Nodes_Xs, load_Nodes_Ys, len_sub_vector=length_subvec , step_size=length_step_test)        
     
     Xs = df_ZXs[df_ZXs.columns[0]]['Z']
     if len(list(df_ZXs.columns)) > 1:
@@ -804,8 +804,8 @@ def GPR(sub_folder_Ls_case,
         ax[0].plot(x_acc, acc,
                   alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
         
-        acc_reduced = acc[length_subvec-1:len(acc):length_step]
-        x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step*0.02) + (length_subvec*0.02)
+        acc_reduced = acc[length_subvec-1:len(acc):length_step_test]
+        x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step_test*0.02) + (length_subvec*0.02)
         
         ax[0].plot(x_acc_reduced, acc_reduced,
                   alpha=0.3, linewidth=2, label='True Red.', color = 'k')
@@ -815,7 +815,7 @@ def GPR(sub_folder_Ls_case,
         #SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
         # Predict
         mus_temp = mus_EQ
-        x_temp = (np.arange(0,len(mus_temp)) *length_step*0.02) + (length_subvec*0.02)
+        x_temp = (np.arange(0,len(mus_temp)) *length_step_test*0.02) + (length_subvec*0.02)
         #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02
         
         sigma_i_temp = sigma_iEQ
@@ -866,7 +866,7 @@ def GPR(sub_folder_Ls_case,
         MAPE = []
         TRAC = []
         # for i in range(len(mus_temp)):
-        y_true = np.array(acc[length_subvec -1 :len(acc):length_step]).reshape(-1,1)
+        y_true = np.array(acc_reduced).reshape(-1,1)        
         y_pred = mus_temp.reshape(-1,1)
         
         RM, SM, MA, MP, TR = errors(y_true, y_pred)
@@ -1111,14 +1111,14 @@ Train_data, Test_data = random_str_list(Index_Results, Train_procent = .015)
 
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
-# load_IDs = ['108', '001', '231', '079', '251']
-load_IDs = ['052']
+load_IDs = ['108', '001', '231', '079', '251']
+# load_IDs = ['052']
 
 # Training - X                                                                                 
 load_Nodes_X = [23] # Indicator of dimension d
 
 # Training - Y
-load_Nodes_Y = [23]
+load_Nodes_Y = [42]
 
 # Combine it all
 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
@@ -1133,7 +1133,7 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 # Indicator if total time m
 #load_IDss = Test_data # 20
-load_IDss = ['052']
+load_IDss = ['012', '277']
 #load_IDss = ['023']  
 # load_IDss = int_to_str3(Index_Results.index.tolist())
 # for i in load_IDs:
@@ -1152,11 +1152,13 @@ Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 #Creation of sub-vecors W -----------------------------------------------------
 # Length of sub-vectors
-length_subvec = 25
+length_subvec = 100
 
 # Overlaping parameter (number of new values in sub-vector)
-length_step = 3
-W_par=[length_subvec, length_step]
+length_step = 5
+length_step_test = 1
+
+W_par=[length_subvec, length_step, length_step_test]
 
 # Model Optimization Y/N
 optimize_model = 1
@@ -1179,7 +1181,6 @@ if False:
                 Train_par, 
                 Test_par)
 
-
 #%% RUN Analysis
 
 #------------------------------------------------------------------------------ 
@@ -1192,7 +1193,7 @@ if False:
 #     load_Nodes_Y = [load_Nodes_Y_el]
 #     print(load_Nodes_X, load_Nodes_Y)
     
-#     GPR(W_par=[length_subvec, length_step], 
+#     GPR(W_par=[length_subvec, length_step, length_step_test], 
 #             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
 #             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
@@ -1220,7 +1221,7 @@ if False:
 #         load_Nodes_Y = [j]
 #         print(load_Nodes_X, load_Nodes_Y)
         
-#         GPR(W_par=[length_subvec, length_step], 
+#         GPR(W_par=[length_subvec, length_step, length_step_test], 
 #                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
 #                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
@@ -1266,7 +1267,7 @@ for length_subvec in L_parameter_values:
                     Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
                     Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
-    
+            
 #%% Linear / non-linear study
 # import random
 
@@ -1301,7 +1302,7 @@ for length_subvec in L_parameter_values:
 #     load_Nodes_X = [23] # [load_Nodes_X_el]
 #     load_Nodes_Y = [i]
     
-#     GPR(W_par=[length_subvec, length_step], 
+#     GPR(W_par=[length_subvec, length_step, length_step_test], 
 #             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
 #             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])

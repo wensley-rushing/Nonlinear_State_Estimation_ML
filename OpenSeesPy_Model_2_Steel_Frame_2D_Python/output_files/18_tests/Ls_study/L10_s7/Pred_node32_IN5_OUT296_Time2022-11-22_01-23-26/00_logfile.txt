@@ -1,52 +1,0 @@
-Start time: 2022-11-22 01:23:26
-Sub-vector parameters: Length = 10, Step = 7
-Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
-
-Determine Kernel @ 2022-11-22 01:23:30
-Subvector length: 10
-Number of sensors: 1
-Duration [sec]: 0.0417 - [min]: 0.0007 - [hrs]: 0.0 
-
-Determine Model @ 2022-11-22 01:23:30
-Non-optimized model 
-Name : GP regression
-Objective : 1890.127983405996
-Number of Parameters : 3
-Number of Optimization Parameters : 3
-Updates : True
-Parameters:
-  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
-  [1mrbf.variance           [0;0m  |    1.0  |      +ve      |        
-  [1mrbf.lengthscale        [0;0m  |    1.0  |      +ve      |        
-  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
-
---Optimize Model @ 2022-11-22 01:23:31
-Running L-BFGS-B (Scipy implementation) Code:
-  runtime   i      f              |g|        
-    00s00  0000   1.890128e+03           nan     01s06  0001   1.890128e+03   1.969933e+05     02s21  0004  -1.443397e+02   8.834876e+04 
-    03s35  0007  -2.672364e+02   6.134296e+02     04s46  0010  -2.906630e+02   8.773639e+02     05s55  0013  -2.930623e+02   1.061772e+02 
-    06s60  0016  -2.942704e+02   2.699438e-02     07s64  0019  -2.942726e+02   1.593197e-06     07s99  0020  -2.942726e+02   1.593197e-06 
-Runtime:     07s99
-Optimization status: Converged
-
-Optimized model 
- 
-Name : GP regression
-Objective : -294.27258318366546
-Number of Parameters : 3
-Number of Optimization Parameters : 3
-Updates : True
-Parameters:
-  [1mGP_regression.         [0;0m  |                 value  |  constraints  |  priors
-  [1mrbf.variance           [0;0m  |       5.4670210064649  |      +ve      |        
-  [1mrbf.lengthscale        [0;0m  |    2.8972660040181517  |      +ve      |        
-  [1mGaussian_noise.variance[0;0m  |  0.022412544222615686  |      +ve      |        
-Duration [sec]: 9.0655 - [min]: 0.1511 - [hrs]: 0.0025 
-
-Plotting Routine
-------------------------------------------------- 
-
-End time: 199.4757 [s]
--- [min]:  3.3246 [min]
--- [hrs]:  0.0554 [hrs]
-
