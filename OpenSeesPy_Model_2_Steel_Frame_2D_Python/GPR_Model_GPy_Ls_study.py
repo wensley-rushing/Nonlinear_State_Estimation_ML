@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_files\new_step\test'
+folder_figure_save = r'output_files\18_tests\Ls_study'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1235,17 +1235,23 @@ if False:
 Index_Results = pd.read_pickle( os.path.join(folder_structure, '00_Index_Results.pkl') )
 index_list = Index_Results.index.tolist()
 
-load_IDs = ['052', '086', '149', '182', '247']
+load_IDs = ['225', '013', '258', '204', '121']
 load_IDss = int_to_str3(index_list)
 
 for k in load_IDs:
     load_IDss.remove(k)
 
-# L_parameter_values = [5, 10, 15, 20, 25, 30]
-L_parameter_values = [35,40,45,50,70]
-S_parameter_values = [5]
+# L_parameter_values = [10, 20, 25, 30, 40, 50, 70, 100]
 
-Diff_Nodes = [22, 32, 42]
+L_parameter_values = [50, 70, 100]
+
+
+
+S_parameter_values = [1]
+
+length_step_test = 1
+
+Diff_Nodes = [42]
 
 for length_subvec in L_parameter_values:
     for length_step in S_parameter_values:
@@ -1263,7 +1269,7 @@ for length_subvec in L_parameter_values:
             load_Nodes_Y = [i]
             
             GPR(sub_folder_Ls_case,
-                W_par=[length_subvec, length_step], 
+                W_par=[length_subvec, length_step, length_step_test], 
                     Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
                     Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
