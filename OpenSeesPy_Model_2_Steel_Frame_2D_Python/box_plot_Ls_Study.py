@@ -16,25 +16,28 @@ data_directory = r'output_files\18_tests\Ls_study'
 
 #%% Parameters of the study, does not need to be changed
 
-L_parameter_values = [5, 10, 15, 20, 25, 30, 35,40,45,50,70]
+# L_parameter_values = [5, 10, 15, 20, 25, 30, 35,40,45,50,70]
 
-S_parameter_values = [3,4,5,6,7]
+L_parameter_values = [10, 20, 25, 30, 40, 50, 70, 100]
 
-Diff_Nodes = [22, 32, 42]
+
+
+S_parameter_values = [1,2,3,4,5]
+
+Diff_Nodes = [42]
 
 errors = [ 'RMSE' , 'SMSE', 'MAE' , 'MAPE', 'TRAC']
 
-dataframe_headers = ['L5', 'L10', 'L15', 'L20', 'L25', 'L30', 'L35', 'L40', 'L45', 'L50', 'L70']
+dataframe_headers = ['L10', 'L20', 'L25', 'L30', 'L40', 'L50', 'L70', 'L100']
 
-
-dataframe_index = ['s3', 's4','s5','s6','s7']
+dataframe_index = ['s1', 's2','s3','s4','s5']
 
 #%% Plot settings
 
-plot_error = 'RMSE'   # which error should be plot
+plot_error = 'TRAC'   # which error should be plot
 index_error = errors.index(plot_error)
 
-plot_nodes = [22, 32, 42] # for which nodes
+plot_nodes = [42] # for which nodes
 
 plot = True
 
@@ -47,10 +50,7 @@ df_node42 = pd.DataFrame( index = dataframe_index , columns = dataframe_headers)
 #%% Create the datasets
 
 for l in L_parameter_values:
-    
-    if l > 30:
-        S_parameter_values = [5]  # starting from L=35 the simulations has been ran only for s=5
-    
+        
     
     for s in S_parameter_values:
         
