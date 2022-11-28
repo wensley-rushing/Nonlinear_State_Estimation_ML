@@ -27,7 +27,7 @@ from scipy import signal
 
 # x1 = np.arange(0, 2*math.pi)
 
-n_periods = 30
+n_periods = 5
 step = 10
 x1 = np.arange(0, n_periods*360 + step, step)*math.pi/180
 
