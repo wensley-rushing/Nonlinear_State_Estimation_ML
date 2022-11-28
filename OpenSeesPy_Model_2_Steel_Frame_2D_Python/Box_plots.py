@@ -26,9 +26,9 @@ Box_Plots_ID = 2
 if Box_Plots_ID == 0:
     test_vec = [
                 'Test 1\n5 random GMs\nL=25 s=5\ntrain node [23]',
-                'Test 3\n5 high var GMs\nL=25 s=5\ntrain node [23]',
+                #'Test 3\n5 high var GMs\nL=25 s=5\ntrain node [23]',
                 'Test 11\n20 random GMs\nL=25 s=5\ntrain node [23]',
-                'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]',
+                #'Test 5\n20 high var GMs\nL=25 s=5\ntrain node [23]',
                 ]
     fig_save_text = 'Study_EQs'
     
@@ -43,7 +43,7 @@ elif Box_Plots_ID == 1:
 elif Box_Plots_ID == 2:
     # Tests regarding LN
     test_vec = [
-                'Test 12\n10 L GMs\ntrain node [23]\npredict L',
+                'Test 12\n20 L GMs\ntrain node [23]\npredict L',
                 'Test 19\n20 high-N GMs\ntrain node [23]\npredict L',
                 'Test 17\n20 high-N GMs\ntrain node [23]\npredict high-N',
                 'Test 18\n20 L GMs\ntrain node [23]\npredict high-N',

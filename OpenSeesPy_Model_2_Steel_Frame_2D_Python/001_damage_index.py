@@ -54,7 +54,7 @@ plot_dynamic_analysis = False
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_linear_non'
+output_directory = 'output_files_gif'
 
 #%% UNITS
 # =============================================================================
@@ -255,7 +255,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Loads_gif')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
