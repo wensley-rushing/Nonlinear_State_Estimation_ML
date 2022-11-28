@@ -220,11 +220,11 @@ Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
 Index_Results = pd.read_pickle( os.path.join(folder_structure, '00_Index_Results.pkl') )
 #[10, 11, 12, 13, 20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
 
-struc_nodes = Structure.Nodes[0]
+struc_nodes = Structure.Nodes[0][4:]
 
-GM_indxs = np.arange(0,2)
+GM_indxs = np.arange(0,301)
 
-print_text = True
+print_text = False
 plot_bar = False
 plot_heat = True
 
@@ -234,83 +234,84 @@ hm_lag = pd.DataFrame( index = np.sort(struc_nodes)[::-1], columns = struc_nodes
 
 
 
-# for node_sensor in np.sort(struc_nodes)[::-1]:
-for node_sensor in [30]:
-    # for node2 in struc_nodes:
-        for node2 in [10]:
+for node_sensor in np.sort(struc_nodes)[::-1]:
+# for node_sensor in [30]:
+    for node2 in struc_nodes:
+        # for node2 in [10]:
         
+            if node2 < node_sensor +1:
             
-            df_lag = pd.DataFrame( index = ['N. GMs', 'Conf w/o Lag', 'Conf w/ Lag'], columns = ['All'])
-            df_lag.loc['N. GMs', 'All'] = 0
-            df_lag.loc['Conf w/o Lag', 'All'] = 0
-            df_lag.loc['Conf w/ Lag', 'All'] = 0
-            
-            # df_lag = pd.DataFrame( index = ['N. GMs', 'Conf w/o Lag', 'Conf w/ Lag'])
-            
-            corr_nolag = []
-            corr_lag = []
-            
-            for gm_index in GM_indxs:
+                df_lag = pd.DataFrame( index = ['N. GMs', 'Conf w/o Lag', 'Conf w/ Lag'], columns = ['All'])
+                df_lag.loc['N. GMs', 'All'] = 0
+                df_lag.loc['Conf w/o Lag', 'All'] = 0
+                df_lag.loc['Conf w/ Lag', 'All'] = 0
                 
-                gm = int_to_str3([gm_index])  
+                # df_lag = pd.DataFrame( index = ['N. GMs', 'Conf w/o Lag', 'Conf w/ Lag'])
                 
-                print('\n\n' + gm[0] + '\n\n')
+                corr_nolag = []
+                corr_lag = []
                 
-                df_ZX_sens = load_acc(gm, struc_nodes)
-                
-                acc_sens = df_ZX_sens[node_sensor]['ACCS'][0]
-                norm = np.linalg.norm(acc_sens)
-                acc_sens = acc_sens / norm
-                
-                time_sens = df_ZX_sens[node_sensor]['Time'][0]
-                
-                acc_pred = df_ZX_sens[node2]['ACCS'][0]
-                norm = np.linalg.norm(acc_pred)
-                acc_pred = acc_pred / norm
-                time_pred = df_ZX_sens[node2]['Time'][0]
-                
-                correlation_scalar = np.correlate(acc_sens, acc_pred)
-                
-                correlation_full = np.correlate(acc_sens, acc_pred, mode = 'full')
-                
-                lags = signal.correlation_lags(len(acc_sens), len(acc_pred), mode="full")
-                
-                max_corr = max(correlation_full)
-                
-                lag = lags[np.argmax((correlation_full))]
-                
-                stringer = str(f'Lag {lag}')
-                
-                if lag != 0 and print_text:       
+                for gm_index in GM_indxs:
                     
-                    print('\n\nSignal must be shifted - GM:' + str(gm_index) + ' Sensors = ' + str(node_sensor) +  
-                          ' Prediction = ' + str(node2) + 
-                          ':\n [lag, correlation]' + f'[0, {correlation_scalar}] - max correlation for [{lag}, {max_corr}]' )
+                    gm = int_to_str3([gm_index])  
                     
+                    # print('\n\n' + gm[0] + '\n\n')
+                    
+                    df_ZX_sens = load_acc(gm, struc_nodes)
+                    
+                    acc_sens = df_ZX_sens[node_sensor]['ACCS'][0]
+                    norm = np.linalg.norm(acc_sens)
+                    acc_sens = acc_sens / norm
+                    
+                    time_sens = df_ZX_sens[node_sensor]['Time'][0]
+                    
+                    acc_pred = df_ZX_sens[node2]['ACCS'][0]
+                    norm = np.linalg.norm(acc_pred)
+                    acc_pred = acc_pred / norm
+                    time_pred = df_ZX_sens[node2]['Time'][0]
+                    
+                    correlation_scalar = np.correlate(acc_sens, acc_pred)
+                    
+                    correlation_full = np.correlate(acc_sens, acc_pred, mode = 'full')
+                    
+                    lags = signal.correlation_lags(len(acc_sens), len(acc_pred), mode="full")
+                    
+                    max_corr = max(correlation_full)
+                    
+                    lag = lags[np.argmax((correlation_full))]
+                    
+                    stringer = str(f'Lag {lag}')
+                    
+                    if lag != 0 and print_text:       
+                        
+                        print('\n\nSignal must be shifted - GM:' + str(gm_index) + ' Sensors = ' + str(node_sensor) +  
+                              ' Prediction = ' + str(node2) + 
+                              ':\n [lag, correlation]' + f'[0, {correlation_scalar}] - max correlation for [{lag}, {max_corr}]' )
+                        
+                    
+                    if stringer not in df_lag:                     
+                        df_lag = df_lag.reindex(columns = df_lag.columns.tolist() + [stringer])
+                        df_lag.loc['N. GMs', stringer] = 0
+                        df_lag.loc['Conf w/o Lag', stringer] = 0
+                        df_lag.loc['Conf w/ Lag', stringer] = 0
                 
-                if stringer not in df_lag:                     
-                    df_lag = df_lag.reindex(columns = df_lag.columns.tolist() + [stringer])
-                    df_lag.loc['N. GMs', stringer] = 0
-                    df_lag.loc['Conf w/o Lag', stringer] = 0
-                    df_lag.loc['Conf w/ Lag', stringer] = 0
-            
-                df_lag.loc['N. GMs', stringer] = df_lag[stringer]['N. GMs'] + 1 
-                df_lag.loc['Conf w/o Lag', stringer] = df_lag[stringer]['Conf w/o Lag'] + correlation_scalar
-                df_lag.loc['Conf w/ Lag', stringer] = df_lag[stringer]['Conf w/ Lag'] + (max_corr)
+                    df_lag.loc['N. GMs', stringer] = df_lag[stringer]['N. GMs'] + 1 
+                    df_lag.loc['Conf w/o Lag', stringer] = df_lag[stringer]['Conf w/o Lag'] + correlation_scalar
+                    df_lag.loc['Conf w/ Lag', stringer] = df_lag[stringer]['Conf w/ Lag'] + (max_corr)
+                    
+                    df_lag.loc['N. GMs', 'All'] = df_lag['All']['N. GMs'] + 1 
+                    df_lag.loc['Conf w/o Lag', 'All'] = df_lag['All']['Conf w/o Lag'] + correlation_scalar
+                    df_lag.loc['Conf w/ Lag', 'All'] = df_lag['All']['Conf w/ Lag'] + (max_corr)
+                    
+                    
+                    corr_nolag.append(correlation_scalar)
+                    corr_lag.append(max_corr)
                 
-                df_lag.loc['N. GMs', 'All'] = df_lag['All']['N. GMs'] + 1 
-                df_lag.loc['Conf w/o Lag', 'All'] = df_lag['All']['Conf w/o Lag'] + correlation_scalar
-                df_lag.loc['Conf w/ Lag', 'All'] = df_lag['All']['Conf w/ Lag'] + (max_corr)
-                
-                
-                corr_nolag.append(correlation_scalar)
-                corr_lag.append(max_corr)
-            
-                
-            hm_nolag.loc[node_sensor, node2] = np.mean(corr_nolag)
-            hm_lag.loc[node_sensor, node2] = np.mean(corr_lag)
-            # print(f'Row {node_sensor}, column {node2}')
-            # print(f'Previous study: \nw/o lag = ')
+                    
+                hm_nolag.loc[node_sensor, node2] = np.mean(corr_nolag)
+                hm_lag.loc[node_sensor, node2] = np.mean(corr_lag)
+                # print(f'Row {node_sensor}, column {node2}')
+                # print(f'Previous study: \nw/o lag = ')
 
 
         #%% plot  
@@ -360,6 +361,7 @@ if plot_heat:
     
     plt.figure(figsize =(10, 7))
     plt.pcolor(hm_nolag.values.tolist())
+    plt.clim(0,1) 
     plt.yticks(np.arange(0.5, len(hm_nolag.index), 1), hm_nolag.index)
     plt.xticks(np.arange(0.5, len(hm_nolag.columns), 1), hm_nolag.columns)
     # plt.title('Train set: 5 random GMs \nTest set: 296 GMs', loc='Left', fontsize = 9)
@@ -378,7 +380,7 @@ if plot_heat:
     # # Loop over data dimensions and create text annotations.
     for i in range(len(hm_nolag.index)):
         for j in range(len(hm_nolag.columns)):
-            if round(hm_lag.iloc[i,j],2) >  0.8: #0.8:
+            if round(hm_lag.iloc[i,j],2) >  0.7: #0.8:
                 text = plt.text(j+0.5, i+0.5, round(hm_nolag.iloc[i,j],2),
                                 ha="center", va="center", color="k", fontsize='small')#, transform = ax.transAxes)
             else:
@@ -397,6 +399,7 @@ if plot_heat:
     
     plt.figure(figsize =(10, 7))
     plt.pcolor(hm_lag.values.tolist())
+    plt.clim(0,1) 
     plt.yticks(np.arange(0.5, len(hm_lag.index), 1), hm_lag.index)
     plt.xticks(np.arange(0.5, len(hm_lag.columns), 1), hm_lag.columns)
     # plt.title('Train set: 5 random GMs \nTest set: 296 GMs', loc='Left', fontsize = 9)
@@ -415,7 +418,7 @@ if plot_heat:
     # # Loop over data dimensions and create text annotations.
     for i in range(len(hm_lag.index)):
         for j in range(len(hm_lag.columns)):
-            if round(hm_lag.iloc[i,j],2) >  0.8: #0.8:
+            if round(hm_lag.iloc[i,j],2) >  0.7: #0.8:
                 text = plt.text(j+0.5, i+0.5, round(hm_lag.iloc[i,j],2),
                                 ha="center", va="center", color="k", fontsize='small')#, transform = ax.transAxes)
             else:
