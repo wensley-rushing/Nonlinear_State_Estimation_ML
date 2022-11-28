@@ -15,6 +15,8 @@ import opsvis as opsv
 from gravityAnalysis import runGravityAnalysis
 from ReadRecord import ReadRecord
 
+import GimmeMCK
+
 
 # Import plots and math
 import matplotlib.pyplot as plt
@@ -137,6 +139,8 @@ df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor',
 
 df_beta = pd.DataFrame(columns = ['Element ID', 'beta', 'Section ID (PA el.)', 'PA el.', 'PA el. - class', 'PA T1 Time', 'PA T2 Time', 'PA el. Time', 'Curvature Time'])
 
+
+df_Kmatrix = pd.DataFrame(columns = ['K', 'Time'])
 #%% Time - tik
 global_tic_0 = time.time()
 
@@ -251,7 +255,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\2_GMs')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Ground Motions')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -405,9 +409,14 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 maxT =  (1+nPts)*dt;    # final time of the analysis
                 #ops.setTime(0)
                 
+                K_list = [] # list of stiffness matrices
+                K_time = []
+                
                 dt_analysis = 0.005
                 while ok == 0 and current_time<maxT:
                     ok = ops.analyze(1,dt_analysis)
+                    
+                                      
                     
                     # if solution doesn't converge, then it will return a value different from 0
                     
@@ -438,15 +447,32 @@ for rdirs, dirs, files in os.walk(folder_loads):
                         #return to original settings
                         ops.test('NormDispIncr', 1e-8, 100)     # or what you had before
                         ops.algorithm('Newton')                 # or what you had before
-                    
+                        
                     
                     current_time = ops.getTime()
+                    
+                    K_list.append(GimmeMCK.extract_K()) # extract stiffness matrix
+                    K_time.append(current_time)
+                    #dynamicAnalysis.createDynAnalysis() # need to redefine the analysis settings after extracting the stiffness
+                    
+                    # ---- Create Analysis
+                    ops.constraints('Plain')      		    #objects that handles the constraints
+                    ops.numberer('Plain')					#objects that numbers the DOFs
+                    ops.system('FullGeneral')				#objects for solving the system of equations
+                    ops.test('NormDispIncr', 1e-8, 100)    #convergence test, defines the tolerance and the number of iterations
+                    ops.algorithm('Newton') 				#algorithm for solving the nonlinear equations
+                    
+                    
+                    #integrator('DisplacementControl',   nodeTag, dof, incr)
+                    ops.integrator('Newmark',0.5, 0.25)  # integration method  gamma=0.5   beta=0.25
+                    
+                    ops.analysis('Transient')    #creates a dynamic analysis
                 
                 
                 if ok == 0: print("Dynamic analysis: SUCCESSFULL")
                 else: print(f"!! -- Analysis FAILED @ time {current_time} -- !!"); ok = -1
                 
-
+                K_list = np.array(K_list)
                 #%%
                 # =============================================================================
                 # plot analysis results
@@ -863,6 +889,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 # 'PA el.', 'PA el. - class', 'PA el. Time', 'Curvature Time'])
                 df_beta.loc[gm_idx] = [id_element, PA_L_Beta , PA_L_sec, PA_L, PA_L_Cl, PA_L_T1, PA_L_T2,PA_L_Time, PA_L_CUR ]
                               
+                df_Kmatrix.loc[gm_idx] = [K_list, K_time]
                 
                 gm_idx += 1
                 
@@ -903,6 +930,8 @@ df.to_pickle(output_directory + "/00_Index_Results.pkl")
 #unpickled_df = pd.read_pickle("./dummy.pkl")  
 
 df_beta.to_pickle(output_directory + "/00_Beta_Verification.pkl") 
+
+df_Kmatrix.to_pickle(output_directory + "/00_KMatrix.pkl") 
 
 
 
