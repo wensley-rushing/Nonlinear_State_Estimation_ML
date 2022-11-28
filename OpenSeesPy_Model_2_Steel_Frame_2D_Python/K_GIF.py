@@ -164,6 +164,7 @@ for GMID in range(df_KMatrix.shape[0]):
         from matplotlib.animation import FFMpegWriter
         animation_type = '.mp4'
         writer = FFMpegWriter(fps=fps)
+        #https://holypython.com/how-to-save-matplotlib-animations-the-ultimate-guide/
         matplotlib.rcParams['animation.ffmpeg_path'] = r'ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe'
     
     
