@@ -229,7 +229,7 @@ plot_bar = True
 
 cycle_nodes_1 = [22]
 
-cycle_nodes_2 = [43]
+cycle_nodes_2 = [42]
 
 
 
@@ -307,7 +307,7 @@ for node_sensor in cycle_nodes_1:
             
             df_lag = sort_df_lag(df_lag)
             
-            plt.figure(figsize=(10, 10))
+            plt.figure(figsize=(12, 10))
             
             x_offset = np.arange(0, len(df_lag.columns.tolist()) ,1)
             # y_lab = np.arange(1, df_lag.max(axis=1)[0]+1,20)
@@ -321,12 +321,13 @@ for node_sensor in cycle_nodes_1:
                 err_no_lag = np.round(df_lag.loc['Conf w/o Lag', string] / df_lag.loc['N. GMs', string],2)
                 err_with_lag = np.round(df_lag.loc['Conf w/ Lag', string] / df_lag.loc['N. GMs', string],2)
                 plt.bar(x_offset[i], df_lag.loc['N. GMs', string], width=0.8, color = 'g' )
-                plt.text(x_offset[i]-0.1, df_lag.loc['N. GMs', string] + 0.5, s = int(df_lag.loc['N. GMs', string]) )
+                plt.text(x_offset[i]-0.15, df_lag.loc['N. GMs', string] + 1, s = int(df_lag.loc['N. GMs', string]), fontsize = 18 )
+                plt.xlim(-0.5,5.5)
                 labels.append( str(string + '\n\nCorrelation:' +f'\nw/o lag: {err_no_lag}' + f'\nw/ lag: {err_with_lag}'))
             
-            plt.xticks(x_offset, labels)
+            plt.xticks(x_offset, labels, fontsize = 14)
             
-            plt.title(f'Sensor in node {node_sensor}, compared to node {node2}')
+            plt.title(f'Sensor in node {node_sensor}, compared to node {node2}', fontsize = 25)
             
             # plt.yticks(y_lab)
             plt.grid(axis = 'y')

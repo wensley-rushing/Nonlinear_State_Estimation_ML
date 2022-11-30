@@ -41,8 +41,8 @@ import matplotlib.pyplot as plt
 
 #%% Imputs
 
-Batch_Size = 1 # Number of samples before an estimation (number of sensors)
-Subvec_lengh = 10 # Length of subvector (L=25)
+Batch_Size = 10 # Number of samples before an estimation (number of sensors)
+Subvec_lengh = 3 # Length of subvector (L=25)
 
 # Number of loops for optimization of loss
 Epochs = 5
@@ -98,21 +98,29 @@ class CNN_ForecastNet(nn.Module):
         super(CNN_ForecastNet,self).__init__()
         self.conv1d = nn.Conv1d(Subvec_lengh,64,kernel_size=1)
         self.relu = nn.ReLU(inplace=True)
-        self.fc1 = nn.Linear(64*1,50)
+        self.fc1 = nn.Linear(64*10,50)
         self.fc2 = nn.Linear(50,1)
         
     def forward(self,x):
+        print(f'Input: {x.size()}')
         x = self.conv1d(x)
+        print(f'Output conv: {x.size()}')
         x = self.relu(x)
+        print(f'Output relu 1: {x.size()}')
         x = x.view(-1)
+        print(f'Output relu 1 - reshape : {x.size()}')
         x = self.fc1(x)
+        print(f'Output linear 1: {x.size()}')
         x = self.relu(x)
+        print(f'Output relu 2: {x.size()}')
         x = self.fc2(x)
+        print(f'Output linear 2 = prediction: {x.size()}')
         
         return x
     
 #%% Choose Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# device = torch.device( "cpu")
 model = CNN_ForecastNet().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 criterion = nn.MSELoss()
@@ -144,7 +152,7 @@ def Train():
         running_loss += loss
         
     train_loss = running_loss/len(train_loader)
-    train_losses.append(train_loss.detach().numpy())
+    train_losses.append(train_loss.cpu().detach().numpy())
     
     print(f'train_loss {train_loss}')
     
@@ -168,7 +176,7 @@ def Valid():
             running_loss += loss
             
         valid_loss = running_loss/len(valid_loader)
-        valid_losses.append(valid_loss.detach().numpy())
+        valid_losses.append(valid_loss.cpu().detach())#.numpy())
         print(f'valid_loss {valid_loss}')
        
 #%% Run EPOCHS loop
@@ -199,6 +207,9 @@ model.eval()
 prediction = []
 batch_size = Batch_Size
 iterations =  int(inputs.shape[0]/batch_size)
+
+model.cpu()
+
 
 #idx = 0
 for i in range(iterations):
