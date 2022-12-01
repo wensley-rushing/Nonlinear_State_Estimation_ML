@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 
 #%% Imputs
 
-Batch_Size = 10 # Number of samples before an estimation (number of sensors)
+Batch_Size = 1 # Number of samples before an estimation (number of sensors)
 Subvec_lengh = 3 # Length of subvector (L=25)
 
 # Number of loops for optimization of loss
@@ -98,23 +98,48 @@ class CNN_ForecastNet(nn.Module):
         super(CNN_ForecastNet,self).__init__()
         self.conv1d = nn.Conv1d(Subvec_lengh,64,kernel_size=1)
         self.relu = nn.ReLU(inplace=True)
-        self.fc1 = nn.Linear(64*10,50)
+        self.fc1 = nn.Linear(64*Batch_Size,50)
         self.fc2 = nn.Linear(50,1)
         
     def forward(self,x):
-        print(f'Input: {x.size()}')
+        #print(f'Input: {x.size()}')
         x = self.conv1d(x)
-        print(f'Output conv: {x.size()}')
+        #print(f'Output conv: {x.size()}')
         x = self.relu(x)
-        print(f'Output relu 1: {x.size()}')
+        #print(f'Output relu 1: {x.size()}')
         x = x.view(-1)
-        print(f'Output relu 1 - reshape : {x.size()}')
+        #print(f'Output relu 1 - reshape : {x.size()}')
         x = self.fc1(x)
-        print(f'Output linear 1: {x.size()}')
+        #print(f'Output linear 1: {x.size()}')
         x = self.relu(x)
-        print(f'Output relu 2: {x.size()}')
+        #print(f'Output relu 2: {x.size()}')
         x = self.fc2(x)
-        print(f'Output linear 2 = prediction: {x.size()}')
+        #print(f'Output linear 2 = prediction: {x.size()}')
+        
+        return x
+    
+class CNN_ForecastNetV(nn.Module):
+    def __init__(self):
+        super(CNN_ForecastNet,self).__init__()
+        self.conv1d = nn.Conv1d(Subvec_lengh,64,kernel_size=1)
+        self.relu = nn.ReLU(inplace=True)
+        self.fc1 = nn.Linear(64*1,50)
+        self.fc2 = nn.Linear(50,1)
+        
+    def forward(self,x):
+        #print(f'Input: {x.size()}')
+        x = self.conv1d(x)
+        #print(f'Output conv: {x.size()}')
+        x = self.relu(x)
+        #print(f'Output relu 1: {x.size()}')
+        x = x.view(-1)
+        #print(f'Output relu 1 - reshape : {x.size()}')
+        x = self.fc1(x)
+        #print(f'Output linear 1: {x.size()}')
+        x = self.relu(x)
+        #print(f'Output relu 2: {x.size()}')
+        x = self.fc2(x)
+        #print(f'Output linear 2 = prediction: {x.size()}')
         
         return x
     
@@ -125,11 +150,18 @@ model = CNN_ForecastNet().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 criterion = nn.MSELoss()
 
+modelV = CNN_ForecastNetV().to(device)
+optimizerV = torch.optim.Adam(modelV.parameters(), lr=1e-5)
+criterionV = nn.MSELoss()
+
 #%% Train/Test Data to correct form
 train = ElecDataset(train_x.reshape(train_x.shape[0],train_x.shape[1],1),train_y)
 valid = ElecDataset(valid_x.reshape(valid_x.shape[0],valid_x.shape[1],1),valid_y)
+
 train_loader = torch.utils.data.DataLoader(train,batch_size=Batch_Size,shuffle=False)
-valid_loader = torch.utils.data.DataLoader(train,batch_size=Batch_Size,shuffle=False)
+valid_loader = torch.utils.data.DataLoader(valid,batch_size=Batch_Size,shuffle=False)
+
+x, y = next(iter(train_loader))
 
 #%% Define Train/Test Functions
 train_losses = []
@@ -159,20 +191,20 @@ def Train():
     # print('Input, Output type: ', inputs.dtype, labels.dtype)
     # print('Input, Output type .float (to model): ', inputs.float().dtype, labels.float().dtype)
     # print('Input loss: ', preds.dtype , labels.dtype)
-
+    modelV.load_state_dict(model.state_dict())
 #------------------------------------------------------------------------------    
 def Valid():
     running_loss = .0
     
-    model.eval()
+    modelV.eval()
     
     with torch.no_grad():
         for idx, (inputs, labels) in enumerate(valid_loader):
             inputs = inputs.to(device)
             labels = labels.to(device)
-            optimizer.zero_grad()
+            optimizerV.zero_grad()
             preds = model(inputs.float())
-            loss = criterion(preds,labels)
+            loss = criterionV(preds,labels)
             running_loss += loss
             
         valid_loss = running_loss/len(valid_loader)
