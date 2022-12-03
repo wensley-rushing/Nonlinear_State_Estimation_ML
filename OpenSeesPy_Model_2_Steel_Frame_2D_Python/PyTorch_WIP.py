@@ -198,7 +198,7 @@ load_IDs = ['000']
 # load_IDs = ['052']
 
 # Training - X                                                                                 
-load_Nodes_X = [23] # Indicator of dimension d
+load_Nodes_X = [23, 22, 20] # Indicator of dimension d
 
 # Training - Y
 load_Nodes_Y = [42]
@@ -470,8 +470,8 @@ Ys = np.array(Ys).reshape(-1,1)
 # print('END - Convering to w-vectors')
 
 
-#%% Implement new structure tp PyTorch ------------------------------------------
-from torch.utils.data import Dataset,DataLoader
+#%% Implement new structure tp PyTorch ----------------------------------------
+from torch.utils.data import Dataset, DataLoader
 
 class ElecDataset(Dataset):
     def __init__(self,feature,target):
@@ -485,16 +485,41 @@ class ElecDataset(Dataset):
         item = self.feature[idx]
         label = self.target[idx]
         
-        return item,label
+        return item, label
     
-#%% Determine train / Testing Data in Certain Input Structure    
-train = ElecDataset(X.reshape(X.shape[0],X.shape[1],1),Y)
-valid = ElecDataset(Xs.reshape(Xs.shape[0],Xs.shape[1],1),Ys)
+#%% Determine train / Testing Data in Certain Input Structure
+
+Case_Nr = 2
+
+if Case_Nr == 0:
+    # Case 0  
+    #X0 = X.reshape(X.shape[0],X.shape[1],1)  
+    train = ElecDataset(X.reshape(X.shape[0],X.shape[1],1),Y)
+    valid = ElecDataset(Xs.reshape(Xs.shape[0],Xs.shape[1],1),Ys)
+elif Case_Nr == 1:
+    # Case 1
+    # X1 = X.reshape(X.shape[0],int(X.shape[1]/25) ,25)   
+    train = ElecDataset(X.reshape(X.shape[0],int(X.shape[1]/length_subvec),length_subvec),Y)
+    valid = ElecDataset(Xs.reshape(Xs.shape[0],int(Xs.shape[1]/length_subvec),length_subvec),Ys)
+elif Case_Nr == 2:
+    # Case 2 
+    # X2 = X.reshape(X.shape[0],1,int(X.shape[1]/25) ,25)
+    train = ElecDataset(X.reshape(X.shape[0],1,int(X.shape[1]/length_subvec),length_subvec),Y)
+    valid = ElecDataset(Xs.reshape(Xs.shape[0],1,int(Xs.shape[1]/length_subvec),length_subvec),Ys)
+
+
+
+
+
+
 
 train_loader = DataLoader(train,batch_size=5,shuffle=False, drop_last=True)
-valid_loader = DataLoader(valid,batch_size=2,shuffle=False, drop_last=True)
+valid_loader = DataLoader(valid,batch_size=1,shuffle=False, drop_last=True)
 
-x, y = next(iter(train_loader))
+x_train, y_train = next(iter(train_loader))
+x_valid, y_valid = next(iter(valid_loader))
+
+
 
 
 #%% Define model
@@ -504,13 +529,15 @@ import torch.nn as nn
 from tqdm import tqdm_notebook as tqdm
 from torch.utils.data import Dataset,DataLoader
 
-#%%
-class CNN_ForecastNet(nn.Module):
-    def __init__(self):
-        super(CNN_ForecastNet,self).__init__()
-        self.conv1d = nn.Conv1d(25,64,kernel_size=1)
-        self.relu = nn.ReLU(inplace=True)
-        self.fc1 = nn.Linear(64*5,50)
+#%% Model Definition
+
+# Model Case 0
+class CNN_ForecastNet0(nn.Module):
+    def __init__(self, length_subvec, num_X_channels):
+        super(CNN_ForecastNet0,self).__init__()
+        self.conv1d = nn.Conv1d(length_subvec*num_X_channels,128,kernel_size=1)
+        self.relu = nn.ReLU()
+        self.fc1 = nn.Linear(128,50) # Training    
         self.fc2 = nn.Linear(50,1)        
         
     def forward(self,x):
@@ -519,22 +546,94 @@ class CNN_ForecastNet(nn.Module):
         # print(f'Output conv: {x.size()}')
         x = self.relu(x)
         # print(f'Output relu 1: {x.size()}')
-        x = x.view(-1)
+        #x = x.view(-1)
+        x = x[:,:,-1]
         # print(f'Output relu 1 - reshape : {x.size()}')
         x = self.fc1(x)
         # print(f'Output linear 1: {x.size()}')
-        # x = self.relu(x)
+        x = self.relu(x)
         # print(f'Output relu 2: {x.size()}')
         x = self.fc2(x)
         # print(f'Output linear 2 = prediction: {x.size()}')
         
         return x
     
+# -----------------------------------------------------------------------------
+
+# Model Case 1
+class CNN_ForecastNet1(nn.Module):
+    def __init__(self, length_subvec, num_X_channels):
+        super(CNN_ForecastNet1,self).__init__()
+        self.conv1d = nn.Conv1d(num_X_channels,128,kernel_size=length_subvec)
+        self.relu = nn.ReLU()
+        self.fc1 = nn.Linear(128,50) # Training    
+        self.fc2 = nn.Linear(50,1)        
+        
+    def forward(self,x):
+        # print(f'Input: {x.size()}')
+        x = self.conv1d(x)
+        # print(f'Output conv: {x.size()}')
+        x = self.relu(x)
+        # print(f'Output relu 1: {x.size()}')
+        #x = x.view(-1)
+        x = x[:,:,-1]
+        # print(f'Output relu 1 - reshape : {x.size()}')
+        x = self.fc1(x)
+        # print(f'Output linear 1: {x.size()}')
+        x = self.relu(x)
+        # print(f'Output relu 2: {x.size()}')
+        x = self.fc2(x)
+        # print(f'Output linear 2 = prediction: {x.size()}')
+        
+        return x
+    
+# -----------------------------------------------------------------------------
+
+# Model Case 2
+class CNN_ForecastNet2(nn.Module):
+    def __init__(self, length_subvec, num_X_channels):
+        super(CNN_ForecastNet2,self).__init__()
+        self.conv2d1 = nn.Conv2d(1, 128, kernel_size = num_X_channels, stride=(1,1), padding=(1,1))
+        self.ap2d1 = nn.AvgPool2d(kernel_size=1, stride=1)
+        self.conv2d2 = nn.Conv2d(128, 20, kernel_size = num_X_channels, stride=(1,1), padding=(1,1))
+        self.ap2d2 = nn.AvgPool2d(kernel_size=2, stride=2)  
+        self.flat = nn.Flatten()
+        self.fc1 = nn.Linear(240,50)    
+        self.fc2 = nn.Linear(50,1) 
+        
+    def forward(self,x):
+        # print(f'Input: {x.size()}')
+        x = self.conv2d1(x)
+        # print(f'Output conv: {x.size()}')
+        x = self.ap2d1(x)
+        # print(f'Output AvgPool: {x.size()}')
+        x = self.conv2d2(x)
+        # print(f'Output conv - reshape : {x.size()}')
+        x = self.ap2d2(x)
+        # print(f'Output AvgPool: {x.size()}')
+        x = self.flat(x)
+        # print(f'Output flatten: {x.size()}')
+        x = self.fc1(x)
+        # print(f'Output linear 1 = prediction: {x.size()}')
+        x = self.fc2(x)
+        # print(f'Output linear 2 = prediction: {x.size()}')
+        
+        return x
     
 #%% Choose Device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # device = torch.device( "cpu")
-model = CNN_ForecastNet().to(device)
+
+if Case_Nr == 0:
+    # Case 0  
+    model = CNN_ForecastNet0(length_subvec, len(load_Nodes_X)).to(device)
+elif Case_Nr == 1:
+    # Case 1
+    model = CNN_ForecastNet1(length_subvec, len(load_Nodes_X)).to(device)
+elif Case_Nr == 2:
+    # Case 2 
+    model = CNN_ForecastNet2(length_subvec, len(load_Nodes_X)).to(device)
+
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 criterion = nn.MSELoss()
 
@@ -563,10 +662,6 @@ def Train():
     train_losses.append(train_loss.cpu().detach().numpy())
     
     print(f'train_loss {train_loss}')
-    
-    # print('Input, Output type: ', inputs.dtype, labels.dtype)
-    # print('Input, Output type .float (to model): ', inputs.float().dtype, labels.float().dtype)
-    # print('Input loss: ', preds.dtype , labels.dtype)
 
 #------------------------------------------------------------------------------    
 def Valid():
@@ -576,10 +671,11 @@ def Valid():
     
     with torch.no_grad():
         for idx, (inputs, labels) in enumerate(valid_loader):
-            inputs = inputs.to(device)
-            labels = labels.to(device)
+            inputs = inputs.to(device).float()
+            labels = labels.to(device).float()
+            
             optimizer.zero_grad()
-            preds = model(inputs.float())
+            preds = model(inputs)
             loss = criterion(preds,labels)
             running_loss += loss
             
@@ -588,13 +684,22 @@ def Valid():
         print(f'valid_loss {valid_loss}')
        
 #%% Run EPOCHS loop
-epochs = 4
+epochs = 50
 for epoch in range(epochs):
     print('epochs {}/{}'.format(epoch+1,epochs))
     Train()
     Valid()
     gc.collect()
     
+#%% PLOT - See results after training
+
+plt.figure()
+plt.plot(train_losses,label='train_loss')
+plt.plot(valid_losses,label='valid_loss')
+plt.title(f'MSE Loss - Case {Case_Nr}')
+plt.ylim(0, 2)
+plt.grid()
+plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     
 sys.exit()
 #%% Function Sum Kernel + Plot
