@@ -50,7 +50,7 @@ test_dataset = torchvision.datasets.MNIST (root='./data', train=False,
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=batch_size,
 	shuffle=True)
 
-test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size,
+test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size*2,
 	shuffle=False)
 
 #%%
@@ -98,8 +98,8 @@ model = NeuralNet(input_size, hidden_size, num_classes).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-# training loop
-
+#%% training loop
+model.train()
 n_total_steps = len(train_loader)
 for epoch in range(num_epochs):
     for i, (images, labels) in enumerate(train_loader):
@@ -128,8 +128,8 @@ for epoch in range(num_epochs):
 
 
 
-# test
-
+#%% test
+model.eval()
 with torch.no_grad():
 	n_correct = 0
 	n_samples = 0
