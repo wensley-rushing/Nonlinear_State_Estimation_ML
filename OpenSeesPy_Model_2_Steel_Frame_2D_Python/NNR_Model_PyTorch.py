@@ -30,6 +30,11 @@ import pylab as pb
 
 import DamageTools
 
+#%% Initialize figures
+plt.fig()
+plt.plot(range(0,10))
+plt.close()
+
 #%% LOG FILE
 """
 Transcript - direct print output to a file, in addition to terminal.
@@ -102,7 +107,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear'
+folder_figure_save = r'output_NN\Linear\Study_LR_Epoch'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -310,6 +315,7 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     epochs = Hyper_par[0]
     BatchSize = Hyper_par[1]  #(Training)
     learning_rate = Hyper_par[2]
+    learning_rate_exp = exp_number = "{:.2e}".format(learning_rate)
     #print(f'Hyper-parameters: Scale_Factor = {sigma2_ks}, Length_Factor = {tau2_ks}, Error_Factor = {sigma2_error} \n') MOVED
     
     # Training data
@@ -334,7 +340,7 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     # print("inside file")
     print(f'Start time: {start_time}')
     print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}')
-    print(f'Hyper-parameters: Epochs = {epochs}, BatchSize = {BatchSize}, Learn.Rate = {learning_rate} \n')
+    print(f'Hyper-parameters: Epochs = {epochs}, BatchSize = {BatchSize}, Learn.Rate = {learning_rate_exp} \n')
     # Transcript.stop()
     # print("outside file")
     
@@ -774,16 +780,30 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     print(f'Begin Epochs @ {epoch_time}')
     #------------------------------------------------------------------------------
     
-    for epoch in range(epochs):
+    epoch = 0
+    valid_res = 1
+        
+    
+    while epoch < epochs and valid_res >= 0.01:
+    # for epoch in range(epochs):
         # print('epochs {}/{}'.format(epoch+1,epochs))
+        
         # Training
         train_loss = Train()
         # Validation
-        valid_loss = Valid()
-        
-        print(f'epoch {epoch+1} / {epochs} - ' +
-              f'train_loss = {round(train_loss,4)}, test_loss = {round(valid_loss,4)} ')
+        valid_loss = Valid()       
         gc.collect()
+        
+        # ---------------------------------------------------------------------
+        if epoch < 2:
+            valid_res = 1
+        else:
+            valid_res = (valid_losses[epoch-1] - valid_losses[epoch])/valid_losses[epoch-1]
+            valid_res = valid_res.detach().numpy().tolist()
+            
+        print(f'epoch {epoch+1} / {epochs} - ' +
+              f'train_loss = {round(train_loss,4)}, test_loss = {round(valid_loss,4)}, test_change = {round(valid_res,4)} ')
+        epoch += 1
         
     #------------------------------------------------------------------------------
     epoch_toc = time.time()
@@ -805,11 +825,14 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.plot(train_losses,label='train_loss')
-    plt.plot(valid_losses,label='valid_loss')
+    plt.plot(np.array(range(1,epoch+1)), train_losses,label='train_loss')
+    plt.plot(np.array(range(1,epoch+1)), valid_losses,label='valid_loss')
     plt.title(f'{loss_text} Loss - Case {Case_Nr} \n Batch Size: {BatchSize}' )
-    plt.text(0,1,f' Min valid error: {valid_loss_min} \n Epoch*: {index_min+1}' , transform=ax.transAxes, va = 'bottom', ha='left', fontsize=8)
+    plt.text(0,1,f' Min valid error: {valid_loss_min} \n Epoch*: {index_min+1}/{epochs}' , transform=ax.transAxes, va = 'bottom', ha='left', fontsize=8)
+    plt.text(1,1,f' BatchSize: {BatchSize} \n Learn.Rate: {learning_rate_exp}' , transform=ax.transAxes, va = 'bottom', ha='right', fontsize=8)
     plt.ylim(0, 2.2)
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
     plt.grid()
     # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.legend(loc='upper right')
@@ -1000,9 +1023,10 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
         GM = Index_Results['Ground motion'][idx]
         LF = Index_Results['Load factor'][idx]
         
+        
         fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
         ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +  
-                        f' Epochs: {epochs}, BatchSize: {BatchSize}, Learn.rate: {learning_rate} \n' + 
+                        f' Epochs: {epochs}, BatchSize: {BatchSize}, Learn.rate: {learning_rate_exp} \n' + 
                      f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
                         x=0, y=0.97, ha='left', va='bottom', fontsize=10)
         #model_optimizer
@@ -1213,13 +1237,13 @@ if False:
 
 #%% Varying learning rate
 
-# Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 20
+# # Create Epoch / Batch / Learning rate ----------------------------------------
+Epochs = 100
 
 # Train Batch Size
 train_batch = 25
 
-for learning_rate in np.linspace(1e-5, 1e-1, 5):
+for learning_rate in np.linspace(1e-10, 1e-5, 5):
 
     NNR(W_par, 
         [Epochs, train_batch, learning_rate], 
@@ -1229,16 +1253,17 @@ for learning_rate in np.linspace(1e-5, 1e-1, 5):
 #%% Varying Epochs
 
 # Create Epoch / Batch / Learning rate ----------------------------------------
+# Epochs = 5
 
-# Train Batch Size
-train_batch = 25
+# # Train Batch Size
+# train_batch = 25
 
-learning_rate = 1e-5
+# learning_rate = 1e-5
 
-for Epochs in list(range(5,100, 5)):
+# # for Epochs in list(range(5,100, 5)):
 
-    NNR(W_par, 
-        [Epochs, train_batch, learning_rate], 
-        Train_par, 
-        Test_par)
+# NNR(W_par, 
+#     [Epochs, train_batch, learning_rate], 
+#     Train_par, 
+#     Test_par)
 

@@ -1,0 +1,115 @@
+Start time: 2022-12-05 14:38:24
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Epochs = 100, BatchSize = 25, Learn.Rate = 1e-05 
+
+Begin Epochs @ 2022-12-05 14:38:35
+epoch 1 / 100 - train_loss = 2.0548, test_loss = 1.8141 
+epoch 2 / 100 - train_loss = 1.4848, test_loss = 1.2964 
+epoch 3 / 100 - train_loss = 1.0386, test_loss = 0.9296 
+epoch 4 / 100 - train_loss = 0.7502, test_loss = 0.7115 
+epoch 5 / 100 - train_loss = 0.5806, test_loss = 0.5739 
+epoch 6 / 100 - train_loss = 0.4659, test_loss = 0.4689 
+epoch 7 / 100 - train_loss = 0.3777, test_loss = 0.3854 
+epoch 8 / 100 - train_loss = 0.3103, test_loss = 0.3212 
+epoch 9 / 100 - train_loss = 0.2602, test_loss = 0.2719 
+epoch 10 / 100 - train_loss = 0.2228, test_loss = 0.2336 
+epoch 11 / 100 - train_loss = 0.1943, test_loss = 0.2034 
+epoch 12 / 100 - train_loss = 0.1725, test_loss = 0.1802 
+epoch 13 / 100 - train_loss = 0.156, test_loss = 0.1626 
+epoch 14 / 100 - train_loss = 0.1436, test_loss = 0.1495 
+epoch 15 / 100 - train_loss = 0.1344, test_loss = 0.1399 
+epoch 16 / 100 - train_loss = 0.1275, test_loss = 0.1328 
+epoch 17 / 100 - train_loss = 0.1222, test_loss = 0.1274 
+epoch 18 / 100 - train_loss = 0.1181, test_loss = 0.1231 
+epoch 19 / 100 - train_loss = 0.1147, test_loss = 0.1196 
+epoch 20 / 100 - train_loss = 0.1119, test_loss = 0.1167 
+epoch 21 / 100 - train_loss = 0.1095, test_loss = 0.1143 
+epoch 22 / 100 - train_loss = 0.1075, test_loss = 0.1122 
+epoch 23 / 100 - train_loss = 0.1057, test_loss = 0.1104 
+epoch 24 / 100 - train_loss = 0.1042, test_loss = 0.1088 
+epoch 25 / 100 - train_loss = 0.1028, test_loss = 0.1074 
+epoch 26 / 100 - train_loss = 0.1016, test_loss = 0.1062 
+epoch 27 / 100 - train_loss = 0.1005, test_loss = 0.1051 
+epoch 28 / 100 - train_loss = 0.0996, test_loss = 0.1042 
+epoch 29 / 100 - train_loss = 0.0987, test_loss = 0.1033 
+epoch 30 / 100 - train_loss = 0.0979, test_loss = 0.1025 
+epoch 31 / 100 - train_loss = 0.0972, test_loss = 0.1018 
+epoch 32 / 100 - train_loss = 0.0966, test_loss = 0.1012 
+epoch 33 / 100 - train_loss = 0.096, test_loss = 0.1006 
+epoch 34 / 100 - train_loss = 0.0954, test_loss = 0.1001 
+epoch 35 / 100 - train_loss = 0.0949, test_loss = 0.0996 
+epoch 36 / 100 - train_loss = 0.0944, test_loss = 0.0991 
+epoch 37 / 100 - train_loss = 0.094, test_loss = 0.0987 
+epoch 38 / 100 - train_loss = 0.0936, test_loss = 0.0983 
+epoch 39 / 100 - train_loss = 0.0932, test_loss = 0.098 
+epoch 40 / 100 - train_loss = 0.0929, test_loss = 0.0977 
+epoch 41 / 100 - train_loss = 0.0926, test_loss = 0.0974 
+epoch 42 / 100 - train_loss = 0.0923, test_loss = 0.0971 
+epoch 43 / 100 - train_loss = 0.092, test_loss = 0.0968 
+epoch 44 / 100 - train_loss = 0.0917, test_loss = 0.0966 
+epoch 45 / 100 - train_loss = 0.0915, test_loss = 0.0964 
+epoch 46 / 100 - train_loss = 0.0912, test_loss = 0.0962 
+epoch 47 / 100 - train_loss = 0.091, test_loss = 0.096 
+epoch 48 / 100 - train_loss = 0.0908, test_loss = 0.0958 
+epoch 49 / 100 - train_loss = 0.0906, test_loss = 0.0956 
+epoch 50 / 100 - train_loss = 0.0904, test_loss = 0.0954 
+epoch 51 / 100 - train_loss = 0.0903, test_loss = 0.0952 
+epoch 52 / 100 - train_loss = 0.0901, test_loss = 0.0951 
+epoch 53 / 100 - train_loss = 0.0899, test_loss = 0.0949 
+epoch 54 / 100 - train_loss = 0.0898, test_loss = 0.0948 
+epoch 55 / 100 - train_loss = 0.0896, test_loss = 0.0947 
+epoch 56 / 100 - train_loss = 0.0895, test_loss = 0.0945 
+epoch 57 / 100 - train_loss = 0.0893, test_loss = 0.0944 
+epoch 58 / 100 - train_loss = 0.0892, test_loss = 0.0943 
+epoch 59 / 100 - train_loss = 0.0891, test_loss = 0.0941 
+epoch 60 / 100 - train_loss = 0.0889, test_loss = 0.094 
+epoch 61 / 100 - train_loss = 0.0888, test_loss = 0.0939 
+epoch 62 / 100 - train_loss = 0.0887, test_loss = 0.0938 
+epoch 63 / 100 - train_loss = 0.0886, test_loss = 0.0937 
+epoch 64 / 100 - train_loss = 0.0885, test_loss = 0.0935 
+epoch 65 / 100 - train_loss = 0.0884, test_loss = 0.0934 
+epoch 66 / 100 - train_loss = 0.0883, test_loss = 0.0933 
+epoch 67 / 100 - train_loss = 0.0882, test_loss = 0.0932 
+epoch 68 / 100 - train_loss = 0.0881, test_loss = 0.0932 
+epoch 69 / 100 - train_loss = 0.088, test_loss = 0.0931 
+epoch 70 / 100 - train_loss = 0.0879, test_loss = 0.093 
+epoch 71 / 100 - train_loss = 0.0878, test_loss = 0.0929 
+epoch 72 / 100 - train_loss = 0.0877, test_loss = 0.0928 
+epoch 73 / 100 - train_loss = 0.0876, test_loss = 0.0927 
+epoch 74 / 100 - train_loss = 0.0876, test_loss = 0.0926 
+epoch 75 / 100 - train_loss = 0.0875, test_loss = 0.0926 
+epoch 76 / 100 - train_loss = 0.0874, test_loss = 0.0925 
+epoch 77 / 100 - train_loss = 0.0873, test_loss = 0.0924 
+epoch 78 / 100 - train_loss = 0.0872, test_loss = 0.0923 
+epoch 79 / 100 - train_loss = 0.0872, test_loss = 0.0922 
+epoch 80 / 100 - train_loss = 0.0871, test_loss = 0.0922 
+epoch 81 / 100 - train_loss = 0.087, test_loss = 0.0921 
+epoch 82 / 100 - train_loss = 0.0869, test_loss = 0.092 
+epoch 83 / 100 - train_loss = 0.0869, test_loss = 0.0919 
+epoch 84 / 100 - train_loss = 0.0868, test_loss = 0.0919 
+epoch 85 / 100 - train_loss = 0.0867, test_loss = 0.0918 
+epoch 86 / 100 - train_loss = 0.0867, test_loss = 0.0917 
+epoch 87 / 100 - train_loss = 0.0866, test_loss = 0.0917 
+epoch 88 / 100 - train_loss = 0.0865, test_loss = 0.0916 
+epoch 89 / 100 - train_loss = 0.0865, test_loss = 0.0915 
+epoch 90 / 100 - train_loss = 0.0864, test_loss = 0.0915 
+epoch 91 / 100 - train_loss = 0.0863, test_loss = 0.0914 
+epoch 92 / 100 - train_loss = 0.0862, test_loss = 0.0914 
+epoch 93 / 100 - train_loss = 0.0862, test_loss = 0.0913 
+epoch 94 / 100 - train_loss = 0.0861, test_loss = 0.0912 
+epoch 95 / 100 - train_loss = 0.0861, test_loss = 0.0912 
+epoch 96 / 100 - train_loss = 0.086, test_loss = 0.0911 
+epoch 97 / 100 - train_loss = 0.0859, test_loss = 0.091 
+epoch 98 / 100 - train_loss = 0.0859, test_loss = 0.091 
+epoch 99 / 100 - train_loss = 0.0858, test_loss = 0.0909 
+epoch 100 / 100 - train_loss = 0.0857, test_loss = 0.0908 
+Duration [sec]: 1561.6925 - [min]: 26.0282 - [hrs]: 0.4338 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 1584.1092 [s]
+-- [min]:  26.4018 [min]
+-- [hrs]:  0.4400 [hrs]
+

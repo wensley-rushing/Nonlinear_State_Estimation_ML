@@ -1,0 +1,18 @@
+Start time: 2022-12-05 16:41:23
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Epochs = 100, BatchSize = 25, Learn.Rate = 1.00e-10 
+
+Begin Epochs @ 2022-12-05 16:41:34
+epoch 1 / 100 - train_loss = 2.1331, test_loss = 2.1947, test_change = 1 
+epoch 2 / 100 - train_loss = 2.1331, test_loss = 2.1947, test_change = 1 
+epoch 3 / 100 - train_loss = 2.1331, test_loss = 2.1947, test_change = 0.0 
+Duration [sec]: 47.458 - [min]: 0.791 - [hrs]: 0.0132 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 69.7017 [s]
+-- [min]:  1.1617 [min]
+-- [hrs]:  0.0194 [hrs]
+
