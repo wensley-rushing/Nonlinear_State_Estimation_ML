@@ -31,7 +31,7 @@ import pylab as pb
 import DamageTools
 
 #%% Initialize figures
-plt.fig()
+plt.figure()
 plt.plot(range(0,10))
 plt.close()
 
@@ -107,7 +107,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear\Study_LR_Epoch'
+folder_figure_save = r'output_NN\Linear\Study_LR_Epoch_GA'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -280,7 +280,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 
 #%% Neural Network Model for Regression
-def NNR(W_par=[25, 5, 1], #[length_subvec, length_step], 
+def NNR(W_par=[25, 5, 1, 20], #[length_subvec, length_step], 
         Hyper_par = [10, 25, 1e-5], #[Epochs, train_batch, learning_rate],
         
         Train_par=[['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
@@ -309,6 +309,7 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     length_subvec = W_par[0]
     length_step = W_par[1]
     length_step_test = W_par[2]
+    hidden_dim = W_par[3]
     #print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}') MOVED
     
     # Creation Epoch / Batch / Learning rate (Hyper-parameters) 
@@ -562,12 +563,12 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     
     # Model Case 0
     class ANN_Sigmoid_0(nn.Module):
-        def __init__(self, length_subvec, num_X_channels):
+        def __init__(self, length_subvec, num_X_channels, hidden_dim):
             super(ANN_Sigmoid_0,self).__init__()
-            self.lin1 = nn.Linear(length_subvec*num_X_channels, 20)
+            self.lin1 = nn.Linear(length_subvec*num_X_channels, hidden_dim)
             self.sigmoid = nn.Sigmoid()
             self.relu = nn.ReLU()
-            self.lin2 = nn.Linear(20, 1)
+            self.lin2 = nn.Linear(hidden_dim, 1)
            
             
         def forward(self,x):
@@ -588,13 +589,13 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     
     # Model Case 1
     class ANN_Sigmoid_1(nn.Module):
-        def __init__(self, length_subvec, num_X_channels):
+        def __init__(self, length_subvec, num_X_channels, hidden_dim):
             super(ANN_Sigmoid_1,self).__init__()
             self.flat = nn.Flatten()
-            self.lin1 = nn.Linear(length_subvec*num_X_channels, 20)
+            self.lin1 = nn.Linear(length_subvec*num_X_channels, hidden_dim)
             self.sigmoid = nn.Sigmoid()
             self.relu = nn.ReLU()
-            self.lin2 = nn.Linear(20, 1)
+            self.lin2 = nn.Linear(hidden_dim, 1)
            
             
         def forward(self,x):
@@ -703,18 +704,18 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
                 return x
         '''    
     #%% Choose Device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    # device = torch.device( "cpu")
+    # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device( "cpu")
     
     if Case_Nr == 0:
         # Case 0  
-        model = ANN_Sigmoid_0(length_subvec, len(load_Nodes_X)).to(device)
+        model = ANN_Sigmoid_0(length_subvec, len(load_Nodes_X), hidden_dim).to(device)
     elif Case_Nr == 1:
         # Case 1
-        model = ANN_Sigmoid_1(length_subvec, len(load_Nodes_X)).to(device)
+        model = ANN_Sigmoid_1(length_subvec, len(load_Nodes_X), hidden_dim).to(device)
     elif Case_Nr == 2:
         # Case 2 
-        model = ANN_Sigmoid_1(length_subvec, len(load_Nodes_X)).to(device)
+        model = ANN_Sigmoid_1(length_subvec, len(load_Nodes_X), hidden_dim).to(device)
     
     
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -747,7 +748,7 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
         
         print_text = f'train_loss {train_loss}'
         # print(print_text)
-        return train_loss.detach().numpy().tolist()
+        return train_loss.cpu().detach().numpy().tolist()
     
     #------------------------------------------------------------------------------    
     def Valid():
@@ -771,7 +772,7 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
             print_text = f'valid_loss {valid_loss}'
             # print(print_text)
             
-        return valid_loss.detach().numpy().tolist()
+        return valid_loss.cpu().detach().numpy().tolist()
            
     #%% Run EPOCHS loop
     
@@ -827,12 +828,12 @@ def NNR(W_par=[25, 5, 1], #[length_subvec, length_step],
     ax = fig.add_subplot(111)
     plt.plot(np.array(range(1,epoch+1)), train_losses,label='train_loss')
     plt.plot(np.array(range(1,epoch+1)), valid_losses,label='valid_loss')
-    plt.title(f'{loss_text} Loss - Case {Case_Nr} \n Batch Size: {BatchSize}' )
+    plt.suptitle(f'{loss_text} Loss', y=1.1 )
     plt.text(0,1,f' Min valid error: {valid_loss_min} \n Epoch*: {index_min+1}/{epochs}' , transform=ax.transAxes, va = 'bottom', ha='left', fontsize=8)
-    plt.text(1,1,f' BatchSize: {BatchSize} \n Learn.Rate: {learning_rate_exp}' , transform=ax.transAxes, va = 'bottom', ha='right', fontsize=8)
+    plt.text(1,1,f' BatchSize: {BatchSize} \n Learn.Rate: {learning_rate_exp}\n Hidden dim: {hidden_dim}' , transform=ax.transAxes, va = 'bottom', ha='right', fontsize=8)
     plt.ylim(0, 2.2)
     plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('MSE Loss')
     plt.grid()
     # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
     plt.legend(loc='upper right')
@@ -1208,8 +1209,9 @@ length_subvec = 25
 # Overlaping parameter (number of new values in sub-vector)
 length_step = 5
 length_step_test = 1
+hidden_dim = 20
 
-W_par=[length_subvec, length_step, length_step_test]
+W_par=[length_subvec, length_step, length_step_test, hidden_dim]
 
 # Model Optimization Y/N
 optimize_model = 1
@@ -1238,12 +1240,27 @@ if False:
 #%% Varying learning rate
 
 # # Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 100
+# Epochs = 100
+
+# # Train Batch Size
+# train_batch = 25
+
+# for learning_rate in np.linspace(1e-5, 1e-4, 4):
+
+#     NNR(W_par, 
+#         [Epochs, train_batch, learning_rate], 
+#         Train_par, 
+#         Test_par)
+
+#%% Varying hidden layer dims
+
+# # Create Epoch / Batch / Learning rate ----------------------------------------
+Epochs = 2
 
 # Train Batch Size
 train_batch = 25
 
-for learning_rate in np.linspace(1e-10, 1e-5, 5):
+for hidden_dim in [1, 3, 5, 10, 15, 20, 25, 30, 35, 40, 50]:
 
     NNR(W_par, 
         [Epochs, train_batch, learning_rate], 

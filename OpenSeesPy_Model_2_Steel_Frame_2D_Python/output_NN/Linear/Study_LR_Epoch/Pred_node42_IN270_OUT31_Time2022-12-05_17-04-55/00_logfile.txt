@@ -1,0 +1,18 @@
+Start time: 2022-12-05 17:04:55
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Epochs = 5, BatchSize = 25, Learn.Rate = 5.05e-03 
+
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 17:05:32
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Epochs = 5, BatchSize = 25, Learn.Rate = 1.00e-04 
+
+Begin Epochs @ 2022-12-05 17:05:37
+epoch 1 / 5 - train_loss = -2.265678107488111e+34, test_loss = -0.1118, test_change = 1 
+epoch 2 / 5 - train_loss = -2.265678107488111e+34, test_loss = -0.1118, test_change = 1 
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 17:09:28
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Epochs = 100, BatchSize = 25, Learn.Rate = 1.00e-04 
+
+Begin Epochs @ 2022-12-05 17:09:32
