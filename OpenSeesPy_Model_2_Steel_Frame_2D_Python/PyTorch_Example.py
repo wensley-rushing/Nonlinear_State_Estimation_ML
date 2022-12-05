@@ -209,6 +209,12 @@ plt.grid()
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
 
 #%% Split data for prediction
+
+
+valid_x,valid_y = split_sequence(valid_set.Elec_kW.values,n_steps)
+valid = ElecDataset(valid_x.reshape(valid_x.shape[0],valid_x.shape[1],1),valid_y)
+
+
 #target_x , target_y = split_sequence(train_set.Elec_kW.values,n_steps) # Training set
 target_x , target_y = split_sequence(valid_set.Elec_kW.values,n_steps) # Validation set
 inputs = target_x.reshape(target_x.shape[0],target_x.shape[1],1)
