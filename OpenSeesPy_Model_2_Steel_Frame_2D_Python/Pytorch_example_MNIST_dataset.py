@@ -33,10 +33,10 @@ device = torch.device ('cuda' if torch.cuda.is_available() else 'cpu')
 # hyper parameters
 
 input_size = 784 # 28x28
-hidden_size = 200
+hidden_size = 20
 num_classes = 10
 num_epochs = 2
-batch_size = 100
+batch_size = 10
 learning_rate = 0.001
 
 # MNIST
@@ -61,6 +61,8 @@ examples = iter(train_loader)
 samples, labels = next(examples)
 print(samples.shape, labels.shape)
 
+
+
 for i in range(6):
  	plt.subplot(2,3,i+1)
  	plt.imshow(samples[i][0], cmap='gray')
@@ -71,17 +73,23 @@ plt.show()
 # Define model
 
 class NeuralNet(nn.Module):
-	def __init__(self, input_size, hidden_size, num_classes):
-		super(NeuralNet, self).__init__()
-		self.l1 = nn.Linear(input_size, hidden_size)
-		self.relu = nn.ReLU()
-		self.l2 = nn.Linear(hidden_size, num_classes)
+    def __init__(self, input_size, hidden_size, num_classes):
+        super(NeuralNet, self).__init__()
+        self.l1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.l2 = nn.Linear(hidden_size, num_classes)
 	
-	def forward(self,x):
-		out = self.l1(x)
-		out = self.relu(out)		
-		out = self.l2(out)
-		return out
+    def forward(self,x): 
+        print(f'Step 1 - input: {x.shape}')
+        out1 = self.l1(x)
+        par1 = model.l1.weight
+        print(f'Step 2 - l1: {out1.shape}')
+        out2 = self.relu(out1)
+        print(f'Step 3 - relu: {out2.shape}')
+        out3 = self.l2(out2)
+        par2 = model.l2.weight
+        print(f'Step 4 - output: {out3.shape}')
+        return out3, par1, par2
 
 model = NeuralNet(input_size, hidden_size, num_classes).to(device)
 
@@ -94,23 +102,29 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 n_total_steps = len(train_loader)
 for epoch in range(num_epochs):
-	for i, (images, labels) in enumerate(train_loader):
+    for i, (images, labels) in enumerate(train_loader):
+        
 		# 100, 1, 28, 28
- 		# 100, 784
-		images = images.reshape(-1,28*28).to(device) # data in 1 batch = 100 images x 784
-		labels = labels.to(device)
+        # 100, 784
+        images = images.reshape(-1,28*28).to(device) # data in 1 batch = 100 images x 784
+        labels = labels.to(device)
 
-		# forward
-		outputs = model(images) # feed the model only with 100 images
-		loss = criterion(outputs, labels)
+        # forward
+        outputs, par1, par2 = model(images) # feed the model only with 100 images
+        
+        for name, param in model.named_parameters():
+            print(name)
+            # print(param)
+            
+        loss = criterion(outputs, labels)
 
-		# backwards
-		optimizer.zero_grad()
-		loss.backward()
-		optimizer.step()
+        # backwards
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-		if (i+1) % 100 == 0:
-			print(f'epoch {epoch+1} / {num_epochs}, step {i+1} / {n_total_steps}, loss = {loss.item():.4f} ')
+        if (i+1) % 100 == 0:
+            print(f'epoch {epoch+1} / {num_epochs}, step {i+1} / {n_total_steps}, loss = {loss.item():.4f} ')
 
 
 
