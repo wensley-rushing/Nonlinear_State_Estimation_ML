@@ -1,0 +1,106 @@
+Start time: 2022-12-05 12:15:22
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+epoch 1 / 10 - train_loss = 1.2051, test_loss = 1.1912 
+epoch 2 / 10 - train_loss = 1.1968, test_loss = 1.1831 
+epoch 3 / 10 - train_loss = 1.1887, test_loss = 1.1751 
+epoch 4 / 10 - train_loss = 1.1808, test_loss = 1.1672 
+epoch 5 / 10 - train_loss = 1.1729, test_loss = 1.1594 
+epoch 6 / 10 - train_loss = 1.1651, test_loss = 1.1518 
+epoch 7 / 10 - train_loss = 1.1574, test_loss = 1.1442 
+epoch 8 / 10 - train_loss = 1.1498, test_loss = 1.1367 
+epoch 9 / 10 - train_loss = 1.1423, test_loss = 1.1294 
+epoch 10 / 10 - train_loss = 1.1349, test_loss = 1.1221 
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 12:15:46
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+epoch 1 / 10 - train_loss = 1.0719, test_loss = 1.0576 
+epoch 2 / 10 - train_loss = 1.0647, test_loss = 1.0507 
+epoch 3 / 10 - train_loss = 1.0578, test_loss = 1.044 
+epoch 4 / 10 - train_loss = 1.0511, test_loss = 1.0374 
+epoch 5 / 10 - train_loss = 1.0444, test_loss = 1.031 
+epoch 6 / 10 - train_loss = 1.0379, test_loss = 1.0246 
+epoch 7 / 10 - train_loss = 1.0314, test_loss = 1.0183 
+epoch 8 / 10 - train_loss = 1.0251, test_loss = 1.0122 
+epoch 9 / 10 - train_loss = 1.0188, test_loss = 1.0061 
+epoch 10 / 10 - train_loss = 1.0127, test_loss = 1.0001 
+Plotting Routine
+------------------------------------------------- 
+
+End time: 14.1294 [s]
+-- [min]:  0.2355 [min]
+-- [hrs]:  0.0039 [hrs]
+
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 12:16:31
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+epoch 1 / 10 - train_loss = 0.9699, test_loss = 0.9596 
+epoch 2 / 10 - train_loss = 0.963, test_loss = 0.953 
+epoch 3 / 10 - train_loss = 0.9563, test_loss = 0.9465 
+epoch 4 / 10 - train_loss = 0.9497, test_loss = 0.9402 
+epoch 5 / 10 - train_loss = 0.9433, test_loss = 0.9339 
+epoch 6 / 10 - train_loss = 0.9369, test_loss = 0.9277 
+epoch 7 / 10 - train_loss = 0.9306, test_loss = 0.9216 
+epoch 8 / 10 - train_loss = 0.9244, test_loss = 0.9156 
+epoch 9 / 10 - train_loss = 0.9183, test_loss = 0.9097 
+epoch 10 / 10 - train_loss = 0.9122, test_loss = 0.9038 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 13.9203 [s]
+-- [min]:  0.2320 [min]
+-- [hrs]:  0.0039 [hrs]
+
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 12:26:13
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+epoch 1 / 10 - train_loss = 1.0021, test_loss = 0.991 
+epoch 2 / 10 - train_loss = 0.9958, test_loss = 0.9849 
+epoch 3 / 10 - train_loss = 0.9897, test_loss = 0.979 
+epoch 4 / 10 - train_loss = 0.9837, test_loss = 0.9731 
+epoch 5 / 10 - train_loss = 0.9778, test_loss = 0.9674 
+epoch 6 / 10 - train_loss = 0.972, test_loss = 0.9617 
+epoch 7 / 10 - train_loss = 0.9662, test_loss = 0.956 
+epoch 8 / 10 - train_loss = 0.9605, test_loss = 0.9504 
+epoch 9 / 10 - train_loss = 0.9549, test_loss = 0.9449 
+epoch 10 / 10 - train_loss = 0.9493, test_loss = 0.9394 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 14.0434 [s]
+-- [min]:  0.2341 [min]
+-- [hrs]:  0.0039 [hrs]
+
+[4;33mReloaded modules[24m: DamageTools[0m
+Start time: 2022-12-05 12:29:49
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+epoch 1 / 10 - train_loss = 1.0302, test_loss = 1.0371 
+epoch 2 / 10 - train_loss = 1.0246, test_loss = 1.0316 
+epoch 3 / 10 - train_loss = 1.0191, test_loss = 1.0262 
+epoch 4 / 10 - train_loss = 1.0138, test_loss = 1.0209 
+epoch 5 / 10 - train_loss = 1.0085, test_loss = 1.0156 
+epoch 6 / 10 - train_loss = 1.0033, test_loss = 1.0104 
+epoch 7 / 10 - train_loss = 0.9981, test_loss = 1.0053 
+epoch 8 / 10 - train_loss = 0.993, test_loss = 1.0002 
+epoch 9 / 10 - train_loss = 0.9879, test_loss = 0.9951 
+epoch 10 / 10 - train_loss = 0.9828, test_loss = 0.9901 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 13.9525 [s]
+-- [min]:  0.2325 [min]
+-- [hrs]:  0.0039 [hrs]
+
+[4;33mReloaded modules[24m: DamageTools[0m

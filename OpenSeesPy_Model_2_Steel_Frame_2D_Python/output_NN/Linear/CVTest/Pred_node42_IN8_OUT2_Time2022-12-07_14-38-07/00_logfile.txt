@@ -1,0 +1,4 @@
+Start time: 2022-12-07 14:38:07
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 25
+Hyper-parameters: Epochs = 15, BatchSize = 20, Learn.Rate = 4.00e-05 
+
