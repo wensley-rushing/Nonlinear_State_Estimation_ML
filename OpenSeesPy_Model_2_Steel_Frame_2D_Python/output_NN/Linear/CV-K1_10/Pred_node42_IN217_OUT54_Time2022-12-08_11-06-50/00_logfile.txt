@@ -1,0 +1,13 @@
+Start time: 2022-12-08 11:06:50
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 110
+Hyper-parameters: Epochs = 20, BatchSize = 20, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-08 11:07:00
+epoch 1 / 20 - train_loss = 0.6544, test_loss = 0.2264, test_change = 1 
+epoch 2 / 20 - train_loss = 0.1291, test_loss = 0.1239, test_change = 1 
+epoch 3 / 20 - train_loss = 0.0957, test_loss = 0.1092, test_change = 0.1181 
+epoch 4 / 20 - train_loss = 0.0877, test_loss = 0.103, test_change = 0.0566 
+epoch 5 / 20 - train_loss = 0.0836, test_loss = 0.0996, test_change = 0.0337 
+epoch 6 / 20 - train_loss = 0.0811, test_loss = 0.0973, test_change = 0.0225 
+epoch 7 / 20 - train_loss = 0.0792, test_loss = 0.0957, test_change = 0.0168 
+epoch 8 / 20 - train_loss = 0.0778, test_loss = 0.0944, test_change = 0.0132 
