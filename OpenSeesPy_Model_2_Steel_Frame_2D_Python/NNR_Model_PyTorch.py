@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear\4_Models'
+folder_figure_save = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -208,6 +208,33 @@ def add_noise_abs(y, noise_level_ms2):
 	return y_noisy
 
 
+def add_noise_SNR_db(y, SNR_db):
+	# y is a numpy array [Volts]
+    
+    # The power of signal
+    y_power = y**2 # Watts
+    # Mean of the power E[S^2]
+    y_power_mean = y_power.mean() # Watts
+    
+    # Convert mean of power to dB
+    y_power_mean_db = 10*np.log10(y_power_mean) # dB
+    
+    # The mean noise in dB
+    noise_mean_db = y_power_mean_db - SNR_db # dB
+    # Convert mean noise to Power 
+    noise_mean = 10**(noise_mean_db/10) # Watts
+ 
+    # np.sqrt(noise_mean) is the std of the noise
+    noise_sd = np.sqrt(noise_mean)
+    # print(round(noise_sd,4))
+	
+    if SNR_db >= 1000:
+        y_noisy = y
+    else:
+        y_noisy = y + np.random.normal(loc=0, scale=noise_sd, size=y.shape)
+    return y_noisy
+
+
 #%% Input
 # # Training data ---------------------------------------------------------------
 # Train_data, Test_data = random_str_list(Index_Results, Train_procent = .9)
@@ -296,7 +323,7 @@ def add_noise_abs(y, noise_level_ms2):
 
 
 #%% Neural Network Model for Regression
-def NNR(W_par=[25, 5, 1, 20, 0], #[length_subvec, length_step, Hidden_Dim, noise_level], 
+def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, noise_level], 
         Hyper_par = [10, 25, 1e-5], #[Epochs, train_batch, learning_rate],
         
         Train_par=[['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
@@ -357,7 +384,7 @@ def NNR(W_par=[25, 5, 1, 20, 0], #[length_subvec, length_step, Hidden_Dim, noise
     Transcript.start(os.path.join(folder_figure_save, sub_folder_plots, '00_logfile.txt'))
     # print("inside file")
     print(f'Start time: {start_time}')
-    print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}, Hidden.Dim = {hidden_dim}, Signal Noise: {noise_level}')
+    print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}, Hidden.Dim = {hidden_dim}, Signal Noise (dB): {noise_level}')
     print(f'Hyper-parameters: Epochs = {epochs}, BatchSize = {BatchSize}, Learn.Rate = {learning_rate_exp} \n')
     # Transcript.stop()
     # print("outside file")
@@ -433,9 +460,10 @@ def NNR(W_par=[25, 5, 1, 20, 0], #[length_subvec, length_step, Hidden_Dim, noise
                         #time = time_Accs[:,0]
                         accs_no_noise_list = time_Accs[:,load_Nodes_X_id[j]+1].tolist()
                         
-                        accs_noise_array = add_noise_abs(np.array(accs_no_noise_list), noise_level)
-                        # accs_noise_array = add_noise_percentage(np.array(accs_no_noise_list), noise_level)
+                        # Convert Inputs to np.array and add noise
+                        accs_noise_array = add_noise_SNR_db(np.array(accs_no_noise_list), noise_level)
                         
+                        # Convert noisy inputs to list
                         accs = accs_noise_array.tolist()
                         #accs = list(range(1,11, 1))
                         
@@ -1196,7 +1224,7 @@ if False:
 #%% Input
 
 # Load df with loads
-df_NN_loads = pd.read_pickle(os.path.join(folder_figure_save, '00_NN_Loads.pkl'))
+# df_NN_loads = pd.read_pickle(os.path.join(folder_figure_save, '00_NN_Loads.pkl'))
 
 
 
@@ -1205,7 +1233,7 @@ df_NN_loads = pd.read_pickle(os.path.join(folder_figure_save, '00_NN_Loads.pkl')
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
 # load_IDs = ['108', '001', '231', '079', '251']
-load_IDs = df_NN_loads['Train'][0]
+# load_IDs = df_NN_loads['Train'][0]
 
 # Training - X                                                                                 
 load_Nodes_X = [23] # Indicator of dimension d
@@ -1214,7 +1242,7 @@ load_Nodes_X = [23] # Indicator of dimension d
 load_Nodes_Y = [42]
 
 # Combine it all
-Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
+# Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 
 # Testing Data ----------------------------------------------------------------
@@ -1222,7 +1250,7 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 # Indicator if total time m
 #load_IDss = Test_data # 20
-load_IDss = df_NN_loads['Test'][0]
+# load_IDss = df_NN_loads['Test'][0]
 
 
 # Testing - X*  (Same as X)                                                                             
@@ -1232,7 +1260,7 @@ load_Nodes_Xs = load_Nodes_X
 load_Nodes_Ys = load_Nodes_Y  
 
 # Combine it all
-Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
+# Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 
 
@@ -1244,7 +1272,7 @@ length_subvec = 25
 length_step = 5
 length_step_test = 1
 hidden_dim = 20
-noise_level = 0.05 # ABS noise level
+noise_level = 1000 # dB noise level
 
 W_par=[length_subvec, length_step, length_step_test, hidden_dim, noise_level]
 
@@ -1255,7 +1283,7 @@ optimize_model = 1
 # Scale factor for each sensor
 
 # Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 15
+Epochs = 30
 
 # Train Batch Size
 train_batch = 25
@@ -1266,12 +1294,13 @@ learning_rate = 4e-5
 Hyper_par = [Epochs, train_batch, learning_rate]
 
 
-if True:
+if False:
     NNR(W_par, 
         Hyper_par, 
         Train_par, 
         Test_par)
-sys.exit()
+
+
 #%% Varying learning rate
 
 # # Create Epoch / Batch / Learning rate ----------------------------------------
@@ -1336,94 +1365,93 @@ sys.exit()
 #         Test_par)
     
 #%% 2-K Fold - With optimization based on Hidden Dim
-sys.exit()
-# Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 20
 
-# Train Batch Size
-train_batch = 20
+# # Create Epoch / Batch / Learning rate ----------------------------------------
+# Epochs = 20
 
-# Learning rate
-learning_rate = 4e-5
+# # Train Batch Size
+# train_batch = 20
 
-# Loads / Models --------------------------------------------------------------
-# Loads that should be examined (ALL 0-> 300)
-list_loads = list(range(0,300+1))
-list_loads = int_to_str3(list_loads)
-list_loads = np.array(list_loads)
+# # Learning rate
+# learning_rate = 4e-5
 
-# Number of models
-Hidden_Dim_list = np.array(list(range(70,170+1, 20)))
+# # Loads / Models --------------------------------------------------------------
+# # Loads that should be examined (ALL 0-> 300)
+# list_loads = list(range(0,300+1))
+# list_loads = int_to_str3(list_loads)
+# list_loads = np.array(list_loads)
 
-# Create K folds --------------------------------------------------------------
+# # Number of models
+# Hidden_Dim_list = np.array(list(range(70,170+1, 20)))
 
-K1_splits = 10
-K2_splits = 5
+# # Create K folds --------------------------------------------------------------
 
-S = len(Hidden_Dim_list)
-K1 = KFold(n_splits=K1_splits, shuffle=False)
-K2 = KFold(n_splits=K2_splits, shuffle=False)
+# K1_splits = 10
+# K2_splits = 5
 
-# DataFrame for outer loops
-df_K1 = pd.DataFrame( columns = ['MSE_Error', 'S' ,'Time', 'df_K2'], index = list(range(K1_splits)))
-for i in df_K1.index:
-    # Columns is models / Index is K2 folds
-    df_K1['df_K2'][i] = pd.DataFrame(columns = list(range(S)), index = list(range(K2_splits)))
+# S = len(Hidden_Dim_list)
+# K1 = KFold(n_splits=K1_splits, shuffle=False)
+# K2 = KFold(n_splits=K2_splits, shuffle=False)
+
+# # DataFrame for outer loops
+# df_K1 = pd.DataFrame( columns = ['MSE_Error', 'S' ,'Time', 'df_K2'], index = list(range(K1_splits)))
+# for i in df_K1.index:
+#     # Columns is models / Index is K2 folds
+#     df_K1['df_K2'][i] = pd.DataFrame(columns = list(range(S)), index = list(range(K2_splits)))
 
 
-# RUN Simulation --------------------------------------------------------------
+# # RUN Simulation --------------------------------------------------------------
 
-#Outer Look (K1)
-k1 = 1
-for train_index_K1, test_index_K1 in K1.split(X = list_loads):
-    #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
-    print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
+# #Outer Look (K1)
+# k1 = 1
+# for train_index_K1, test_index_K1 in K1.split(X = list_loads):
+#     #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
+#     print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
     
-    load_IDs_K1 =  list_loads[train_index_K1] # Train
-    load_IDss_K1 = list_loads[test_index_K1]  # Test
+#     load_IDs_K1 =  list_loads[train_index_K1] # Train
+#     load_IDss_K1 = list_loads[test_index_K1]  # Test
     
-    k2 = 1
-    # Inner loop (K2)
-    for train_index_K2, test_index_K2 in K2.split(X = load_IDs_K1):
-        print(f'K2 fold {k2} / {K2_splits}'); k2 += 1
+#     k2 = 1
+#     # Inner loop (K2)
+#     for train_index_K2, test_index_K2 in K2.split(X = load_IDs_K1):
+#         print(f'K2 fold {k2} / {K2_splits}'); k2 += 1
 
-        load_IDs_K2 =  load_IDs_K1[train_index_K2] # Train
-        load_IDss_K2 = load_IDs_K1[test_index_K2]  # Test
+#         load_IDs_K2 =  load_IDs_K1[train_index_K2] # Train
+#         load_IDss_K2 = load_IDs_K1[test_index_K2]  # Test
         
         
-        # Different models (S)
-        s = 1
-        for hidden_dim in Hidden_Dim_list:
-            print(f'Model {s} / {S}'); s += 1
+#         # Different models (S)
+#         s = 1
+#         for hidden_dim in Hidden_Dim_list:
+#             print(f'Model {s} / {S}'); s += 1
 
-            mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, hidden_dim], 
-                                        [Epochs, train_batch, learning_rate], 
-                                        [load_IDs_K2, load_Nodes_X, load_Nodes_Y], 
-                                        [load_IDss_K2, load_Nodes_Xs, load_Nodes_Ys])
+#             mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, hidden_dim], 
+#                                         [Epochs, train_batch, learning_rate], 
+#                                         [load_IDs_K2, load_Nodes_X, load_Nodes_Y], 
+#                                         [load_IDss_K2, load_Nodes_Xs, load_Nodes_Ys])
             
-            df_K1['df_K2'][k1-2][s-2][k2-2] = mse_valid
+#             df_K1['df_K2'][k1-2][s-2][k2-2] = mse_valid
             
-    S_means = df_K1['df_K2'][k1-2].mean(axis=0).tolist()
-    S_mean_idx = np.argmin(S_means)
+#     S_means = df_K1['df_K2'][k1-2].mean(axis=0).tolist()
+#     S_mean_idx = np.argmin(S_means)
     
-    S_min = Hidden_Dim_list[S_mean_idx]
-    mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, S_min], 
-                                [Epochs, train_batch, learning_rate], 
-                                [load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
-                                [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
+#     S_min = Hidden_Dim_list[S_mean_idx]
+#     mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, S_min], 
+#                                 [Epochs, train_batch, learning_rate], 
+#                                 [load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
+#                                 [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
     
-    df_K1['MSE_Error'][k1-2] = mse_valid
-    df_K1['S'][k1-2] = S_min
-    df_K1['Time'][k1-2] = model_time
+#     df_K1['MSE_Error'][k1-2] = mse_valid
+#     df_K1['S'][k1-2] = S_min
+#     df_K1['Time'][k1-2] = model_time
             
     
-    # df_K1.to_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
+#     # df_K1.to_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
 
-# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
-sys.exit()
+# # df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
 
 #%% 1-K Fold - With different Noise levels based on Hidden Dim
-sys.exit()
+
 # Create Epoch / Batch / Learning rate ----------------------------------------
 Epochs = 30
 
@@ -1441,7 +1469,7 @@ list_loads = np.array(list_loads)
 
 # Number of models
 hidden_dim = 20
-Noise_level_list = [0, 0.05, 0.1]  # ABS noise level
+Noise_level_list = [1000]  # ABS noise level
 
 # Create K folds --------------------------------------------------------------
 
@@ -1450,7 +1478,11 @@ K1_splits = 10
 K1 = KFold(n_splits=K1_splits, shuffle=False)
 
 # DataFrame for outer loops
-df_K1 = pd.DataFrame( columns = ['Noise_Level', 'MSE_Error' ,'Time'], index = list(range(K1_splits)))
+df_K1 = pd.DataFrame( columns = Noise_level_list, index = list(range(K1_splits)))
+
+for i in df_K1.index:
+    for j in df_K1.columns:
+        df_K1[j][i] = pd.Series(index = ['MSE', 'RMSE', 'Time'])
 
 
 # RUN Simulation --------------------------------------------------------------
@@ -1464,9 +1496,7 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads):
     load_IDs_K1 =  list_loads[train_index_K1] # Train
     load_IDss_K1 = list_loads[test_index_K1]  # Test
     
-    NL = []
-    MSE = []
-    TT = []
+
     for noise_level in Noise_level_list:
 
         mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
@@ -1474,16 +1504,16 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads):
                                     [load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
                                     [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
             
-    
-        df_K1['Noise_Level'][k1-2] = NL.append(noise_level)
-        df_K1['MSE_Error'][k1-2] = MSE.append(mse_valid)
-        df_K1['Time'][k1-2] = TT.append(model_time)
+
+        df_K1[noise_level][k1-2]['MSE'] = mse_valid
+        df_K1[noise_level][k1-2]['RMSE'] = np.sqrt(mse_valid)
+        df_K1[noise_level][k1-2]['Time'] = model_time
     
             
     
-df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_CrossValid.pkl'))
+df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 
-# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_CrossValid.pkl'))
+# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 sys.exit()
 
 
