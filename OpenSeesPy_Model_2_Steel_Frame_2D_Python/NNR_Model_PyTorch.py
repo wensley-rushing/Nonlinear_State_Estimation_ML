@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear\CVTest'
+folder_figure_save = r'output_NN\Linear\4_Models'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -191,6 +191,21 @@ def random_str_list(Index_Results, Train_procent = 0.07):
     Test_idx = int_to_str3(test_list)
     
     return Train_idx, Test_idx
+
+#%% Noisy Signal
+
+def add_noise_percentage(y, noise_level):
+	# y is a numpy array
+	# noise_level is the noise in relation to the signal. e.g. noise_level=0.01 corresponds to 1% of noise
+	noise_std = noise_level*np.std(y)
+	y_noisy = y + np.random.normal(scale=noise_std,size=y.shape)
+	return y_noisy
+
+def add_noise_abs(y, noise_level_ms2):
+	# y is a numpy array
+	# noise_level_ms2 is the std of the noise
+	y_noisy = y + np.random.normal(scale=noise_level_ms2,size=y.shape)
+	return y_noisy
 
 
 #%% Input
@@ -281,7 +296,7 @@ def random_str_list(Index_Results, Train_procent = 0.07):
 
 
 #%% Neural Network Model for Regression
-def NNR(W_par=[25, 5, 1, 20], #[length_subvec, length_step, Hidden_Dim], 
+def NNR(W_par=[25, 5, 1, 20, 0], #[length_subvec, length_step, Hidden_Dim, noise_level], 
         Hyper_par = [10, 25, 1e-5], #[Epochs, train_batch, learning_rate],
         
         Train_par=[['182',  '086',  '247',  '149',  '052',  '094',  '250',  '138',  
@@ -311,6 +326,7 @@ def NNR(W_par=[25, 5, 1, 20], #[length_subvec, length_step, Hidden_Dim],
     length_step = W_par[1]
     length_step_test = W_par[2]
     hidden_dim = W_par[3]
+    noise_level = W_par[4]
     #print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}') MOVED
     
     # Creation Epoch / Batch / Learning rate (Hyper-parameters) 
@@ -341,7 +357,7 @@ def NNR(W_par=[25, 5, 1, 20], #[length_subvec, length_step, Hidden_Dim],
     Transcript.start(os.path.join(folder_figure_save, sub_folder_plots, '00_logfile.txt'))
     # print("inside file")
     print(f'Start time: {start_time}')
-    print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}, Hidden.Dim = {hidden_dim}')
+    print(f'Sub-vector parameters: Length = {length_subvec}, Step = {length_step}, Hidden.Dim = {hidden_dim}, Signal Noise: {noise_level}')
     print(f'Hyper-parameters: Epochs = {epochs}, BatchSize = {BatchSize}, Learn.Rate = {learning_rate_exp} \n')
     # Transcript.stop()
     # print("outside file")
@@ -415,7 +431,12 @@ def NNR(W_par=[25, 5, 1, 20], #[length_subvec, length_step, Hidden_Dim],
                     # Load Accelerations in nodes X
                     for j in range(len(load_Nodes_X)):
                         #time = time_Accs[:,0]
-                        accs = time_Accs[:,load_Nodes_X_id[j]+1].tolist()
+                        accs_no_noise_list = time_Accs[:,load_Nodes_X_id[j]+1].tolist()
+                        
+                        accs_noise_array = add_noise_abs(np.array(accs_no_noise_list), noise_level)
+                        # accs_noise_array = add_noise_percentage(np.array(accs_no_noise_list), noise_level)
+                        
+                        accs = accs_noise_array.tolist()
                         #accs = list(range(1,11, 1))
                         
                         df_ZX[load_Nodes_X[j]]['ACCS'].append( accs )
@@ -1184,7 +1205,7 @@ df_NN_loads = pd.read_pickle(os.path.join(folder_figure_save, '00_NN_Loads.pkl')
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
 # load_IDs = ['108', '001', '231', '079', '251']
-# load_IDs = df_NN_loads['Train'][0]
+load_IDs = df_NN_loads['Train'][0]
 
 # Training - X                                                                                 
 load_Nodes_X = [23] # Indicator of dimension d
@@ -1193,7 +1214,7 @@ load_Nodes_X = [23] # Indicator of dimension d
 load_Nodes_Y = [42]
 
 # Combine it all
-# Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
+Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 
 # Testing Data ----------------------------------------------------------------
@@ -1201,7 +1222,7 @@ load_Nodes_Y = [42]
 
 # Indicator if total time m
 #load_IDss = Test_data # 20
-#load_IDss = df_NN_loads['Test'][0]
+load_IDss = df_NN_loads['Test'][0]
 
 
 # Testing - X*  (Same as X)                                                                             
@@ -1211,7 +1232,7 @@ load_Nodes_Xs = load_Nodes_X
 load_Nodes_Ys = load_Nodes_Y  
 
 # Combine it all
-# Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
+Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 
 
@@ -1223,8 +1244,9 @@ length_subvec = 25
 length_step = 5
 length_step_test = 1
 hidden_dim = 20
+noise_level = 0.05 # ABS noise level
 
-W_par=[length_subvec, length_step, length_step_test, hidden_dim]
+W_par=[length_subvec, length_step, length_step_test, hidden_dim, noise_level]
 
 # Model Optimization Y/N
 optimize_model = 1
@@ -1233,7 +1255,7 @@ optimize_model = 1
 # Scale factor for each sensor
 
 # Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 20
+Epochs = 15
 
 # Train Batch Size
 train_batch = 25
@@ -1244,12 +1266,12 @@ learning_rate = 4e-5
 Hyper_par = [Epochs, train_batch, learning_rate]
 
 
-if False:
+if True:
     NNR(W_par, 
         Hyper_par, 
         Train_par, 
         Test_par)
-
+sys.exit()
 #%% Varying learning rate
 
 # # Create Epoch / Batch / Learning rate ----------------------------------------
@@ -1313,8 +1335,8 @@ if False:
 #         Train_par, 
 #         Test_par)
     
-#%% K Fold - With optimization based on Hidden Dim
-
+#%% 2-K Fold - With optimization based on Hidden Dim
+sys.exit()
 # Create Epoch / Batch / Learning rate ----------------------------------------
 Epochs = 20
 
@@ -1395,11 +1417,76 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads):
     df_K1['Time'][k1-2] = model_time
             
     
-    df_K1.to_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
+    # df_K1.to_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
 
-
+# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_CrossValid.pkl'))
 sys.exit()
-#%%
+
+#%% 1-K Fold - With different Noise levels based on Hidden Dim
+sys.exit()
+# Create Epoch / Batch / Learning rate ----------------------------------------
+Epochs = 30
+
+# Train Batch Size
+train_batch = 25
+
+# Learning rate
+learning_rate = 4e-5
+
+# Loads / Models --------------------------------------------------------------
+# Loads that should be examined (ALL 0-> 300)
+list_loads = list(range(0,300+1))
+list_loads = int_to_str3(list_loads)
+list_loads = np.array(list_loads)
+
+# Number of models
+hidden_dim = 20
+Noise_level_list = [0, 0.05, 0.1]  # ABS noise level
+
+# Create K folds --------------------------------------------------------------
+
+K1_splits = 10
+
+K1 = KFold(n_splits=K1_splits, shuffle=False)
+
+# DataFrame for outer loops
+df_K1 = pd.DataFrame( columns = ['Noise_Level', 'MSE_Error' ,'Time'], index = list(range(K1_splits)))
+
+
+# RUN Simulation --------------------------------------------------------------
+
+#Outer Look (K1)
+k1 = 1
+for train_index_K1, test_index_K1 in K1.split(X = list_loads):
+    #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
+    print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
+    
+    load_IDs_K1 =  list_loads[train_index_K1] # Train
+    load_IDss_K1 = list_loads[test_index_K1]  # Test
+    
+    NL = []
+    MSE = []
+    TT = []
+    for noise_level in Noise_level_list:
+
+        mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
+                                    [Epochs, train_batch, learning_rate], 
+                                    [load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
+                                    [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
+            
+    
+        df_K1['Noise_Level'][k1-2] = NL.append(noise_level)
+        df_K1['MSE_Error'][k1-2] = MSE.append(mse_valid)
+        df_K1['Time'][k1-2] = TT.append(model_time)
+    
+            
+    
+df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_CrossValid.pkl'))
+
+# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_CrossValid.pkl'))
+sys.exit()
+
+
 
 
 
