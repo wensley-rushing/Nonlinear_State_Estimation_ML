@@ -12,7 +12,9 @@ import os
 import random
 import sys
 
-data_directory = r'output_files\18_tests\Boxplots'
+method = 'GP'
+
+data_directory = os.path.join(r'output_files\18_tests\Boxplots', method)
 
 
 plot_box = True
@@ -76,7 +78,7 @@ else:
 #%%
 n_test = len(test_vec)
 
-nodes = [22, 32, 42]
+nodes = [42]
 
 for i in nodes: 
     
@@ -138,7 +140,7 @@ for i in nodes:
         
     # adding horizontal grid lines
     
-    plt.suptitle('Node ' +str(i), y=0.95, fontsize = '20', fontweight="bold" )
+    plt.suptitle('Node ' +str(i) + ' - ' + method, y=0.95, fontsize = '20', fontweight="bold" )
     
     for ax in axes:
         ax.yaxis.grid(True)
@@ -151,7 +153,7 @@ for i in nodes:
                     wspace=0.4,
                     hspace=0.4)
     
-    fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}_{fig_save_text}.png')) 
+    # fig.savefig(os.path.join(data_directory, 'Figures', f'Node_{i}_{fig_save_text}.png')) 
     plt.show() 
     
         

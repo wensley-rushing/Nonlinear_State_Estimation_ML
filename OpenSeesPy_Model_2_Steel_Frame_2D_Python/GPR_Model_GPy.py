@@ -104,11 +104,11 @@ def norm_p(x1, x2, p=2):
 
 #%% Folder structure
 
-folder_accs = r'output_files\ACCS'
+folder_accs = r'output_files_All\ACCS'
 
-folder_structure = r'output_files'
+folder_structure = r'output_files_All'
 
-folder_figure_save = r'output_files\18_tests\Test_11_V2'
+folder_figure_save = r'output_files\18_tests\Test_17_V3'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1201,32 +1201,32 @@ if False:
 #%%  Different datasets and different nodes to predict
 
 #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
-df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
 
-#df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
+# #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
 
 
-for i in range(df_datasets.shape[0]):
-    load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
-    #load_IDs = ['225', '013', '258', '204', '121']
-    load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
+# for i in range(df_datasets.shape[0]):
+#     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
+#     #load_IDs = ['225', '013', '258', '204', '121']
+#     load_IDss = int_to_str3(df_datasets.loc[i, 'Test sets'])
 
-    Diff_Nodes = [22, 32, 42]
+#     Diff_Nodes = [22, 32, 42]
     
-    #for load_Nodes_X_el in [23]:
-    for j  in Diff_Nodes:  
+#     #for load_Nodes_X_el in [23]:
+#     for j  in Diff_Nodes:  
     
-        load_Nodes_X = [23]# [load_Nodes_X_el]
-        load_Nodes_Y = [j]
-        print(load_Nodes_X, load_Nodes_Y)
+#         load_Nodes_X = [23]# [load_Nodes_X_el]
+#         load_Nodes_Y = [j]
+#         print(load_Nodes_X, load_Nodes_Y)
         
-        GPR(W_par=[length_subvec, length_step, length_step_test], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#         GPR(W_par=[length_subvec, length_step, length_step_test], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
-sys.exit()
+# sys.exit()
 #%%  One dataset and different nodes to predict
 
 # Analysis: 5 Random Earthquakes (same used for coloured matrix and boxplots)
@@ -1262,44 +1262,105 @@ sys.exit()
 #                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
     
 #%% Linear / non-linear study
+
+from sklearn.model_selection import KFold
 import random
 
-#df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
-df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
+# Loads / Models --------------------------------------------------------------
+# Loads that should be examined (ALL 0-> 300)
 
-train_LN = 'N'
-test_LN = 'L'
 
-if train_LN =='L':
-    load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=20))
-    # load_IDs = int_to_str3(df_datasets[23]['L'])
-elif train_LN =='N':
-    load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=20))
-    # load_IDs = int_to_str3(df_datasets[23]['N'])
+
+IDs_L = pd.read_pickle(os.path.join('output_NN', 'Linear' , 'Physical_inter','IDs_linear.pkl'))
+list_loads_linear = np.array( int_to_str3(IDs_L.index))
+
+
+
+
+
+IDs_NL = pd.read_pickle(os.path.join('output_NN', 'Linear' , 'Physical_inter','IDs_non_linear.pkl'))
+list_loads_non_linear = np.array( int_to_str3(IDs_NL.index))
+
+
+previous_study_Data = pd.read_pickle(os.path.join('output_NN', 'Linear' , 'Physical_inter','00_Basis_6fold.pkl'))
+
+
+
+train_type = 'N'
+test_type = 'N'
+
+
+Noise_level_list = [1000]  # ABS noise level
+
+# Create K folds --------------------------------------------------------------
+
+K1_splits = 10
+
+K1 = KFold(n_splits=K1_splits, shuffle=False)
+
+# DataFrame for outer loops
+df_K1 = pd.DataFrame( columns = Noise_level_list, index = list(range(K1_splits)))
+
+for i in df_K1.index:
+    for j in df_K1.columns:
+        df_K1[j][i] = pd.Series(index = ['MSE', 'RMSE', 'Time'])
+
+
+# RUN Simulation --------------------------------------------------------------
+
+#Outer Look (K1)
+k1 = 1
+for train_index_K1, test_index_K1 in K1.split(X = list_loads_linear):
+    #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
+    print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
     
+    if k1 == 7:
+        # Train set
         
-Diff_Nodes = [22, 32, 42]
+        if train_type =='L':
+            load_IDs_K1 =  list_loads_linear[train_index_K1] 
+            
+        elif train_type =='N':
+            load_IDs_K1 =  list_loads_non_linear[train_index_K1] 
+            
+        load_IDs_K1 = np.random.choice(load_IDs_K1, size=20, replace=False)
+            
+        
+        
+        if test_type =='L':
+            load_IDss_K1 =  list_loads_linear[test_index_K1] 
+            
+        elif test_type =='N':
+            load_IDss_K1 =  list_loads_non_linear[test_index_K1] 
+            
+        
+        if load_IDss_K1.tolist() != previous_study_Data.iloc[0,3].tolist():
+            print('Erorr: different datasets')
+            
+        
+    
+        for noise_level in Noise_level_list:
+            
+            
+    
+            GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss_K1, load_Nodes_X, load_Nodes_Y])
+                
 
-#for load_Nodes_X_el in [23]:
-for i in Diff_Nodes:  
+        # df_K1[noise_level][k1-2]['MSE'] = mse_valid
+        # df_K1[noise_level][k1-2]['RMSE'] = np.sqrt(mse_valid)
+        # df_K1[noise_level][k1-2]['Time'] = model_time
+        
     
-    if test_LN =='L':
-        load_IDss = []
-        load_IDss = int_to_str3(df_datasets[i]['L'])
-    elif test_LN =='N':
-        load_IDss = []
-        load_IDss = int_to_str3(df_datasets[i]['N'])
     
-    load_Nodes_X = [23] # [load_Nodes_X_el]
-    load_Nodes_Y = [i]
+            
     
-    GPR(W_par=[length_subvec, length_step, length_step_test], 
-            Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-            Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-            Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+# df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 
-    
-    
+# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 sys.exit()
+
 
 

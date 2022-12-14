@@ -28,9 +28,17 @@ LL / LN study:
 'Test 19\n20 high-N GMs\ntrain node [23]\npredict L'
 
 
-# ------------------------------------ 
+# ------ Version 2 ------------------------------ 
 Only the following were replicated with stepping size of 1
 Tests to replicate: (placed in 18-test)
-1, 3, 11, 5 (5/20 EQ)
-5, 7 (Node 22/32)
-12, 18, 17, 19 (LN)
+
+1, 11: 5 random vs 20 random
+
+12, 18, 17, 19: LN - study
+
+# ------ Version 3 ------------------------------ 
+
+Replicate tests for LN - study: GM selection based on GLOBAL energy
+
+12, 18, 17, 19: LN - study
+
