@@ -1,0 +1,37 @@
+Start time: 2022-12-12 23:52:50
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-12 23:53:00
+epoch 1 / 30 - train_loss = 0.4775, test_loss = 0.3996, test_change = 1 
+epoch 2 / 30 - train_loss = 0.2947, test_loss = 0.3289, test_change = 1 
+epoch 3 / 30 - train_loss = 0.2573, test_loss = 0.293, test_change = 0.109 
+epoch 4 / 30 - train_loss = 0.2328, test_loss = 0.2644, test_change = 0.0978 
+epoch 5 / 30 - train_loss = 0.2128, test_loss = 0.2414, test_change = 0.0869 
+epoch 6 / 30 - train_loss = 0.1974, test_loss = 0.2241, test_change = 0.0716 
+epoch 7 / 30 - train_loss = 0.1859, test_loss = 0.2115, test_change = 0.0562 
+epoch 8 / 30 - train_loss = 0.1773, test_loss = 0.202, test_change = 0.0451 
+epoch 9 / 30 - train_loss = 0.1703, test_loss = 0.1944, test_change = 0.0377 
+epoch 10 / 30 - train_loss = 0.1646, test_loss = 0.188, test_change = 0.033 
+epoch 11 / 30 - train_loss = 0.1596, test_loss = 0.1823, test_change = 0.03 
+epoch 12 / 30 - train_loss = 0.155, test_loss = 0.1772, test_change = 0.0282 
+epoch 13 / 30 - train_loss = 0.1508, test_loss = 0.1725, test_change = 0.0262 
+epoch 14 / 30 - train_loss = 0.1469, test_loss = 0.1685, test_change = 0.0231 
+epoch 15 / 30 - train_loss = 0.1436, test_loss = 0.165, test_change = 0.0211 
+epoch 16 / 30 - train_loss = 0.1407, test_loss = 0.1619, test_change = 0.0188 
+epoch 17 / 30 - train_loss = 0.1381, test_loss = 0.1591, test_change = 0.0169 
+epoch 18 / 30 - train_loss = 0.1359, test_loss = 0.1568, test_change = 0.015 
+epoch 19 / 30 - train_loss = 0.1339, test_loss = 0.1547, test_change = 0.0131 
+epoch 20 / 30 - train_loss = 0.1321, test_loss = 0.1529, test_change = 0.0116 
+epoch 21 / 30 - train_loss = 0.1305, test_loss = 0.1513, test_change = 0.0105 
+epoch 22 / 30 - train_loss = 0.1291, test_loss = 0.1499, test_change = 0.0095 
+Duration [sec]: 345.539 - [min]: 5.759 - [hrs]: 0.096 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 361.2827 [s]
+-- [min]:  6.0214 [min]
+-- [hrs]:  0.1004 [hrs]
+

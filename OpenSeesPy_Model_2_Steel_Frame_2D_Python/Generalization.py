@@ -41,7 +41,7 @@ def unique_cols(df):
     return (a[0] == a).all(0)
 
 #%% Folder structure
-folder_data = r'output_files\Figures_Singular'
+folder_data = r'output_files\GP_K1_Fold_300_Noise_1000'
 
 
 #%% INPUTS
@@ -53,7 +53,7 @@ folder_data = r'output_files\Figures_Singular'
 
 # plot_ErrorMap = True
 
-def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
+def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=False):
     # Understanding input
     # EQs
     num_in = EQ_IN_OUT[0]
@@ -93,10 +93,13 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
         rdis_OUT_id = rdirs.find('OUT')+3
         pred_OUT = str(num_out); len_pred_OUT = rdirs[rdis_OUT_id:].find('_')
         
-        if (len(rdirs) > len(folder_data)  and rdirs.count('\\') == 2               # if sub-folder
+
+        
+        if (len(rdirs) > len(folder_data)  and rdirs.count('\\') == folder_data.count('\\')+1              # if sub-folder
             and rdirs[rdis_node_id:rdis_node_id + len_pred_node] == pred_node       # if 
-            and rdirs[rdis_IN_id:rdis_IN_id + len_pred_IN] == pred_IN 
-            and rdirs[rdis_OUT_id:rdis_OUT_id + len_pred_OUT] == pred_OUT):
+            #and rdirs[rdis_IN_id:rdis_IN_id + len_pred_IN] == pred_IN 
+            #and rdirs[rdis_OUT_id:rdis_OUT_id + len_pred_OUT] == pred_OUT
+            ):
             print(rdirs)
             #print(dirs)
             #print(files)
@@ -122,19 +125,24 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
             
                 
                     
-    if unique_cols(df_Basis)[2] == True:
-        status_train ='All same training inputs'
-        train = 'Same'
-    else:
-        status_train = 'Different training inputs'
-        train = 'Diff'
+    # if unique_cols(df_Basis)[2] == True:
+    #     status_train ='All same training inputs'
+    #     train = 'Same'
+    # else:
+    #     status_train = 'Different training inputs'
+    #     train = 'Diff'
+        
+    status_train ='All same training inputs'
+    train = 'Same'
     
     
     #%% 
-    df = df_Error
+    df = df_Error.copy()
+    df.drop('MAPE', inplace=True)
+    df.drop('MAE', inplace=True)
     # Plot bloxplot
     fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(10, 10), sharex=True)
-    
+
     
     plot_right = 1
     
@@ -195,12 +203,13 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
     plt.close()
     
     #%% Plot ErrorMap
+    error_text = ['RMSE', 'SMSE', 'MAE', 'MAPE' , 'TRAC'][ID_error]
     if plot_ErrorMap:
-        plt.figure()
+        plt.figure(figsize =(8, 7))
         plt.pcolor(df_ErrorMap.values.tolist())
         plt.yticks(np.arange(0.5, len(df_ErrorMap.index), 1), df_ErrorMap.index)
         plt.xticks(np.arange(0.5, len(df_ErrorMap.columns), 1), df_ErrorMap.columns)
-        plt.colorbar(label='TRAC Mean')
+        plt.colorbar(label=f'{error_text} Mean')
         
         # Lines
         plt.axvline(x=4, ls='--', linewidth=1, color='black')
@@ -211,12 +220,24 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
         
         plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
         
-        plt.suptitle( f'Error Heat Map - IN: {num_in}, OUT: {num_out} \n TRAC Error' )
+        
+        # Loop over data dimensions and create text annotations.
+        for i in range(len(df_ErrorMap.index)):
+            for j in range(len(df_ErrorMap.columns)):
+                if round(df_ErrorMap.iloc[i,j],2) >  np.amax(df_ErrorMap.to_numpy())*0.8: #0.8:
+                    text = plt.text(j+0.5, i+0.5, round(df_ErrorMap.iloc[i,j],2),
+                                   ha="center", va="center", color="k", fontsize='small')#, transform = ax.transAxes)
+                else:
+                    text = plt.text(j+0.5, i+0.5, round(df_ErrorMap.iloc[i,j],2),
+                                   ha="center", va="center", color="w", fontsize='small')#, transform = ax.transAxes)
+        
+        
+        plt.suptitle( f'Error Heat Map - IN: {num_in}, OUT: {num_out} \n {error_text} Error' )
         plt.xlabel('Testing Nodes')
         plt.ylabel('Training Nodes')
         #plt.show()
         
-        plt.savefig(os.path.join(folder_data, f'ErrorMap_train{train}_IN{num_in}_OUT{num_out}.png'))
+        plt.savefig(os.path.join(folder_data, f'ErrorMap_train{train}_IN{num_in}_OUT{num_out}_{error_text}.png'))
         #plt.close()
         
         df_ErrorMap.to_pickle(folder_data + '/00_ErrorMap.pkl') 
@@ -233,7 +254,7 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
     nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
     
         
-    df_map = pd. DataFrame(columns = [f'Pred_{prediction_node}'], index = nodes)
+    df_map = pd.DataFrame(columns = [f'Pred_{prediction_node}'], index = nodes)
     
     
     for In_node in nodes:
@@ -247,17 +268,33 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], plot_ErrorMap=False):
         
         #for i in [0,1,2,3,4]:        
             #print(mean(sum(df_Error[true_idx].values.tolist()[4], [])))
-        df_map[f'Pred_{prediction_node}'][in_node] = mean(sum(df_Error[true_idx].values.tolist()[4], []))
+        df_map[f'Pred_{prediction_node}'][in_node] = mean(sum(df_Error[true_idx].values.tolist()[ID_error], []))
             
     df_map.to_pickle(folder_data + f'/00_HeatMap_results_{prediction_node}.pkl') 
     
-    return
+    return df_Error
 
 #%% RUN
 
 Struc_Nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
+Struc_Nodes = [42]
 
-for Node in Struc_Nodes:
-    GenError(Node, EQ_IN_OUT=[5,2], plot_ErrorMap=False)
+EQ_IN_OUT = [271,30]
+
+for i in [0]:
+    for Node in Struc_Nodes:
+        df_Error = GenError(Node, EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=False)
+        
+    # GenError(Struc_Nodes[0], EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=True)
+
+sys.exit()
+#%% Load
+RMSE_Mean = []
+for i in df_Error.columns:
+    value = np.array(df_Error[i]['RMSE']).mean()
+    RMSE_Mean.append(round(value,4))
     
-GenError(20, EQ_IN_OUT=[5,2], plot_ErrorMap=True)
+
+RMSE_Mean = np.array(RMSE_Mean)
+print(round(RMSE_Mean.mean(),4))
+print(round(RMSE_Mean.std(),4))

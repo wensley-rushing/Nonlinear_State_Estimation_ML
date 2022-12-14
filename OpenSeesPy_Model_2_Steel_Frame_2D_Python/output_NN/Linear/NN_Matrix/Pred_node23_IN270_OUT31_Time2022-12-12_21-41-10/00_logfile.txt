@@ -1,0 +1,38 @@
+Start time: 2022-12-12 21:41:10
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-12 21:41:23
+epoch 1 / 30 - train_loss = 0.5598, test_loss = 0.4348, test_change = 1 
+epoch 2 / 30 - train_loss = 0.3136, test_loss = 0.3444, test_change = 1 
+epoch 3 / 30 - train_loss = 0.2677, test_loss = 0.303, test_change = 0.1203 
+epoch 4 / 30 - train_loss = 0.2401, test_loss = 0.2708, test_change = 0.1063 
+epoch 5 / 30 - train_loss = 0.2179, test_loss = 0.2448, test_change = 0.0959 
+epoch 6 / 30 - train_loss = 0.2006, test_loss = 0.2255, test_change = 0.0791 
+epoch 7 / 30 - train_loss = 0.188, test_loss = 0.2117, test_change = 0.0608 
+epoch 8 / 30 - train_loss = 0.1787, test_loss = 0.2017, test_change = 0.0473 
+epoch 9 / 30 - train_loss = 0.1715, test_loss = 0.194, test_change = 0.0382 
+epoch 10 / 30 - train_loss = 0.1657, test_loss = 0.1876, test_change = 0.0329 
+epoch 11 / 30 - train_loss = 0.1606, test_loss = 0.1821, test_change = 0.0293 
+epoch 12 / 30 - train_loss = 0.1561, test_loss = 0.1772, test_change = 0.0269 
+epoch 13 / 30 - train_loss = 0.152, test_loss = 0.1728, test_change = 0.025 
+epoch 14 / 30 - train_loss = 0.1482, test_loss = 0.1688, test_change = 0.0232 
+epoch 15 / 30 - train_loss = 0.1448, test_loss = 0.1652, test_change = 0.0212 
+epoch 16 / 30 - train_loss = 0.1417, test_loss = 0.162, test_change = 0.0191 
+epoch 17 / 30 - train_loss = 0.139, test_loss = 0.1593, test_change = 0.0172 
+epoch 18 / 30 - train_loss = 0.1366, test_loss = 0.1568, test_change = 0.0152 
+epoch 19 / 30 - train_loss = 0.1344, test_loss = 0.1547, test_change = 0.0139 
+epoch 20 / 30 - train_loss = 0.1325, test_loss = 0.1528, test_change = 0.0122 
+epoch 21 / 30 - train_loss = 0.1308, test_loss = 0.1511, test_change = 0.0113 
+epoch 22 / 30 - train_loss = 0.1292, test_loss = 0.1495, test_change = 0.0103 
+epoch 23 / 30 - train_loss = 0.1278, test_loss = 0.1481, test_change = 0.0094 
+Duration [sec]: 361.3167 - [min]: 6.0219 - [hrs]: 0.1004 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 379.8939 [s]
+-- [min]:  6.3316 [min]
+-- [hrs]:  0.1055 [hrs]
+

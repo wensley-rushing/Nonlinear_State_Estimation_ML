@@ -1,0 +1,54 @@
+Start time: 2022-12-14 09:17:27
+Sub-vector parameters: Length = 25, Step = 5
+Hyper-parameters: Scale_Factor = 1, Length_Factor = 1, Error_Factor = 0 
+
+Determine Kernel @ 2022-12-14 09:17:30
+Subvector length: 25
+Number of sensors: 1
+Duration [sec]: 0.0361 - [min]: 0.0006 - [hrs]: 0.0 
+
+Determine Model @ 2022-12-14 09:17:30
+Non-optimized model 
+Name : GP regression
+Objective : 13801.59700472005
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |  value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |    1.0  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |    1.0  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |    1.0  |      +ve      |         
+
+--Optimize Model @ 2022-12-14 09:17:50
+Running L-BFGS-B (Scipy implementation) Code:
+  runtime   i      f              |g|        
+    00s01  0000   1.380160e+04           nan     17s43  0001   1.380160e+04   4.836094e+06     34s01  0002   1.138471e+04   6.888488e+06     50s29  0003   3.043924e+03   9.158152e+06  01m06s80  0004   5.994322e+09   1.245815e+17 
+ 01m23s23  0005   3.043590e+03   9.157993e+06  01m40s04  0006  -1.588234e+02   6.798182e+06  01m56s92  0007  -4.840875e+02   3.184633e+06  02m13s99  0008   3.312375e+02   1.430083e+07  02m31s70  0009  -1.091353e+03   2.046972e+05  02m48s76  0010  -1.157457e+03   1.250036e+05  03m06s16  0011  -1.651380e+03   3.873877e+05  03m43s80  0012   1.456213e+04   4.386060e+06 
+ 04m02s00  0013  -1.735699e+03   3.795135e+05  04m18s85  0014  -2.086195e+03   3.236174e+03  04m36s06  0015  -2.086193e+03   1.018337e+03  04m53s35  0016  -2.086689e+03   1.962310e+02  05m10s42  0017  -2.086752e+03   9.148175e+01  05m27s64  0018  -2.086850e+03   4.088820e+01  05m47s04  0019  -2.086860e+03   4.906864e+01  06m06s77  0020  -2.086892e+03   9.300922e+01  06m25s15  0021  -2.087011e+03   1.453926e+02  06m41s70  0022  -2.087148e+03   4.263565e+01 
+ 06m58s32  0023  -2.087170e+03   1.305613e+00  07m15s09  0024  -2.087171e+03   1.431300e-02  07m31s58  0025  -2.087171e+03   3.481121e-05  07m49s20  0026  -2.087171e+03   5.812806e-07 
+ 08m06s86  0027  -2.087171e+03   5.812806e-07 
+Runtime:  08m06s86
+Optimization status: Converged
+
+Optimized model 
+ 
+Name : GP regression
+Objective : -2087.170592389025
+Number of Parameters : 3
+Number of Optimization Parameters : 3
+Updates : True
+Parameters:
+  [1mGP_regression.         [0;0m  |                 value  |  constraints  |  priors
+  [1mrbf.variance           [0;0m  |     5.557071063483343  |      +ve      |        
+  [1mrbf.lengthscale        [0;0m  |    3.7095927752457656  |      +ve      |        
+  [1mGaussian_noise.variance[0;0m  |  0.010204053382863437  |      +ve      |        
+Duration [sec]: 524.2809 - [min]: 8.738 - [hrs]: 0.1456 
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 679.1616 [s]
+-- [min]:  11.3194 [min]
+-- [hrs]:  0.1887 [hrs]
+
