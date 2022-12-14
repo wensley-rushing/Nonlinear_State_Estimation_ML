@@ -1,0 +1,36 @@
+Start time: 2022-12-12 22:55:52
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-12 22:56:02
+epoch 1 / 30 - train_loss = 0.4699, test_loss = 0.4255, test_change = 1 
+epoch 2 / 30 - train_loss = 0.3146, test_loss = 0.3436, test_change = 1 
+epoch 3 / 30 - train_loss = 0.2648, test_loss = 0.2953, test_change = 0.1404 
+epoch 4 / 30 - train_loss = 0.2319, test_loss = 0.2606, test_change = 0.1176 
+epoch 5 / 30 - train_loss = 0.2085, test_loss = 0.2363, test_change = 0.0934 
+epoch 6 / 30 - train_loss = 0.1923, test_loss = 0.2199, test_change = 0.0694 
+epoch 7 / 30 - train_loss = 0.1812, test_loss = 0.2084, test_change = 0.0524 
+epoch 8 / 30 - train_loss = 0.1728, test_loss = 0.1991, test_change = 0.0445 
+epoch 9 / 30 - train_loss = 0.1658, test_loss = 0.1912, test_change = 0.0394 
+epoch 10 / 30 - train_loss = 0.1599, test_loss = 0.1848, test_change = 0.0337 
+epoch 11 / 30 - train_loss = 0.1549, test_loss = 0.1793, test_change = 0.0298 
+epoch 12 / 30 - train_loss = 0.1506, test_loss = 0.1745, test_change = 0.0268 
+epoch 13 / 30 - train_loss = 0.1468, test_loss = 0.1703, test_change = 0.0239 
+epoch 14 / 30 - train_loss = 0.1434, test_loss = 0.1667, test_change = 0.0215 
+epoch 15 / 30 - train_loss = 0.1405, test_loss = 0.1635, test_change = 0.0191 
+epoch 16 / 30 - train_loss = 0.1379, test_loss = 0.1607, test_change = 0.017 
+epoch 17 / 30 - train_loss = 0.1357, test_loss = 0.1583, test_change = 0.0153 
+epoch 18 / 30 - train_loss = 0.1337, test_loss = 0.1561, test_change = 0.0139 
+epoch 19 / 30 - train_loss = 0.132, test_loss = 0.1542, test_change = 0.0117 
+epoch 20 / 30 - train_loss = 0.1305, test_loss = 0.1527, test_change = 0.0103 
+epoch 21 / 30 - train_loss = 0.1292, test_loss = 0.1513, test_change = 0.0091 
+Duration [sec]: 330.7028 - [min]: 5.5117 - [hrs]: 0.0919 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 347.0517 [s]
+-- [min]:  5.7842 [min]
+-- [hrs]:  0.0964 [hrs]
+

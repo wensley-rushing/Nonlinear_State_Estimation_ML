@@ -1,0 +1,45 @@
+Start time: 2022-12-13 04:24:12
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-13 04:24:21
+epoch 1 / 30 - train_loss = 1.2962, test_loss = 0.6614, test_change = 1 
+epoch 2 / 30 - train_loss = 0.3734, test_loss = 0.2731, test_change = 1 
+epoch 3 / 30 - train_loss = 0.1638, test_loss = 0.1326, test_change = 0.5145 
+epoch 4 / 30 - train_loss = 0.0788, test_loss = 0.0669, test_change = 0.4954 
+epoch 5 / 30 - train_loss = 0.0406, test_loss = 0.0359, test_change = 0.4631 
+epoch 6 / 30 - train_loss = 0.0223, test_loss = 0.0204, test_change = 0.4311 
+epoch 7 / 30 - train_loss = 0.0132, test_loss = 0.0128, test_change = 0.373 
+epoch 8 / 30 - train_loss = 0.0086, test_loss = 0.0086, test_change = 0.3277 
+epoch 9 / 30 - train_loss = 0.0058, test_loss = 0.0059, test_change = 0.3119 
+epoch 10 / 30 - train_loss = 0.0039, test_loss = 0.0041, test_change = 0.3081 
+epoch 11 / 30 - train_loss = 0.0026, test_loss = 0.0029, test_change = 0.3037 
+epoch 12 / 30 - train_loss = 0.0018, test_loss = 0.002, test_change = 0.3 
+epoch 13 / 30 - train_loss = 0.0012, test_loss = 0.0014, test_change = 0.2919 
+epoch 14 / 30 - train_loss = 0.0008, test_loss = 0.001, test_change = 0.2718 
+epoch 15 / 30 - train_loss = 0.0006, test_loss = 0.0008, test_change = 0.2409 
+epoch 16 / 30 - train_loss = 0.0005, test_loss = 0.0006, test_change = 0.2163 
+epoch 17 / 30 - train_loss = 0.0004, test_loss = 0.0005, test_change = 0.1876 
+epoch 18 / 30 - train_loss = 0.0003, test_loss = 0.0004, test_change = 0.1645 
+epoch 19 / 30 - train_loss = 0.0003, test_loss = 0.0004, test_change = 0.1521 
+epoch 20 / 30 - train_loss = 0.0002, test_loss = 0.0003, test_change = 0.1368 
+epoch 21 / 30 - train_loss = 0.0002, test_loss = 0.0003, test_change = 0.1267 
+epoch 22 / 30 - train_loss = 0.0002, test_loss = 0.0002, test_change = 0.1206 
+epoch 23 / 30 - train_loss = 0.0001, test_loss = 0.0002, test_change = 0.1172 
+epoch 24 / 30 - train_loss = 0.0001, test_loss = 0.0002, test_change = 0.1107 
+epoch 25 / 30 - train_loss = 0.0001, test_loss = 0.0002, test_change = 0.1059 
+epoch 26 / 30 - train_loss = 0.0001, test_loss = 0.0001, test_change = 0.1026 
+epoch 27 / 30 - train_loss = 0.0001, test_loss = 0.0001, test_change = 0.0992 
+epoch 28 / 30 - train_loss = 0.0001, test_loss = 0.0001, test_change = 0.0958 
+epoch 29 / 30 - train_loss = 0.0001, test_loss = 0.0001, test_change = 0.0918 
+epoch 30 / 30 - train_loss = 0.0001, test_loss = 0.0001, test_change = 0.0885 
+Duration [sec]: 461.7399 - [min]: 7.6957 - [hrs]: 0.1283 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 476.9521 [s]
+-- [min]:  7.9492 [min]
+-- [hrs]:  0.1325 [hrs]
+
