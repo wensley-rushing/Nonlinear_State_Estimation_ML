@@ -1,0 +1,24 @@
+Start time: 2022-12-08 02:06:46
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 170
+Hyper-parameters: Epochs = 20, BatchSize = 20, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-08 02:06:50
+epoch 1 / 20 - train_loss = 0.5212, test_loss = 0.2127, test_change = 1 
+epoch 2 / 20 - train_loss = 0.1199, test_loss = 0.1235, test_change = 1 
+epoch 3 / 20 - train_loss = 0.0876, test_loss = 0.1074, test_change = 0.1304 
+epoch 4 / 20 - train_loss = 0.0791, test_loss = 0.1008, test_change = 0.0606 
+epoch 5 / 20 - train_loss = 0.0751, test_loss = 0.0976, test_change = 0.032 
+epoch 6 / 20 - train_loss = 0.0726, test_loss = 0.0956, test_change = 0.0202 
+epoch 7 / 20 - train_loss = 0.0708, test_loss = 0.0943, test_change = 0.0146 
+epoch 8 / 20 - train_loss = 0.0694, test_loss = 0.0932, test_change = 0.0112 
+epoch 9 / 20 - train_loss = 0.0682, test_loss = 0.0923, test_change = 0.0098 
+Duration [sec]: 186.7071 - [min]: 3.1118 - [hrs]: 0.0519 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 198.5134 [s]
+-- [min]:  3.3086 [min]
+-- [hrs]:  0.0551 [hrs]
+
