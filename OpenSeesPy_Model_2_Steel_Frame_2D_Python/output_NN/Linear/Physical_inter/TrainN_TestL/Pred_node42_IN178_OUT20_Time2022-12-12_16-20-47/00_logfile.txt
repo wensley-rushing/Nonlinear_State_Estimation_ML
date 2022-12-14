@@ -1,0 +1,37 @@
+Start time: 2022-12-12 16:20:47
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-12 16:20:50
+epoch 1 / 30 - train_loss = 1.4917, test_loss = 0.9787, test_change = 1 
+epoch 2 / 30 - train_loss = 0.7152, test_loss = 0.5795, test_change = 1 
+epoch 3 / 30 - train_loss = 0.4222, test_loss = 0.3182, test_change = 0.4509 
+epoch 4 / 30 - train_loss = 0.2748, test_loss = 0.1916, test_change = 0.398 
+epoch 5 / 30 - train_loss = 0.2022, test_loss = 0.1482, test_change = 0.2263 
+epoch 6 / 30 - train_loss = 0.1719, test_loss = 0.1377, test_change = 0.0713 
+epoch 7 / 30 - train_loss = 0.1582, test_loss = 0.1351, test_change = 0.0189 
+epoch 8 / 30 - train_loss = 0.1501, test_loss = 0.1333, test_change = 0.0127 
+epoch 9 / 30 - train_loss = 0.1445, test_loss = 0.1313, test_change = 0.015 
+epoch 10 / 30 - train_loss = 0.1403, test_loss = 0.1293, test_change = 0.0158 
+epoch 11 / 30 - train_loss = 0.1371, test_loss = 0.127, test_change = 0.0178 
+epoch 12 / 30 - train_loss = 0.1346, test_loss = 0.1247, test_change = 0.0179 
+epoch 13 / 30 - train_loss = 0.1325, test_loss = 0.1223, test_change = 0.0191 
+epoch 14 / 30 - train_loss = 0.1308, test_loss = 0.12, test_change = 0.0188 
+epoch 15 / 30 - train_loss = 0.1292, test_loss = 0.1178, test_change = 0.0181 
+epoch 16 / 30 - train_loss = 0.1279, test_loss = 0.1161, test_change = 0.0152 
+epoch 17 / 30 - train_loss = 0.1268, test_loss = 0.1143, test_change = 0.0154 
+epoch 18 / 30 - train_loss = 0.1257, test_loss = 0.1127, test_change = 0.0139 
+epoch 19 / 30 - train_loss = 0.1248, test_loss = 0.1112, test_change = 0.0137 
+epoch 20 / 30 - train_loss = 0.124, test_loss = 0.1097, test_change = 0.0127 
+epoch 21 / 30 - train_loss = 0.1232, test_loss = 0.1085, test_change = 0.0117 
+epoch 22 / 30 - train_loss = 0.1225, test_loss = 0.1074, test_change = 0.0096 
+Duration [sec]: 209.5638 - [min]: 3.4927 - [hrs]: 0.0582 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 215.6508 [s]
+-- [min]:  3.5942 [min]
+-- [hrs]:  0.0599 [hrs]
+

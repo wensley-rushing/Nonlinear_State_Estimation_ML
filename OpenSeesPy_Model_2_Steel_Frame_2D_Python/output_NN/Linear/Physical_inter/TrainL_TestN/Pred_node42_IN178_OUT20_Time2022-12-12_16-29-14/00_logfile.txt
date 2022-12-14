@@ -1,0 +1,36 @@
+Start time: 2022-12-12 16:29:14
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-12 16:29:17
+epoch 1 / 30 - train_loss = 0.5497, test_loss = 2.1688, test_change = 1 
+epoch 2 / 30 - train_loss = 0.12, test_loss = 1.7652, test_change = 1 
+epoch 3 / 30 - train_loss = 0.0652, test_loss = 1.1009, test_change = 0.3763 
+epoch 4 / 30 - train_loss = 0.0413, test_loss = 0.8693, test_change = 0.2104 
+epoch 5 / 30 - train_loss = 0.0321, test_loss = 0.8133, test_change = 0.0644 
+epoch 6 / 30 - train_loss = 0.0283, test_loss = 0.7823, test_change = 0.0381 
+epoch 7 / 30 - train_loss = 0.0262, test_loss = 0.7525, test_change = 0.0381 
+epoch 8 / 30 - train_loss = 0.0246, test_loss = 0.7231, test_change = 0.0392 
+epoch 9 / 30 - train_loss = 0.0234, test_loss = 0.6951, test_change = 0.0386 
+epoch 10 / 30 - train_loss = 0.0225, test_loss = 0.6694, test_change = 0.0371 
+epoch 11 / 30 - train_loss = 0.0217, test_loss = 0.6465, test_change = 0.0342 
+epoch 12 / 30 - train_loss = 0.021, test_loss = 0.6265, test_change = 0.0309 
+epoch 13 / 30 - train_loss = 0.0204, test_loss = 0.6091, test_change = 0.0277 
+epoch 14 / 30 - train_loss = 0.0199, test_loss = 0.594, test_change = 0.0249 
+epoch 15 / 30 - train_loss = 0.0195, test_loss = 0.5808, test_change = 0.0222 
+epoch 16 / 30 - train_loss = 0.0191, test_loss = 0.5693, test_change = 0.0198 
+epoch 17 / 30 - train_loss = 0.0188, test_loss = 0.5596, test_change = 0.017 
+epoch 18 / 30 - train_loss = 0.0185, test_loss = 0.5513, test_change = 0.0148 
+epoch 19 / 30 - train_loss = 0.0183, test_loss = 0.5443, test_change = 0.0128 
+epoch 20 / 30 - train_loss = 0.0181, test_loss = 0.5381, test_change = 0.0114 
+epoch 21 / 30 - train_loss = 0.0179, test_loss = 0.533, test_change = 0.0093 
+Duration [sec]: 186.3549 - [min]: 3.1059 - [hrs]: 0.0518 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 192.2389 [s]
+-- [min]:  3.2040 [min]
+-- [hrs]:  0.0534 [hrs]
+
