@@ -54,9 +54,9 @@ df_structure = pd.read_pickle( os.path.join(output_directory, '00_Structure.pkl'
 struc_periods = list(df_structure.Periods[0])
 
 
-plot_spectra = False
+plot_spectra = True
 
-
+plot_GM = True
 
 n = 0 # GM index
 
@@ -107,13 +107,86 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 ID = int_to_str3([i])[0]
             
-                fig = plt.figure(figsize = (10,12))
-                plt.suptitle('GM: ' + str(df.loc[i,'Ground motion']), x=0.1, y=0.98, horizontalalignment='left', verticalalignment='top', fontweight='bold')
+                fig = plt.figure(figsize = (10,5))
+                plt.suptitle('GM: ' + str(df.loc[i,'Ground motion']) + f' - ID:{ID}',y = 0.95, fontweight='bold', fontsize = 16)
     
-                ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2]) #[left bottom width height]
-                ax2 = fig.add_axes([0.1, 0.425, 0.7, 0.25], sharex=ax1)
-                ax3 = fig.add_axes([0.83, 0.425, 0.03, 0.25])
-                ax4 = fig.add_axes([0.1, 0.08, 0.7, 0.25])
+                # ax1 = fig.add_axes([0.1, 0.75, 0.7, 0.2]) #[left bottom width height]
+                ax2 = fig.add_axes([0.08, 0.12, 0.7, 0.75])
+                ax3 = fig.add_axes([0.85, 0.12, 0.03, 0.75])
+                # ax4 = fig.add_axes([0.1, 0.08, 0.7, 0.25])
+    
+                #make time vector
+                t = df.loc[i,'Input time']
+    
+    
+                #plot waveform (top subfigure)    
+                # ax1.plot(t, df.loc[i,'Input acc'])
+                # ax1.grid()
+                # ax1.set_ylabel('Acc. [m/s\u00b2]')
+                # ax1.set_xlabel('Time [s]')
+    
+    
+    
+                #plot spectrogram (bottom subfigure)
+                #spl2 = x
+                Pxx, freqs, bins, im = ax2.specgram(df.loc[i,'Input acc'], Fs=1/df.loc[i,'dT'][0], cmap='jet_r') # remove cmap for different result
+    
+                # line colour is white
+                # for periods in struc_periods:
+                #     ax2.axhline(y = 1/periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
+                #     ax2.text(t[0]-1.5, 1/periods, f'f$_{struc_periods.index(periods)+1}$', fontsize='small')
+    
+                mappable = ax2.images[0]
+                # plt.colorbar(
+                plt.colorbar(mappable=mappable, cax=ax3).set_label(label='Amplitude [dB]', size=16)
+                ax2.set_xlabel('Time [s]' , fontsize = 16)
+                ax2.xaxis.set_tick_params(labelsize=14)
+                ax2.set_ylabel('Freq. [Hz]', fontsize = 16)
+                ax2.yaxis.set_tick_params(labelsize=14)
+                ax3.yaxis.set_tick_params(labelsize=14)
+                
+                # line colour is white
+                for periods in struc_periods:
+                    
+                    frequency = round(1 / periods,1)
+                    
+                    line = ax2.axhline(y = 1/periods, color = 'black', alpha = 1, linewidth=2, linestyle = '--')
+                    ax2.text(0.9*t[-1], 1/periods*1.1, f'f({struc_periods.index(periods)+1})={frequency} Hz', fontsize=12, fontweight='bold'
+                             , horizontalalignment = 'right', backgroundcolor = 'w')
+                    # line2 = ax4.axvline(x = periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
+                    # ax4.text(periods-0.01, df.loc[n, 'Peak acc']+0.1 ,f'{struc_periods.index(periods)+1}', fontsize='small')
+                
+                ax2.legend([line],['Struct. freq.'], fontsize = 16, loc= 'upper left')
+                # plt.legend([line],['Struct. freq.'], fontsize = 16)
+                # ax4.legend([line2],['Struct. periods'])
+    
+                # ax4.plot(T, df.loc[i,'Spectra acc'])
+                # ax4.grid(axis='y')
+                # ax4.set_ylabel('Acc. [m/s\u00b2]')
+                # ax4.set_xlabel('Period [s]')
+    
+                # ax1.set_title(f'Ground motion')
+                # ax2.set_title(f'Spectogram')
+                # ax4.set_title(f'Acceleration spectrum')
+                
+                plt.close()
+                
+                fig.savefig(os.path.join(output_directory, 'Figures', r'GM_spectra_ID\00_spectra', f'{ID}_{file[:-4]}.png'))
+                # print('saved')
+                
+            if plot_GM:
+                
+                i = n
+                
+                ID = int_to_str3([i])[0]
+            
+                fig = plt.figure(figsize = (10,10))
+                plt.suptitle('GM: ' + str(df.loc[i,'Ground motion']) + f' - ID:{ID}' , fontweight='bold', fontsize = 16)
+    
+                ax1 = fig.add_axes([0.1, 0.55, 0.8, 0.38]) #[left bottom width height]
+                # ax2 = fig.add_axes([0.1, 0.425, 0.7, 0.25], sharex=ax1)
+                # ax3 = fig.add_axes([0.83, 0.425, 0.03, 0.25])
+                ax4 = fig.add_axes([0.1, 0.08, 0.8, 0.38])
     
                 #make time vector
                 t = df.loc[i,'Input time']
@@ -122,46 +195,67 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 #plot waveform (top subfigure)    
                 ax1.plot(t, df.loc[i,'Input acc'])
                 ax1.grid()
-                ax1.set_ylabel('Acc. [m/s\u00b2]')
-                ax1.set_xlabel('Time [s]')
+                ax1.set_ylabel('Acc. [m/s\u00b2]', fontsize = 16)
+                ax1.yaxis.set_tick_params(labelsize=14)
+                
+                ax1.set_xlabel('Time [s]', fontsize = 16)
+                ax1.xaxis.set_tick_params(labelsize=14)
     
     
     
                 #plot spectrogram (bottom subfigure)
                 #spl2 = x
-                Pxx, freqs, bins, im = ax2.specgram(df.loc[i,'Input acc'], Fs=1/df.loc[i,'dT'], cmap='jet_r') # remove cmap for different result
+                # Pxx, freqs, bins, im = ax2.specgram(df.loc[i,'Input acc'], Fs=1/df.loc[i,'dT'][0], cmap='jet_r') # remove cmap for different result
     
                 # line colour is white
                 # for periods in struc_periods:
                 #     ax2.axhline(y = 1/periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
                 #     ax2.text(t[0]-1.5, 1/periods, f'f$_{struc_periods.index(periods)+1}$', fontsize='small')
     
-                mappable = ax2.images[0]
-                plt.colorbar(mappable=mappable, cax=ax3, label='Amplitude [dB]')
-                ax2.set_xlabel('Time [s]')
-                ax2.set_ylabel('Freq. [Hz]')
+                # mappable = ax2.images[0]
+                # plt.colorbar(mappable=mappable, cax=ax3, label='Amplitude [dB]')
+                # ax2.set_xlabel('Time [s]')
+                # ax2.set_ylabel('Freq. [Hz]')
                 
                 # line colour is white
+                # for periods in [struc_periods[0]]:
+                    
+                indx = 0
                 for periods in struc_periods:
-                    line = ax2.axhline(y = 1/periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
-                    ax2.text(t[0]-1.5, 1/periods, f'{struc_periods.index(periods)+1}', fontsize='small')
-                    line2 = ax4.axvline(x = periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
-                    ax4.text(periods-0.01, df.loc[n, 'Peak acc']+0.1 ,f'{struc_periods.index(periods)+1}', fontsize='small')
+                    
+                    period = round(periods,2)
+                    line2 = ax4.axvline(x = periods, color = 'black', alpha = 1, linewidth=1.2, linestyle = '--')
                 
-                ax2.legend([line],['Struct. freq.'])
-                ax4.legend([line2],['Struct. periods'])
+
+                        
+                    if indx <= 1:
+                        ax4.text(periods+0.02, min(df.loc[i,'Spectra acc']),f'{period} s', rotation = 90,
+                                 ha = 'left', va = 'bottom', fontweight='bold', fontsize = 14)
+                    else:
+                        ax4.text(periods-0.01, max(df.loc[i,'Spectra acc']),f'{period} s', rotation = 90
+                                 , ha='right', va = 'top', fontweight='bold', fontsize = 14)
+                        
+                    indx += 1
+                
+                
+                # ax2.legend([line],['Struct. freq.'])
+                ax4.legend([line2],['Struct. freq.'], fontsize = 16, loc= 'upper right')
     
                 ax4.plot(T, df.loc[i,'Spectra acc'])
                 ax4.grid(axis='y')
-                ax4.set_ylabel('Acc. [m/s\u00b2]')
-                ax4.set_xlabel('Period [s]')
+                ax4.set_ylabel('Acc. [m/s\u00b2]', fontsize = 16)
+                ax4.yaxis.set_tick_params(labelsize=14)
+                
+                ax4.set_xlabel('Period [s]' , fontsize = 16)
+                ax4.xaxis.set_tick_params(labelsize=14)
     
-                ax1.set_title(f'Ground motion')
-                ax2.set_title(f'Spectogram')
-                ax4.set_title(f'Acceleration spectrum')
+                ax1.set_title(f'Ground motion' ,fontweight='bold', fontsize = 16)
+                # ax2.set_title(f'Spectogram')
+                ax4.set_title(f'Acceleration spectrum',  fontweight='bold', fontsize = 16)
                 
-                fig.savefig(os.path.join(output_directory, 'Figures', 'GM_spectra_ID', f'{ID}_{file[:-4]}.png'))
+                plt.close()
                 
+                fig.savefig(os.path.join(output_directory, 'Figures', r'GM_spectra_ID\00_acc', f'{ID}_{file[:-4]}.png'))
             
                 
                 
