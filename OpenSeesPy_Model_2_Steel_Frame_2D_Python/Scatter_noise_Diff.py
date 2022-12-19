@@ -127,7 +127,7 @@ plot_df = df_diff.copy()
 for i in plot_df.columns:
     
     fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 16), constrained_layout=True, sharex=True) 
-    fig.suptitle(f'Dissipated global energy \n Noise level: {i} dB', fontsize=16)
+    fig.suptitle(f'Relative change in error in relation to no noise \n Noise level: {i} dB', fontsize=16)
     
     
     axes[0].set_ylim(0,0.5)
@@ -150,7 +150,7 @@ for i in plot_df.columns:
         
         # Labels & Titels
         # ax.set_xlabel('Energy',fontsize = '10')
-        ax.set_ylabel(f'{error}', fontweight="bold", fontsize = '10')
+        ax.set_ylabel(f'Relative {error}', fontweight="bold", fontsize = '10')
         # ax.set_title(f'{error}',  y=1.05, fontweight="bold", fontsize = '12')
         
         # Limits & Grids

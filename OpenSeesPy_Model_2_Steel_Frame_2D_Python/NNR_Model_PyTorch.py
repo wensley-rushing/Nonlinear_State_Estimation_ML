@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear\K1_Fold_300_Noise_1000'
+folder_figure_save = r'output_NN\Linear\NN_9Matrix_20_EQs_V3'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -832,28 +832,40 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
     #------------------------------------------------------------------------------
     
     epoch = 0
+    train_res = 1
     valid_res = 1
         
     
-    while epoch < epochs and valid_res >= 0.01:
+    while epoch < epochs and train_res >= 0.01:
     # for epoch in range(epochs):
         # print('epochs {}/{}'.format(epoch+1,epochs))
         
         # Training
         train_loss = Train()
         # Validation
-        valid_loss = Valid()       
+        # valid_loss = Valid()
+        valid_loss = 0.1
+        valid_losses.append(valid_loss)
+        
         gc.collect()
         
-        # ---------------------------------------------------------------------
+        
+
+        
+        # Train / Valid res ---------------------------------------------------
         if epoch < 2:
+            train_res = 1
             valid_res = 1
         else:
-            valid_res = (valid_losses[epoch-1] - valid_losses[epoch])/valid_losses[epoch-1]
-            valid_res = valid_res.detach().numpy().tolist()
+            train_res = (train_losses[epoch-1] - train_losses[epoch])/train_losses[epoch-1]
+            train_res = train_res.tolist()
+            
+            # valid_res = (valid_losses[epoch-1] - valid_losses[epoch])/valid_losses[epoch-1]
+            # valid_res = valid_res.detach().numpy().tolist()
+            valid_res = 0.1
             
         print(f'epoch {epoch+1} / {epochs} - ' +
-              f'train_loss = {round(train_loss,4)}, test_loss = {round(valid_loss,4)}, test_change = {round(valid_res,4)} ')
+              f'train_loss = {round(train_loss,4)}, test_loss = {round(valid_loss,4)}, train_change = {round(train_res,4)}, test_change = {round(valid_res,4)} ')
         epoch += 1
         
     #------------------------------------------------------------------------------
@@ -865,15 +877,19 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
     print()
     #%% PLOT - See results after training
     
-    # Estimate min vald error
-    valid_losses_num = []
-    for tensor_element in valid_losses:
-        valid_losses_num.append(tensor_element.detach().numpy().tolist())
-    
-    valid_loss_min = round(min(valid_losses_num),4)
-    index_min = min(range(len(valid_losses_num)), key=valid_losses_num.__getitem__)
+    valid_loss_min = 0.1
+    index_min = epoch-1
     
     
+    if False:
+        # Estimate min vald error
+        valid_losses_num = []
+        for tensor_element in valid_losses:
+            valid_losses_num.append(tensor_element.detach().numpy().tolist())
+        
+        valid_loss_min = round(min(valid_losses_num),4)
+        index_min = min(range(len(valid_losses_num)), key=valid_losses_num.__getitem__)
+
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -1227,22 +1243,20 @@ if False:
 # df_NN_loads = pd.read_pickle(os.path.join(folder_figure_save, '00_NN_Loads.pkl'))
 
 
-
-
 # Training data ---------------------------------------------------------------
 # Indicator if total time n
 #load_IDs = Train_data # 0.015 --> 5
-# load_IDs = ['108', '001', '231', '079', '251']
+load_IDs = ['108', '001', '231', '079', '251']
 # load_IDs = df_NN_loads['Train'][0]
 
 # Training - X                                                                                 
-load_Nodes_X = [23] # Indicator of dimension d
+load_Nodes_X = [42] # Indicator of dimension d
 
 # Training - Y
-load_Nodes_Y = [42]
+load_Nodes_Y = [23]
 
 # Combine it all
-# Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
+Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 
 # Testing Data ----------------------------------------------------------------
@@ -1250,6 +1264,7 @@ load_Nodes_Y = [42]
 
 # Indicator if total time m
 #load_IDss = Test_data # 20
+load_IDss = ['108', '001', '231', '079', '251']
 # load_IDss = df_NN_loads['Test'][0]
 
 
@@ -1260,7 +1275,7 @@ load_Nodes_Xs = load_Nodes_X
 load_Nodes_Ys = load_Nodes_Y  
 
 # Combine it all
-# Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
+Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 
 
@@ -1283,7 +1298,7 @@ optimize_model = 1
 # Scale factor for each sensor
 
 # Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 30
+Epochs = 300
 
 # Train Batch Size
 train_batch = 25
@@ -1300,6 +1315,30 @@ if False:
         Train_par, 
         Test_par)
 
+#%% GP 9 Matric 20 EQs
+
+df_datasets = pd.read_pickle(os.path.join(folder_figure_save, 'GM_datasets_duration_impl.pkl'))
+
+load_IDs = int_to_str3(df_datasets['Train sets'][0])
+load_IDss = int_to_str3(df_datasets['Test sets'][0])
+
+Diff_Nodes = [23, 32, 42]
+
+
+
+for i in Diff_Nodes:
+    for j  in Diff_Nodes:  
+    
+        load_Nodes_X = [i]
+        load_Nodes_Y = [j]
+        print(load_Nodes_X, load_Nodes_Y)
+        
+        NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
+                                    [Epochs, train_batch, learning_rate], 
+                                    [load_IDs, load_Nodes_X, load_Nodes_Y], 
+                                    [load_IDss, load_Nodes_X, load_Nodes_Y])
+
+sys.exit()
 
 #%% Varying learning rate
 
@@ -1463,13 +1502,13 @@ learning_rate = 4e-5
 
 # Loads / Models --------------------------------------------------------------
 # Loads that should be examined (ALL 0-> 300)
-list_loads = list(range(0,300+1))
+list_loads = list(range(0,900+3))
 list_loads = int_to_str3(list_loads)
 list_loads = np.array(list_loads)
 
 # Number of models
 hidden_dim = 20
-Noise_level_list = [1000]  # ABS noise level
+Noise_level_list = [1000]  # dB noise level
 
 # Create K folds --------------------------------------------------------------
 
@@ -1516,10 +1555,51 @@ df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 # df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 sys.exit()
 
+#%% NN Matrix 1 input node --> 1 output node
+
+# RUN Simulation --------------------------------------------------------------
 
 
+# Def_Nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
+
+# for input_node in Def_Nodes:
+#     for output_node in Def_Nodes:
+        
+#         # Training Node
+#         load_Nodes_X = [input_node]
+#         load_Nodes_Xs = load_Nodes_X
+        
+#         # Prediction Node
+#         load_Nodes_Y = [output_node]
+#         load_Nodes_Ys = load_Nodes_Y
+        
+#         print([input_node, output_node])
+        
+#         mse_valid, model_time = NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
+#                                     [Epochs, train_batch, learning_rate], 
+#                                     [load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                                     [load_IDss, load_Nodes_Xs, load_Nodes_Ys])
+            
 
 
+# df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
+# sys.exit()
+
+#%%
+
+RMSE = []
+Time = []
+for i in df_K1.index:
+    RMSE.append(round(df_K1[1000][i]['RMSE'],4))
+    Time.append(round(df_K1[1000][i]['Time'],2))
+
+RMSE = np.array(RMSE)
+Time = np.array(Time)
+print(RMSE)
+print(Time)
+
+print( round(RMSE.mean(),4) )
+print( round(Time.mean(),2) )
 
 
 

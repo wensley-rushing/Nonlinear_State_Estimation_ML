@@ -1,0 +1,38 @@
+Start time: 2022-12-14 17:00:52
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 30, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-14 17:01:30
+epoch 1 / 30 - train_loss = 0.3471, test_loss = 0.0679, test_change = 1 
+epoch 2 / 30 - train_loss = 0.2353, test_loss = 0.0597, test_change = 1 
+epoch 3 / 30 - train_loss = 0.2229, test_loss = 0.056, test_change = 0.062 
+epoch 4 / 30 - train_loss = 0.2152, test_loss = 0.0534, test_change = 0.046 
+epoch 5 / 30 - train_loss = 0.2098, test_loss = 0.0514, test_change = 0.0379 
+epoch 6 / 30 - train_loss = 0.2055, test_loss = 0.0495, test_change = 0.0364 
+epoch 7 / 30 - train_loss = 0.2019, test_loss = 0.0474, test_change = 0.0433 
+epoch 8 / 30 - train_loss = 0.1987, test_loss = 0.0459, test_change = 0.0302 
+epoch 9 / 30 - train_loss = 0.1961, test_loss = 0.0449, test_change = 0.023 
+epoch 10 / 30 - train_loss = 0.1939, test_loss = 0.0438, test_change = 0.0234 
+epoch 11 / 30 - train_loss = 0.1918, test_loss = 0.043, test_change = 0.0193 
+epoch 12 / 30 - train_loss = 0.1899, test_loss = 0.0422, test_change = 0.0192 
+epoch 13 / 30 - train_loss = 0.1881, test_loss = 0.0412, test_change = 0.022 
+epoch 14 / 30 - train_loss = 0.1863, test_loss = 0.0403, test_change = 0.0217 
+epoch 15 / 30 - train_loss = 0.1846, test_loss = 0.0395, test_change = 0.0218 
+epoch 16 / 30 - train_loss = 0.183, test_loss = 0.0387, test_change = 0.0183 
+epoch 17 / 30 - train_loss = 0.1816, test_loss = 0.0381, test_change = 0.0167 
+epoch 18 / 30 - train_loss = 0.1802, test_loss = 0.0375, test_change = 0.0158 
+epoch 19 / 30 - train_loss = 0.1788, test_loss = 0.0369, test_change = 0.0162 
+epoch 20 / 30 - train_loss = 0.1774, test_loss = 0.0364, test_change = 0.0144 
+epoch 21 / 30 - train_loss = 0.1762, test_loss = 0.0359, test_change = 0.013 
+epoch 22 / 30 - train_loss = 0.175, test_loss = 0.0355, test_change = 0.0102 
+epoch 23 / 30 - train_loss = 0.1739, test_loss = 0.0352, test_change = 0.0094 
+Duration [sec]: 1148.4125 - [min]: 19.1402 - [hrs]: 0.319 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 1204.8415 [s]
+-- [min]:  20.0807 [min]
+-- [hrs]:  0.3347 [hrs]
+

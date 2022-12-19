@@ -1,0 +1,115 @@
+Start time: 2022-12-19 09:43:28
+Sub-vector parameters: Length = 25, Step = 5, Hidden.Dim = 20, Signal Noise (dB): 1000
+Hyper-parameters: Epochs = 100, BatchSize = 25, Learn.Rate = 4.00e-05 
+
+Begin Epochs @ 2022-12-19 09:43:45
+epoch 1 / 100 - train_loss = 2.5977, test_loss = 0.1, test_change = 1 
+epoch 2 / 100 - train_loss = 2.3888, test_loss = 0.1, test_change = 1 
+epoch 3 / 100 - train_loss = 2.1871, test_loss = 0.1, test_change = 0.1 
+epoch 4 / 100 - train_loss = 1.9907, test_loss = 0.1, test_change = 0.1 
+epoch 5 / 100 - train_loss = 1.7992, test_loss = 0.1, test_change = 0.1 
+epoch 6 / 100 - train_loss = 1.6174, test_loss = 0.1, test_change = 0.1 
+epoch 7 / 100 - train_loss = 1.4486, test_loss = 0.1, test_change = 0.1 
+epoch 8 / 100 - train_loss = 1.2959, test_loss = 0.1, test_change = 0.1 
+epoch 9 / 100 - train_loss = 1.161, test_loss = 0.1, test_change = 0.1 
+epoch 10 / 100 - train_loss = 1.0453, test_loss = 0.1, test_change = 0.1 
+epoch 11 / 100 - train_loss = 0.9488, test_loss = 0.1, test_change = 0.1 
+epoch 12 / 100 - train_loss = 0.8692, test_loss = 0.1, test_change = 0.1 
+epoch 13 / 100 - train_loss = 0.8034, test_loss = 0.1, test_change = 0.1 
+epoch 14 / 100 - train_loss = 0.7482, test_loss = 0.1, test_change = 0.1 
+epoch 15 / 100 - train_loss = 0.7009, test_loss = 0.1, test_change = 0.1 
+epoch 16 / 100 - train_loss = 0.6591, test_loss = 0.1, test_change = 0.1 
+epoch 17 / 100 - train_loss = 0.6211, test_loss = 0.1, test_change = 0.1 
+epoch 18 / 100 - train_loss = 0.5856, test_loss = 0.1, test_change = 0.1 
+epoch 19 / 100 - train_loss = 0.5518, test_loss = 0.1, test_change = 0.1 
+epoch 20 / 100 - train_loss = 0.5196, test_loss = 0.1, test_change = 0.1 
+epoch 21 / 100 - train_loss = 0.4891, test_loss = 0.1, test_change = 0.1 
+epoch 22 / 100 - train_loss = 0.46, test_loss = 0.1, test_change = 0.1 
+epoch 23 / 100 - train_loss = 0.4325, test_loss = 0.1, test_change = 0.1 
+epoch 24 / 100 - train_loss = 0.4065, test_loss = 0.1, test_change = 0.1 
+epoch 25 / 100 - train_loss = 0.3821, test_loss = 0.1, test_change = 0.1 
+epoch 26 / 100 - train_loss = 0.3594, test_loss = 0.1, test_change = 0.1 
+epoch 27 / 100 - train_loss = 0.3384, test_loss = 0.1, test_change = 0.1 
+epoch 28 / 100 - train_loss = 0.319, test_loss = 0.1, test_change = 0.1 
+epoch 29 / 100 - train_loss = 0.3012, test_loss = 0.1, test_change = 0.1 
+epoch 30 / 100 - train_loss = 0.2848, test_loss = 0.1, test_change = 0.1 
+epoch 31 / 100 - train_loss = 0.2698, test_loss = 0.1, test_change = 0.1 
+epoch 32 / 100 - train_loss = 0.2562, test_loss = 0.1, test_change = 0.1 
+epoch 33 / 100 - train_loss = 0.2437, test_loss = 0.1, test_change = 0.1 
+epoch 34 / 100 - train_loss = 0.2323, test_loss = 0.1, test_change = 0.1 
+epoch 35 / 100 - train_loss = 0.2219, test_loss = 0.1, test_change = 0.1 
+epoch 36 / 100 - train_loss = 0.2123, test_loss = 0.1, test_change = 0.1 
+epoch 37 / 100 - train_loss = 0.2036, test_loss = 0.1, test_change = 0.1 
+epoch 38 / 100 - train_loss = 0.1955, test_loss = 0.1, test_change = 0.1 
+epoch 39 / 100 - train_loss = 0.1882, test_loss = 0.1, test_change = 0.1 
+epoch 40 / 100 - train_loss = 0.1815, test_loss = 0.1, test_change = 0.1 
+epoch 41 / 100 - train_loss = 0.1753, test_loss = 0.1, test_change = 0.1 
+epoch 42 / 100 - train_loss = 0.1696, test_loss = 0.1, test_change = 0.1 
+epoch 43 / 100 - train_loss = 0.1643, test_loss = 0.1, test_change = 0.1 
+epoch 44 / 100 - train_loss = 0.1595, test_loss = 0.1, test_change = 0.1 
+epoch 45 / 100 - train_loss = 0.1551, test_loss = 0.1, test_change = 0.1 
+epoch 46 / 100 - train_loss = 0.151, test_loss = 0.1, test_change = 0.1 
+epoch 47 / 100 - train_loss = 0.1473, test_loss = 0.1, test_change = 0.1 
+epoch 48 / 100 - train_loss = 0.1438, test_loss = 0.1, test_change = 0.1 
+epoch 49 / 100 - train_loss = 0.1407, test_loss = 0.1, test_change = 0.1 
+epoch 50 / 100 - train_loss = 0.1378, test_loss = 0.1, test_change = 0.1 
+epoch 51 / 100 - train_loss = 0.1352, test_loss = 0.1, test_change = 0.1 
+epoch 52 / 100 - train_loss = 0.1327, test_loss = 0.1, test_change = 0.1 
+epoch 53 / 100 - train_loss = 0.1304, test_loss = 0.1, test_change = 0.1 
+epoch 54 / 100 - train_loss = 0.1283, test_loss = 0.1, test_change = 0.1 
+epoch 55 / 100 - train_loss = 0.1263, test_loss = 0.1, test_change = 0.1 
+epoch 56 / 100 - train_loss = 0.1244, test_loss = 0.1, test_change = 0.1 
+epoch 57 / 100 - train_loss = 0.1226, test_loss = 0.1, test_change = 0.1 
+epoch 58 / 100 - train_loss = 0.121, test_loss = 0.1, test_change = 0.1 
+epoch 59 / 100 - train_loss = 0.1194, test_loss = 0.1, test_change = 0.1 
+epoch 60 / 100 - train_loss = 0.1179, test_loss = 0.1, test_change = 0.1 
+epoch 61 / 100 - train_loss = 0.1165, test_loss = 0.1, test_change = 0.1 
+epoch 62 / 100 - train_loss = 0.1152, test_loss = 0.1, test_change = 0.1 
+epoch 63 / 100 - train_loss = 0.1139, test_loss = 0.1, test_change = 0.1 
+epoch 64 / 100 - train_loss = 0.1127, test_loss = 0.1, test_change = 0.1 
+epoch 65 / 100 - train_loss = 0.1115, test_loss = 0.1, test_change = 0.1 
+epoch 66 / 100 - train_loss = 0.1104, test_loss = 0.1, test_change = 0.1 
+epoch 67 / 100 - train_loss = 0.1093, test_loss = 0.1, test_change = 0.1 
+epoch 68 / 100 - train_loss = 0.1083, test_loss = 0.1, test_change = 0.1 
+epoch 69 / 100 - train_loss = 0.1073, test_loss = 0.1, test_change = 0.1 
+epoch 70 / 100 - train_loss = 0.1063, test_loss = 0.1, test_change = 0.1 
+epoch 71 / 100 - train_loss = 0.1054, test_loss = 0.1, test_change = 0.1 
+epoch 72 / 100 - train_loss = 0.1046, test_loss = 0.1, test_change = 0.1 
+epoch 73 / 100 - train_loss = 0.1037, test_loss = 0.1, test_change = 0.1 
+epoch 74 / 100 - train_loss = 0.1029, test_loss = 0.1, test_change = 0.1 
+epoch 75 / 100 - train_loss = 0.1022, test_loss = 0.1, test_change = 0.1 
+epoch 76 / 100 - train_loss = 0.1014, test_loss = 0.1, test_change = 0.1 
+epoch 77 / 100 - train_loss = 0.1007, test_loss = 0.1, test_change = 0.1 
+epoch 78 / 100 - train_loss = 0.1, test_loss = 0.1, test_change = 0.1 
+epoch 79 / 100 - train_loss = 0.0993, test_loss = 0.1, test_change = 0.1 
+epoch 80 / 100 - train_loss = 0.0987, test_loss = 0.1, test_change = 0.1 
+epoch 81 / 100 - train_loss = 0.0981, test_loss = 0.1, test_change = 0.1 
+epoch 82 / 100 - train_loss = 0.0975, test_loss = 0.1, test_change = 0.1 
+epoch 83 / 100 - train_loss = 0.0969, test_loss = 0.1, test_change = 0.1 
+epoch 84 / 100 - train_loss = 0.0964, test_loss = 0.1, test_change = 0.1 
+epoch 85 / 100 - train_loss = 0.0958, test_loss = 0.1, test_change = 0.1 
+epoch 86 / 100 - train_loss = 0.0953, test_loss = 0.1, test_change = 0.1 
+epoch 87 / 100 - train_loss = 0.0948, test_loss = 0.1, test_change = 0.1 
+epoch 88 / 100 - train_loss = 0.0944, test_loss = 0.1, test_change = 0.1 
+epoch 89 / 100 - train_loss = 0.0939, test_loss = 0.1, test_change = 0.1 
+epoch 90 / 100 - train_loss = 0.0935, test_loss = 0.1, test_change = 0.1 
+epoch 91 / 100 - train_loss = 0.093, test_loss = 0.1, test_change = 0.1 
+epoch 92 / 100 - train_loss = 0.0926, test_loss = 0.1, test_change = 0.1 
+epoch 93 / 100 - train_loss = 0.0922, test_loss = 0.1, test_change = 0.1 
+epoch 94 / 100 - train_loss = 0.0918, test_loss = 0.1, test_change = 0.1 
+epoch 95 / 100 - train_loss = 0.0914, test_loss = 0.1, test_change = 0.1 
+epoch 96 / 100 - train_loss = 0.091, test_loss = 0.1, test_change = 0.1 
+epoch 97 / 100 - train_loss = 0.0906, test_loss = 0.1, test_change = 0.1 
+epoch 98 / 100 - train_loss = 0.0902, test_loss = 0.1, test_change = 0.1 
+epoch 99 / 100 - train_loss = 0.0898, test_loss = 0.1, test_change = 0.1 
+epoch 100 / 100 - train_loss = 0.0895, test_loss = 0.1, test_change = 0.1 
+Duration [sec]: 50.5268 - [min]: 0.8421 - [hrs]: 0.014 
+
+
+Plotting Routine
+------------------------------------------------- 
+
+End time: 123.1847 [s]
+-- [min]:  2.0531 [min]
+-- [hrs]:  0.0342 [hrs]
+
