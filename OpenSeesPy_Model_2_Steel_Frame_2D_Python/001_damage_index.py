@@ -42,9 +42,9 @@ ops.wipe()
 # turn on/off the plots by setting these to True or False
 
 # General structure
-plot_model = True
-plot_defo_gravity = False
-plot_modeshapes = False
+plot_model = False
+plot_defo_gravity = True
+plot_modeshapes = True
 
 # Dynamic analysis
 plot_ground_acc = False
@@ -159,8 +159,10 @@ id_element = el_vec
 if plot_model:
     plt.figure()
     opsv.plot_model()
-    plt.title('Structural Model')
-    #plt.show()  
+    # plt.title('Structural Model')
+    plt.box(False)
+    plt.axis('off')
+    plt.show()  
 
 
 
@@ -172,8 +174,10 @@ runGravityAnalysis(beam_vec)
 
 if plot_defo_gravity: 
     plt.figure()
-    opsv.plot_defo(sfac = 100) 
-    plt.title('Deformed shape - Gravity analysis')
+    opsv.plot_defo(sfac = 1000) 
+    plt.title('Deformed shape - Gravity analysis', y=1.01, fontsize = 10)
+    plt.box(False)
+    plt.axis('off')
     #plt.show()  
 
 
@@ -204,7 +208,9 @@ if plot_modeshapes:
     for i in range(int(len(periods))):
         plt.figure()
         opsv.plot_mode_shape(i+1, sfac=100)
-        plt.title(f'Mode Shape {i+1}')
+        plt.title(f'Mode Shape {i+1}', y=1.01, fontsize = 10)
+        plt.box(False)
+        plt.axis('off')
         #plt.show()
 
 

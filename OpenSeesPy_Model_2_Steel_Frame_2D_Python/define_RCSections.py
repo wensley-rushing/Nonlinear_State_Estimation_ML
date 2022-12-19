@@ -235,11 +235,18 @@ def RCSection(secID, matTags, HSec, BSec, coverH, coverB, numBars, areaBars):
     # Reuses fiber_(sec)_list to define fiber section in OpenSees
     opsv.fib_sec_list_to_cmds(fiber_list)
     
-    if False:
+    if True:
         plt.figure()
         matcolor = ['r', 'lightgrey', 'gold', 'w', 'w', 'w']
         opsv.plot_fiber_section(fiber_list, matcolor=matcolor)
+        plt.xlim(-0.3, 0.3)
+        plt.xticks(np.array([-0.3,-0.2, -0.1, 0, 0.1, 0.2, 0.3]))
         plt.axis('equal')
+        # plt.ylim(-0.3, 0.3)
+        plt.yticks(np.array([-0.3,-0.2, -0.1, 0, 0.1, 0.2, 0.3]))
+        plt.xlabel('Width [m]')
+        plt.ylabel('Heigh [m]')
+       
         plt.show()
     
     return
