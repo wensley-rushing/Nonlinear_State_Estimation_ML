@@ -54,7 +54,7 @@ plot_dynamic_analysis = False
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_files_Conv'
+output_directory = 'output_files_LF_2C'
 
 #%% UNITS
 # =============================================================================
@@ -132,8 +132,8 @@ dampRatio = 0.03
 
 # Create Dataframe for results
 gm_idx = 644
-df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 
-                             'E - glob', 'Gl Drift', 'Gl Drift - class', 
+df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 'PGA_g', 
+                             'E - glob', 'Gl Drift', 'Gl Drift - class', 'Gl Drift_res', 
                              'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class',
                              'LN_Node', 'LN_Energy', 'LN_Res_Def'])
 
@@ -310,15 +310,16 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 #%% Plot Ground motion
                 
-                if plot_ground_acc:
-                    desc, npts, dtt, ttime, inp_acc = DamageTools.processNGAfile(load_file)
+                
+                desc, npts, dtt, ttime, inp_acc = DamageTools.processNGAfile(load_file)
+                PGA = abs(max(inp_acc*loadfactor, key=abs)) # Unit in g
                     
-                    
+                if plot_ground_acc:    
                     plt.figure()
-                    plt.plot(ttime, inp_acc)
+                    plt.plot(ttime, inp_acc*loadfactor)
                     plt.title('Ground acceleration \n' + file_name + ' -  Loadfactor: ' + str(loadfactor) )
                     plt.xlabel('time [s]')
-                    plt.ylabel('Acceleration [m/s\u00b2]')
+                    plt.ylabel('Acceleration [g]')
                     plt.grid()
                 
                 #%% DYNAMIC ANALYSIS
@@ -534,11 +535,12 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 inter_time_drift = []
                 for i in range (0, n_floors):
                     #drift.append(abs(time_drift_disp[-1, i+2]) / (3*H1)) # Residual drift
-                    #inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # Residual Inter drift
+                    # inter_drift.append( (abs(time_drift_disp[-1, i+2])  -  abs(time_drift_disp[-1, i+1])) / H1 ) # Residual Inter drift
+                    inter_drift.append( abs(time_drift_disp[-1,i+2]-time_drift_disp[-1,i+1]) / H1 ) # Residual Inter drift
                     inter_time_drift.append( abs(max(time_drift_disp[:,i+2]-time_drift_disp[:,i+1], key=abs)) / H1 ) # Max Inter drift
                     
                 #max_drift = max(drift)*100 # residual drift in percentage
-                #max_inter_drift = max(inter_drift)*100
+                max_inter_drift = max(inter_drift)*100
                 max_inter_time_drift = max(inter_time_drift)*100
                 
                 # if max_inter_drift < 0.2:
@@ -891,8 +893,8 @@ for rdirs, dirs, files in os.walk(folder_loads):
             #%% Record data in the dataframe
             
                 
-                df.loc[gm_idx] = [ok, file_name, loadfactor, 
-                                  Energy_G, max_inter_time_drift, drift_time_cl,
+                df.loc[gm_idx] = [ok, file_name, loadfactor, PGA,
+                                  Energy_G, max_inter_time_drift, drift_time_cl, max_inter_drift,
                                   id_element, Energy_L_sec, Energy_L, PA_L_sec, PA_L, PA_L_Cl,
                                   Energy_L_LN_sec, Energy_L_LN, Res_plastic_deform_LM]
                 

@@ -15,6 +15,7 @@ Created on Wed Oct 19 11:34:20 2022
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import KFold
 
 import warnings
 warnings.simplefilter("ignore")
@@ -108,7 +109,11 @@ folder_accs = r'output_files_All\ACCS'
 
 folder_structure = r'output_files_All'
 
+<<<<<<< Updated upstream
 folder_figure_save = r'output_files\18_tests\Test_17_V3'
+=======
+folder_figure_save = r'output_files\GP_9Matrix_20_EQs'
+>>>>>>> Stashed changes
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -787,72 +792,80 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
         sigma_iEQ = model.predict(Xs_list)[1]**.5
         
         
-     
-            
-        cm = 1/2.54  # centimeters in inches
-        fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
-        # True acceleration vs. prediction ----------------------------------------
-        #plt.figure()
+        # Importaint for Error
         node_head = load_Nodes_Y[0] # Only one node : 32
-        
-        # True
         acc = df_ZYs[node_head]['ACCS'][i]
-        x_acc = np.arange(0,len(acc))*0.02
-        
-        ax[0].plot(x_acc, acc,
-                  alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
-        
         acc_reduced = acc[length_subvec-1:len(acc):length_step_test]
-        x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step_test*0.02) + (length_subvec*0.02)
-        
-        ax[0].plot(x_acc_reduced, acc_reduced,
-                  alpha=0.3, linewidth=2, label='True Red.', color = 'k')
-        
-        
-        
-        #SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
-        # Predict
-        mus_temp = mus_EQ
-        x_temp = (np.arange(0,len(mus_temp)) *length_step_test*0.02) + (length_subvec*0.02)
-        #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02
-        
-        sigma_i_temp = sigma_iEQ
-        
-        ax[0].plot(x_temp, mus_temp,
-                 alpha=0.8,linewidth=1, label='Predicted', color = 'tab:orange')
-        
-        # ax[0].plot(x_acc, acc,
-        #           alpha=0.8, linewidth=1, label='True')
-        
-        #SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
-        
-        #print(SampEn_acc, SampEn_mus)
-        # ax[0].plot(x_temp, sigma_i_temp,
-        #          alpha=0.8, label='SD')
-        
-        #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
-        
-        #plt.xlabel('time [s]')
-        ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
-        ax[0].grid()
-        ax[0].legend()
-        
-        
-        
         idx = str3_to_int(load_IDss)[i]
-           
-        GM = Index_Results['Ground motion'][idx]
-        LF = Index_Results['Load factor'][idx]
-        
-        fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
-        ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
-                     f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
-                     f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
-                        x=0, y=0.97, ha='left', va='bottom', fontsize=10)
-        #model_optimizer
-        plt.xlabel('time [s]')
-        fig.tight_layout()
-        #plt.xlim(2000,3000)
+        mus_temp = mus_EQ
+        sigma_i_temp = sigma_iEQ
+     
+        Plot_Figures = True
+        if Plot_Figures:
+            cm = 1/2.54  # centimeters in inches
+            fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
+            # True acceleration vs. prediction ----------------------------------------
+            #plt.figure()
+            node_head = load_Nodes_Y[0] # Only one node : 32
+            
+            # True
+            acc = df_ZYs[node_head]['ACCS'][i]
+            x_acc = np.arange(0,len(acc))*0.02
+            
+            ax[0].plot(x_acc, acc,
+                      alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
+            
+            acc_reduced = acc[length_subvec-1:len(acc):length_step_test]
+            x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step_test*0.02) + (length_subvec*0.02)
+            
+            ax[0].plot(x_acc_reduced, acc_reduced,
+                      alpha=0.3, linewidth=2, label='True Red.', color = 'k')
+            
+            
+            
+            #SampEn_acc = DamageTools.SampEn(acc, 2, 0.2*np.std(acc))
+            # Predict
+            mus_temp = mus_EQ
+            x_temp = (np.arange(0,len(mus_temp)) *length_step_test*0.02) + (length_subvec*0.02)
+            #np.arange(length_subvec*0.02,mus_temp[-1],length_step)*0.02
+            
+            sigma_i_temp = sigma_iEQ
+            
+            ax[0].plot(x_temp, mus_temp,
+                     alpha=0.8,linewidth=1, label='Predicted', color = 'tab:orange')
+            
+            # ax[0].plot(x_acc, acc,
+            #           alpha=0.8, linewidth=1, label='True')
+            
+            #SampEn_mus = DamageTools.SampEn(mus_temp, 2, 0.2*np.std(mus_temp))
+            
+            #print(SampEn_acc, SampEn_mus)
+            # ax[0].plot(x_temp, sigma_i_temp,
+            #          alpha=0.8, label='SD')
+            
+            #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
+            
+            #plt.xlabel('time [s]')
+            ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
+            ax[0].grid()
+            ax[0].legend()
+            
+            
+            
+            idx = str3_to_int(load_IDss)[i]
+               
+            GM = Index_Results['Ground motion'][idx]
+            LF = Index_Results['Load factor'][idx]
+            
+            fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
+            ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
+                         f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
+                         f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
+                            x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            #model_optimizer
+            plt.xlabel('time [s]')
+            fig.tight_layout()
+            #plt.xlim(2000,3000)
     
     
         #% Error estimation ----------------------------------------------
@@ -926,8 +939,8 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
         ax[1].set_title(f'Opt. Status: {model_status}, Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
                      x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
         
-        plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-                          f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+        # plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+        #                   f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
         plt.close()
         
         
@@ -1202,10 +1215,15 @@ if False:
 
 #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
+<<<<<<< Updated upstream
 
 # #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
+=======
+>>>>>>> Stashed changes
 
+# df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
+# sys.exit()
 
 # for i in range(df_datasets.shape[0]):
 #     load_IDs = int_to_str3(df_datasets.loc[i, 'Train sets'])
@@ -1216,10 +1234,41 @@ if False:
     
 #     #for load_Nodes_X_el in [23]:
 #     for j  in Diff_Nodes:  
+<<<<<<< Updated upstream
     
 #         load_Nodes_X = [23]# [load_Nodes_X_el]
 #         load_Nodes_Y = [j]
 #         print(load_Nodes_X, load_Nodes_Y)
+=======
+    
+#         load_Nodes_X = [23]# [load_Nodes_X_el]
+#         load_Nodes_Y = [j]
+#         print(load_Nodes_X, load_Nodes_Y)
+        
+#         GPR(W_par=[length_subvec, length_step, length_step_test], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# sys.exit()
+#%% GP 9 Matric 20 EQs
+
+df_datasets = pd.read_pickle(os.path.join(folder_figure_save, 'GM_datasets_duration_impl.pkl'))
+
+load_IDs = int_to_str3(df_datasets['Train sets'][0])
+load_IDss = int_to_str3(df_datasets['Test sets'][0])
+
+Diff_Nodes = [23, 32, 42]
+
+
+
+for i in Diff_Nodes:
+    for j  in Diff_Nodes:  
+    
+        load_Nodes_X = [i]
+        load_Nodes_Y = [j]
+        print(load_Nodes_X, load_Nodes_Y)
+>>>>>>> Stashed changes
         
 #         GPR(W_par=[length_subvec, length_step, length_step_test], 
 #                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
@@ -1262,6 +1311,7 @@ if False:
 #                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
     
 #%% Linear / non-linear study
+<<<<<<< Updated upstream
 
 from sklearn.model_selection import KFold
 import random
@@ -1356,6 +1406,85 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads_linear):
     
     
             
+=======
+# import random
+
+# #df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
+# df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List_01.pkl')
+
+# train_LN = 'N'
+# test_LN = 'L'
+
+# if train_LN =='L':
+#     load_IDs = int_to_str3(random.sample(df_datasets[23]['L'], k=20))
+#     # load_IDs = int_to_str3(df_datasets[23]['L'])
+# elif train_LN =='N':
+#     load_IDs = int_to_str3(random.sample(df_datasets[23]['N'], k=20))
+#     # load_IDs = int_to_str3(df_datasets[23]['N'])
+    
+        
+# Diff_Nodes = [22, 32, 42]
+
+# #for load_Nodes_X_el in [23]:
+# for i in Diff_Nodes:  
+    
+#     if test_LN =='L':
+#         load_IDss = []
+#         load_IDss = int_to_str3(df_datasets[i]['L'])
+#     elif test_LN =='N':
+#         load_IDss = []
+#         load_IDss = int_to_str3(df_datasets[i]['N'])
+    
+#     load_Nodes_X = [23] # [load_Nodes_X_el]
+#     load_Nodes_Y = [i]
+    
+#     GPR(W_par=[length_subvec, length_step, length_step_test], 
+#             Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#             Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#             Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+#%% 1-K Fold - With different Noise levels
+
+
+# Loads / Models --------------------------------------------------------------
+# Loads that should be examined (ALL 0-> 300)
+list_loads = list(range(0,300+1))
+list_loads = int_to_str3(list_loads)
+list_loads = np.array(list_loads)
+
+# Number of models
+Noise_level_list = [1000]  # ABS noise level
+
+# Create K folds --------------------------------------------------------------
+
+K1_splits = 10
+
+K1 = KFold(n_splits=K1_splits, shuffle=False)
+
+
+
+# RUN Simulation --------------------------------------------------------------
+
+#Outer Look (K1)
+k1 = 1
+for train_index_K1, test_index_K1 in K1.split(X = list_loads):
+    #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
+    print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
+    
+    load_IDs_K10 = list_loads[train_index_K1].tolist()     # Train (Small DIM)
+    load_IDs_K1 = random.sample(load_IDs_K10,18)
+    
+    load_IDss_K1 = list_loads[test_index_K1].tolist()    # Test  (Large DIM)
+    
+
+    for noise_level in Noise_level_list:
+
+        GPR([length_subvec, length_step, length_step_test], 
+            [sigma2_ks, tau2_ks, sigma2_error], 
+            [load_IDs_K1, load_Nodes_X, load_Nodes_Y], 
+            [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
+            
+
+>>>>>>> Stashed changes
     
 # df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 

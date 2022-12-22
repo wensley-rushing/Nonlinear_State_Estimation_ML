@@ -64,9 +64,13 @@ plot = True
 
 df_GMs = pd.read_pickle(os.path.join(folder_gm , '00_Index_Results.pkl'))
 
-df_errors = pd.DataFrame(index = df_GMs.index.tolist() , columns = ['E - glob', 'Gl Drift', 'RMSE' , 'SMSE', 'MAE' , 'MAPE', 'TRAC'])
+df_errors = pd.DataFrame(index = df_GMs.index.tolist() , columns = ['PGA_g', 'E - glob', 'Gl Drift', 'Gl Drift_res',
+                                                                    'RMSE' , 'SMSE', 'MAE' , 'MAPE', 'TRAC'])
+
+df_errors.loc[:, 'PGA_g'] = df_GMs.loc[:, 'PGA_g']
 df_errors.loc[:, 'E - glob'] = df_GMs.loc[:, 'E - glob']
 df_errors.loc[:, 'Gl Drift'] = df_GMs.loc[:, 'Gl Drift']
+df_errors.loc[:, 'Gl Drift_res'] = df_GMs.loc[:, 'Gl Drift_res']
 
 #%% Extract data
 K_folds = 10
@@ -76,35 +80,28 @@ fold_idx = 0
 #fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 16))
 
 for rdirs, dirs, files in os.walk(data_directory):
-        
-        
-        
-        
         for file in files:
-            
             if file.endswith("Error.pkl") and fold_idx < K_folds:
-                
                 # print(fold_idx)
-                
-                
+
                 K_errors = pd.read_pickle(os.path.join(rdirs, file))
                 
                 for gm in K_errors.columns:  # update DataFrame with the errors of all the earthquakes
                     
                     gm_idx =  str3_to_int([gm])[0]
                     
-                    df_errors.iloc[gm_idx, 2] = K_errors.loc['RMSE', gm]
-                    df_errors.iloc[gm_idx, 3] = K_errors.loc['SMSE', gm]
-                    df_errors.iloc[gm_idx, 4] = K_errors.loc['MAE', gm]
-                    df_errors.iloc[gm_idx, 5] = K_errors.loc['MAPE', gm]
-                    df_errors.iloc[gm_idx, 6] = K_errors.loc['TRAC', gm]
+                    df_errors.iloc[gm_idx, 4] = K_errors.loc['RMSE', gm]
+                    df_errors.iloc[gm_idx, 5] = K_errors.loc['SMSE', gm]
+                    df_errors.iloc[gm_idx, 6] = K_errors.loc['MAE', gm]
+                    df_errors.iloc[gm_idx, 7] = K_errors.loc['MAPE', gm]
+                    df_errors.iloc[gm_idx, 8] = K_errors.loc['TRAC', gm]
 
                 fold_idx += 1
                          
                                         
-#%% Plot with Energy
+#%% Plot Error vs. Global Energy
 
-if plot:
+if plot and False:
     
     plot_df = df_errors.dropna()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
@@ -153,9 +150,9 @@ if plot:
     # Save plot
     plt.savefig(os.path.join(data_directory, f'GE_Error_Scatter_{noise_level}.png'))
     
-#%% Plot with Drift
+#%% Plot Error vs. Drift
 
-if plot:
+if plot and False:
     
     plot_df = df_errors.dropna()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
@@ -219,7 +216,7 @@ if plot:
     # Save plot
     plt.savefig(os.path.join(data_directory, f'MD_Error_Scatter_{noise_level}.png'))
     
-#%% Plot Energy vs Drift
+#%% Plot Drift vs. Global Energy
 
 if plot:
     
@@ -247,13 +244,13 @@ if plot:
     
     # Text
     x_location = 250; fontsize = 10
-    axes.text(x_location, (0.2+1)/2 - 1, 'No Damage', va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    axes.text(x_location, (0.2+0)/2 - 0, 'No Damage', va='center', ha='left', fontsize=fontsize, fontweight="bold")
     axes.text(x_location, (0.5-0.2)/2 + 0.2, 'Minor',     va='center', ha='left', fontsize=fontsize, fontweight="bold")
     axes.text(x_location, (1.5-0.5)/2 + 0.5, 'Moderate',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
     axes.text(x_location, (2.5-1.5)/2 + 1.5, 'Severe',    va='center', ha='left', fontsize=fontsize, fontweight="bold")
     axes.text(x_location, (2.5-3)/2 + 3, 'Collapse',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
     
-    axes.set_ylabel('Max Interstory Drift [-]', fontweight="bold", fontsize = 14)
+    axes.set_ylabel('Max Interstory Drift [%]', fontweight="bold", fontsize = 14)
     axes.set_xlabel('Global Energy [kNm]',fontweight="bold", fontsize = 14)
     
     axes.xaxis.set_tick_params(labelsize=14)
@@ -262,9 +259,152 @@ if plot:
     axes.grid(True)
 
     # axes.set_xlim(-0.25,6.25)
-    # axes.set_ylim(0,0.8)
+    axes.set_ylim(0,8)
     
     # Save plot
-    plt.savefig(os.path.join(data_directory, f'MD_GE_{noise_level}_zoom.png'))
+    # plt.savefig(os.path.join(data_directory, f'MD_GE_{noise_level}_zoom.png'))
 
-                            
+#%% Plot Drift RES vs. Global Energy
+
+if plot:
+    
+    plot_df = df_errors.dropna()
+    plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
+    
+    # print(f'\n\nPlotting {len(plot_df)} GMs points')
+    
+      
+    Errors = ['RMSE', 'SMSE', 'TRAC']
+    # Plotting
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(7, 7), constrained_layout=True, sharex=True) 
+    # fig.suptitle(f'Noise level: {noise_level} dB', fontsize=16)
+
+    axes.scatter(plot_df.loc[:, 'E - glob'], plot_df.loc[:, 'Gl Drift_res'])
+    
+    # Lines for classes
+    # axes.axhline(y=0.2, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=0.5, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=1.5, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=2.5, ls='--', linewidth=1.5, color='black')
+    
+    # axes.axvline(x=1.5, ls='-.', linewidth=2, color='black')
+    # axes.text(1.5, 0.01, 'E = 1.5 kNm', va='bottom', ha='right', fontsize=14, fontweight="bold", rotation=90)
+    
+    # Text
+    # x_location = 250; fontsize = 10
+    # axes.text(x_location, (0.2+1)/2 - 1, 'No Damage', va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (0.5-0.2)/2 + 0.2, 'Minor',     va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (1.5-0.5)/2 + 0.5, 'Moderate',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (2.5-1.5)/2 + 1.5, 'Severe',    va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (2.5-3)/2 + 3, 'Collapse',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    
+    axes.set_ylabel('Residual Interstory Drift [%]', fontweight="bold", fontsize = 14)
+    axes.set_xlabel('Global Energy [kNm]',fontweight="bold", fontsize = 14)
+    
+    axes.xaxis.set_tick_params(labelsize=14)
+    axes.yaxis.set_tick_params(labelsize=14)
+    
+    axes.grid(True)
+
+    # axes.set_xlim(-0.25,6.25)
+    axes.set_ylim(0,0.3)
+    
+    # Save plot
+    # plt.savefig(os.path.join(data_directory, f'MD_GE_{noise_level}_zoom.png'))
+
+#%% Plot Drift vs. Drift RES
+
+if plot:
+    
+    plot_df = df_errors.dropna()
+    plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
+    
+    # print(f'\n\nPlotting {len(plot_df)} GMs points')
+    
+      
+    Errors = ['RMSE', 'SMSE', 'TRAC']
+    # Plotting
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(7, 7), constrained_layout=True, sharex=True) 
+    # fig.suptitle(f'Noise level: {noise_level} dB', fontsize=16)
+
+    axes.scatter(plot_df.loc[:, 'Gl Drift_res'], plot_df.loc[:, 'Gl Drift'])
+    
+    # Lines for classes
+    axes.axhline(y=0.2, ls='--', linewidth=1.5, color='black')
+    axes.axhline(y=0.5, ls='--', linewidth=1.5, color='black')
+    axes.axhline(y=1.5, ls='--', linewidth=1.5, color='black')
+    axes.axhline(y=2.5, ls='--', linewidth=1.5, color='black')
+    
+    # axes.axvline(x=1.5, ls='-.', linewidth=2, color='black')
+    # axes.text(1.5, 0.01, 'E = 1.5 kNm', va='bottom', ha='right', fontsize=14, fontweight="bold", rotation=90)
+    
+    # Text
+    x_location = 0.3; fontsize = 10
+    axes.text(x_location, (0.2+0)/2 - 0, 'No Damage', va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    axes.text(x_location, (0.5-0.2)/2 + 0.2, 'Minor',     va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    axes.text(x_location, (1.5-0.5)/2 + 0.5, 'Moderate',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    axes.text(x_location, (2.5-1.5)/2 + 1.5, 'Severe',    va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    axes.text(x_location, (2.5-3)/2 + 3, 'Collapse',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    
+    axes.set_ylabel('Max Interstory Drift [%]', fontweight="bold", fontsize = 14)
+    axes.set_xlabel('Residual Interstory Drift [%]',fontweight="bold", fontsize = 14)
+    
+    axes.xaxis.set_tick_params(labelsize=14)
+    axes.yaxis.set_tick_params(labelsize=14)
+    
+    axes.grid(True)
+
+    axes.set_xlim(0,0.37)
+    axes.set_ylim(0,8)
+    
+    # Save plot
+    # plt.savefig(os.path.join(data_directory, f'MD_GE_{noise_level}_zoom.png'))
+
+
+#%% Plot PGA vs. Global Energy    
+
+if plot:
+    
+    plot_df = df_errors.dropna()
+    plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
+    
+    # print(f'\n\nPlotting {len(plot_df)} GMs points')
+    
+      
+    Errors = ['RMSE', 'SMSE', 'TRAC']
+    # Plotting
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(7, 7), constrained_layout=True, sharex=True) 
+    # fig.suptitle(f'Noise level: {noise_level} dB', fontsize=16)
+
+    axes.scatter(plot_df.loc[:, 'E - glob'], plot_df.loc[:, 'PGA_g'])
+    
+    # Lines for classes
+    # axes.axhline(y=0.2, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=0.5, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=1.5, ls='--', linewidth=1.5, color='black')
+    # axes.axhline(y=2.5, ls='--', linewidth=1.5, color='black')
+    
+    # axes.axvline(x=1.5, ls='-.', linewidth=2, color='black')
+    # axes.text(1.5, 0.01, 'E = 1.5 kNm', va='bottom', ha='right', fontsize=14, fontweight="bold", rotation=90)
+    
+    # Text
+    # x_location = 250; fontsize = 10
+    # axes.text(x_location, (0.2+1)/2 - 1, 'No Damage', va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (0.5-0.2)/2 + 0.2, 'Minor',     va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (1.5-0.5)/2 + 0.5, 'Moderate',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (2.5-1.5)/2 + 1.5, 'Severe',    va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    # axes.text(x_location, (2.5-3)/2 + 3, 'Collapse',  va='center', ha='left', fontsize=fontsize, fontweight="bold")
+    
+    axes.set_ylabel('Peak Ground Acceleration [g]', fontweight="bold", fontsize = 14)
+    axes.set_xlabel('Global Energy [kNm]',fontweight="bold", fontsize = 14)
+    
+    axes.xaxis.set_tick_params(labelsize=14)
+    axes.yaxis.set_tick_params(labelsize=14)
+    
+    axes.grid(True)
+
+    # axes.set_xlim(-0.25,6.25)
+    # axes.set_ylim(0,1.1)
+    
+    # Save plot
+    # plt.savefig(os.path.join(data_directory, f'MD_GE_{noise_level}_zoom.png'))                 
