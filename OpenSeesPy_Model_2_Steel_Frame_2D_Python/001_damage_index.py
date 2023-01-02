@@ -54,7 +54,7 @@ plot_dynamic_analysis = False
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_files_LF_2C'
+output_directory = 'output_Report'
 
 #%% UNITS
 # =============================================================================
