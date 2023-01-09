@@ -1220,35 +1220,37 @@ if False:
 
 #%% Report simulation: small scale cases
 
-# Case 8
-print('Case 8')
-load_Nodes_X = [23]  # nodes input
-load_Nodes_Y = [32]  # nodes output
-load_Nodes_Xs = load_Nodes_X
-load_Nodes_Ys = load_Nodes_Y
-optimize_model = 1
-
-GPR(W_par=[length_subvec, length_step, length_step_test], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
-
 # Case 7
-print('Case 7')
-load_Nodes_X = [23, 43]  # nodes input
-load_Nodes_Y = [32]  # nodes output
-load_Nodes_Xs = load_Nodes_X
-load_Nodes_Ys = load_Nodes_Y
-optimize_model = 1
+# print('Case 8')
+# load_Nodes_X = [23]  # nodes input
+# load_Nodes_Y = [32]  # nodes output
+# load_Nodes_Xs = load_Nodes_X
+# load_Nodes_Ys = load_Nodes_Y
+# optimize_model = 1
 
-GPR(W_par=[length_subvec, length_step, length_step_test], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+# GPR(W_par=[length_subvec, length_step, length_step_test], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
-# Case 6
-print('Case 6')
-load_Nodes_X = [23, 33, 43]  # nodes input
+# # Case 6
+# print('Case 7')
+# load_Nodes_X = [23, 43]  # nodes input
+# load_Nodes_Y = [32]  # nodes output
+# load_Nodes_Xs = load_Nodes_X
+# load_Nodes_Ys = load_Nodes_Y
+# optimize_model = 1
+
+# GPR(W_par=[length_subvec, length_step, length_step_test], 
+#                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+#                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+
+
+# Case 5-new
+print('Case 5')
+load_Nodes_X = [20, 33, 40]  # nodes input
 load_Nodes_Y = [30]  # nodes output
 load_Nodes_Xs = load_Nodes_X
 load_Nodes_Ys = load_Nodes_Y
@@ -1259,18 +1261,7 @@ GPR(W_par=[length_subvec, length_step, length_step_test],
                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
-# Case 5
-print('Case 5')
-load_Nodes_X = [23, 33, 43]  # nodes input
-load_Nodes_Y = [31]  # nodes output
-load_Nodes_Xs = load_Nodes_X
-load_Nodes_Ys = load_Nodes_Y
-optimize_model = 1
-
-GPR(W_par=[length_subvec, length_step, length_step_test], 
-                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
-                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
-                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+sys.exit()
 
 # Case 4
 print('Case 4')
