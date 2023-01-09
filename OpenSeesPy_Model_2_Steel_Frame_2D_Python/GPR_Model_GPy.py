@@ -105,15 +105,13 @@ def norm_p(x1, x2, p=2):
 
 #%% Folder structure
 
-folder_accs = r'output_files_All\ACCS'
+folder_accs = r'output_files\ACCS'
 
-folder_structure = r'output_files_All'
+folder_structure = r'output_files'
 
-<<<<<<< Updated upstream
-folder_figure_save = r'output_files\18_tests\Test_17_V3'
-=======
-folder_figure_save = r'output_files\GP_9Matrix_20_EQs'
->>>>>>> Stashed changes
+
+folder_figure_save = r'output_files\Small_scale_Report'
+
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -802,6 +800,9 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
      
         Plot_Figures = True
         if Plot_Figures:
+            
+            font_size_signal = 14
+            
             cm = 1/2.54  # centimeters in inches
             fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
             # True acceleration vs. prediction ----------------------------------------
@@ -813,13 +814,13 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
             x_acc = np.arange(0,len(acc))*0.02
             
             ax[0].plot(x_acc, acc,
-                      alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
+                      alpha=0.3, linewidth=3, label='True signal', color = 'tab:blue')
             
             acc_reduced = acc[length_subvec-1:len(acc):length_step_test]
             x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step_test*0.02) + (length_subvec*0.02)
             
-            ax[0].plot(x_acc_reduced, acc_reduced,
-                      alpha=0.3, linewidth=2, label='True Red.', color = 'k')
+            # ax[0].plot(x_acc_reduced, acc_reduced,
+                      # alpha=0.3, linewidth=2, label='True Red.', color = 'k')
             
             
             
@@ -832,7 +833,7 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
             sigma_i_temp = sigma_iEQ
             
             ax[0].plot(x_temp, mus_temp,
-                     alpha=0.8,linewidth=1, label='Predicted', color = 'tab:orange')
+                     alpha=0.8,linewidth=1, label='Pred. signal', color = 'tab:orange')
             
             # ax[0].plot(x_acc, acc,
             #           alpha=0.8, linewidth=1, label='True')
@@ -846,9 +847,10 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
             #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
             
             #plt.xlabel('time [s]')
-            ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
+            
+            # ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
             ax[0].grid()
-            ax[0].legend()
+            ax[0].legend(prop=dict(size=12))
             
             
             
@@ -857,13 +859,24 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
             GM = Index_Results['Ground motion'][idx]
             LF = Index_Results['Load factor'][idx]
             
-            fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
-            ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +
-                         f' $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
-                         f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
-                            x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            # fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
+            # fig.suptitle(f'GM: {GM}', x=0, ha = 'left', fontsize=12)
+            # ax[0].set_title(f' Data processing: $L$ = {length_subvec}, step = {length_step} \n' +
+                         # f' Parameters: $\sigma^2_k$ = {ker_var}, $\u03C4^2_k$ = {ker_lengh_scale}, $\sigma^2_\epsilon$ = {model_noise} \n' +
+                         # f' Input: {len(load_IDs)} GMs and Nodes {load_Nodes_X} \n Output: {len(load_IDss)} GMs and Nodes {load_Nodes_Y}',
+                            # x=0, y=0.97, ha='left', va='bottom', fontsize=12)
+            
+            
+            # ker_var_plot = float_array.astype(int)
+            # ker_lengh_scale_plot = np.around(ker_lengh_scale,0)
+            
+            ax[0].set_title(f' GM: {GM} \n' + 
+                            f' Parameters: $\sigma^2_k$ = {np.around(ker_var).astype(int)}, $\u03C4^2_k$ = {np.around(ker_lengh_scale).astype(int)} \n' +
+                         f' Input: {len(load_IDs)} GMs and Nodes {load_Nodes_X} \n Output: {len(load_IDss)} GMs and Nodes {load_Nodes_Y}',
+                            x=0, y=0.97, ha='left', va='bottom', fontsize = font_size_signal)
             #model_optimizer
-            plt.xlabel('time [s]')
+            fig.supxlabel('Time [s]', fontsize = font_size_signal)
+            fig.supylabel('Acceleration [m/s\u00b2]', fontsize = font_size_signal)
             fig.tight_layout()
             #plt.xlim(2000,3000)
     
@@ -919,13 +932,13 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
                  alpha=0.8, label=u'\u00B1 2 STD', color='moccasin')
         
         ax[1].plot(x_temp, mus_temp, 
-                 alpha=0.8, label='Predicted', color='tab:orange')
+                 alpha=0.8, label='Pred. signal', color='tab:orange')
         
                
         #plt.xlabel('time [s]')
-        ax[1].set_ylabel('Standard deviation')
+        # ax[1].set_ylabel('Standard deviation')
         ax[1].grid()
-        ax[1].legend()
+        ax[1].legend(prop=dict(size=12))
         
         
         if optimize_model == 1:
@@ -936,12 +949,18 @@ def GPR(W_par=[25, 5, 1], #[length_subvec, length_step],
         else:
             model_status = 'Not optimized'
         
-        ax[1].set_title(f'Opt. Status: {model_status}, Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
-                     x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
+        # ax[1].set_title(f'Opt. Status: {model_status}, Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                     # x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
+        
+        
+        ax[1].set_title(f'Status: {model_status}, Errros: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                     x=0, y=0.97, ha='left', va='bottom', fontsize=font_size_signal)   
         
         # plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-        #                   f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
-        plt.close()
+                          # f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
+        
+        plt.savefig(os.path.join(folder_figure_save,sub_folder_plots, f'ACC{int_to_str3([idx])[0]}.png'))
+        # plt.close()
         
         
         # Save all Values in DF
@@ -1136,27 +1155,32 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 
 
-# Testing Data ----------------------------------------------------------------
+# Data ----------------------------------------------------------------
 
 
 
+# Train loads and nodes
+
+df_datasets = pd.read_pickle(os.path.join(folder_structure, 'GM_datasets_5_random_earthquakes.pkl'))
+
+load_IDs = int_to_str3(df_datasets['Train sets'][0]) # loads
+
+load_Nodes_X = [23, 33, 43]  # nodes input
+
+load_Nodes_Y = [22]  # nodes output
+
+# Test loads and nodes
 
 
-# Indicator if total time m
-#load_IDss = Test_data # 20
-load_IDss = ['012', '277']
-#load_IDss = ['023']  
-# load_IDss = int_to_str3(Index_Results.index.tolist())
-# for i in load_IDs:
-#     load_IDss.remove(i)
+load_IDss = ['023', '041'] # Loads Report GMs (both CHICHI)
 
-# Testing - X*  (Same as X)                                                                             
+                                                                          
 load_Nodes_Xs = load_Nodes_X
-
-# Testing - Y* (Same as Y)
 load_Nodes_Ys = load_Nodes_Y  
 
 # Combine it all
+
+Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 Test_par=[load_IDss, load_Nodes_Xs, load_Nodes_Ys]
 
 
@@ -1186,12 +1210,127 @@ sigma2_error = 0
 Ker_par=[sigma2_ks, tau2_ks, sigma2_error]
 
 
+
 if False:
     GPR(W_par, 
                 Ker_par, 
                 Train_par, 
                 Test_par)
 
+
+#%% Report simulation: small scale cases
+
+# Case 1
+print('Case 1')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [22]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 0
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+
+# Case 2
+print('Case 2')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [22]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# Case 3
+print('Case 3')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [32]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# Case 4
+print('Case 4')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [42]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# Case 5
+print('Case 5')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [31]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+
+# Case 6
+print('Case 6')
+load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_Y = [30]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# Case 7
+print('Case 7')
+load_Nodes_X = [23, 43]  # nodes input
+load_Nodes_Y = [32]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+# Case 8
+print('Case 8')
+load_Nodes_X = [23]  # nodes input
+load_Nodes_Y = [32]  # nodes output
+load_Nodes_Xs = load_Nodes_X
+load_Nodes_Ys = load_Nodes_Y
+optimize_model = 1
+
+GPR(W_par=[length_subvec, length_step, length_step_test], 
+                Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
+                Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
+                Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
+
+
+
+
+
+sys.exit()
 
 #%% RUN Analysis
 
@@ -1215,11 +1354,6 @@ if False:
 
 #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_5_earthquakes.pkl')
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_20_random_earthquakes.pkl')
-<<<<<<< Updated upstream
-
-# #df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
-=======
->>>>>>> Stashed changes
 
 # df_datasets = pd.read_pickle(folder_structure + '/GM_datasets_duration_impl.pkl')
 
@@ -1234,12 +1368,7 @@ if False:
     
 #     #for load_Nodes_X_el in [23]:
 #     for j  in Diff_Nodes:  
-<<<<<<< Updated upstream
-    
-#         load_Nodes_X = [23]# [load_Nodes_X_el]
-#         load_Nodes_Y = [j]
-#         print(load_Nodes_X, load_Nodes_Y)
-=======
+
     
 #         load_Nodes_X = [23]# [load_Nodes_X_el]
 #         load_Nodes_Y = [j]
@@ -1268,14 +1397,17 @@ for i in Diff_Nodes:
         load_Nodes_X = [i]
         load_Nodes_Y = [j]
         print(load_Nodes_X, load_Nodes_Y)
->>>>>>> Stashed changes
+
         
 #         GPR(W_par=[length_subvec, length_step, length_step_test], 
 #                 Ker_par=[sigma2_ks, tau2_ks, sigma2_error], 
 #                 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y], 
 #                 Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
 
-# sys.exit()
+
+
+
+
 #%%  One dataset and different nodes to predict
 
 # Analysis: 5 Random Earthquakes (same used for coloured matrix and boxplots)
@@ -1311,7 +1443,7 @@ for i in Diff_Nodes:
 #                     Test_par=[load_IDss, load_Nodes_X, load_Nodes_Y])
     
 #%% Linear / non-linear study
-<<<<<<< Updated upstream
+
 
 from sklearn.model_selection import KFold
 import random
@@ -1364,7 +1496,7 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads_linear):
     #print("TRAIN_K1:", train_index_K1, "\nTEST_K1:", test_index_K1)
     print(f'K1 fold {k1} / {K1_splits}'); k1 += 1
     
-    if k1 == 7:
+    if k1 == 7: # folder n.6
         # Train set
         
         if train_type =='L':
@@ -1406,7 +1538,7 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads_linear):
     
     
             
-=======
+
 # import random
 
 # #df_datasets = pd.read_pickle(folder_structure + '/00_EQ_List.pkl')    
@@ -1484,12 +1616,11 @@ for train_index_K1, test_index_K1 in K1.split(X = list_loads):
             [load_IDss_K1, load_Nodes_Xs, load_Nodes_Ys])
             
 
->>>>>>> Stashed changes
+
     
 # df_K1.to_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
 
 # df_K1 = pd.read_pickle(os.path.join(folder_figure_save, '00_K1_Fold.pkl'))
-sys.exit()
 
 
 
