@@ -1161,13 +1161,14 @@ Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
 
 # Train loads and nodes
 
-df_datasets = pd.read_pickle(os.path.join(folder_structure, 'GM_datasets_5_random_earthquakes.pkl'))
+# df_datasets = pd.read_pickle(os.path.join(folder_structure, 'GM_datasets_5_random_earthquakes.pkl'))
+df_datasets = pd.read_pickle(os.path.join(folder_structure, 'GM_datasets_20_random_earthquakes.pkl'))
 
 load_IDs = int_to_str3(df_datasets['Train sets'][0]) # loads
 
-load_Nodes_X = [23, 33, 43]  # nodes input
+load_Nodes_X = [23]  # nodes input
 
-load_Nodes_Y = [22]  # nodes output
+load_Nodes_Y = [42]  # nodes output
 
 # Test loads and nodes
 
@@ -1211,13 +1212,13 @@ Ker_par=[sigma2_ks, tau2_ks, sigma2_error]
 
 
 
-if False:
+if True:
     GPR(W_par, 
                 Ker_par, 
                 Train_par, 
                 Test_par)
 
-
+sys.exit()
 #%% Report simulation: small scale cases
 
 # Case 7
