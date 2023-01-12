@@ -49,20 +49,20 @@ def int_to_str3(list_int):
     return list_str
 
 
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\GM_Report')
-output_directory = r'output_files'
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Loads_gif')
+output_directory = r'output_files_gif'
 
 df_structure = pd.read_pickle( os.path.join(output_directory, '00_Structure.pkl') )
 struc_periods = list(df_structure.Periods[0])
 
-folder_save_plots = r'output_files\Figures\GM_Report'
+folder_save_plots = r'output_files_gif\GM_Plots'
 
 
-plot_spectra = False
+plot_spectra = True
 
 plot_GM = True
 
-n = 0 # GM index
+n = 23 # GM index
 
 for rdirs, dirs, files in os.walk(folder_loads):
     
@@ -245,10 +245,12 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     frequency = round(1 / periods,1)
                     
                     line = ax2.axhline(y = 1/periods, color = 'black', alpha = 1, linewidth=2, linestyle = '--')
-                    ax2.text(0.9*t[-1], 1/periods*1.1, f'f({struc_periods.index(periods)+1})={frequency} Hz', fontsize=12, fontweight='bold'
-                             , horizontalalignment = 'right', backgroundcolor = 'w')
-                    # line2 = ax4.axvline(x = periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
-                    # ax4.text(periods-0.01, df.loc[n, 'Peak acc']+0.1 ,f'{struc_periods.index(periods)+1}', fontsize='small')
+                    
+                    if periods == struc_periods[-1]:
+                        ax2.text(0.9*t[-1], 1/periods*1.1, f'f({struc_periods.index(periods)+1})={frequency} Hz', fontsize=12, fontweight='bold'
+                                 , horizontalalignment = 'right', backgroundcolor = 'w')
+                        # line2 = ax4.axvline(x = periods, color = 'black', alpha = 0.7, linewidth=0.8, linestyle = '--')
+                        # ax4.text(periods-0.01, df.loc[n, 'Peak acc']+0.1 ,f'{struc_periods.index(periods)+1}', fontsize='small')
                 
                 ax2.legend([line],['Struct. freq.'], fontsize = 16, loc= 'upper left')
                 # plt.legend([line],['Struct. freq.'], fontsize = 16)
@@ -265,7 +267,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
                 plt.close()
                 
-                fig.savefig(os.path.join(folder_save_plots, f'{ID}_{file[:-4]}_Spec.png'))
+                fig.savefig(os.path.join(folder_save_plots, f'{ID}_{file[:-4]}_Wave.png'))
                 # print('saved')
                 
             if plot_GM:
@@ -452,7 +454,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 
 #%%            
             
-            n += 1
+            n += 18
             
             
 
