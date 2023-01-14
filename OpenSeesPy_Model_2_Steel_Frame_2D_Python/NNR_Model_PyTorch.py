@@ -108,7 +108,7 @@ folder_accs = r'output_files\ACCS'
 
 folder_structure = r'output_files'
 
-folder_figure_save = r'output_NN\Linear\NN_9Matrix_20_EQs_V3'
+folder_figure_save = r'output_NN\Linear\K1_Fold_300_Noise_1000\00_New_withplots'
 
 #%% Load Structure
 Structure = pd.read_pickle( os.path.join(folder_structure, '00_Structure.pkl') )
@@ -1041,10 +1041,15 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
         mus_temp = mus_EQ
         idx = str3_to_int(load_IDss)[i]
      
-        Plot_Figures = False
+        Plot_Figures = True
+        Plot_Figures_std = False
+        
         if Plot_Figures:
+            
+            font_size_signal = 14
+            
             cm = 1/2.54  # centimeters in inches
-            fig, ax = plt.subplots(2, figsize=(20*cm, 15*cm), sharex=True)
+            fig, ax = plt.subplots(1, figsize=(20*cm, 15*cm), sharex=True)
             # True acceleration vs. prediction ----------------------------------------
             #plt.figure()
             node_head = load_Nodes_Y[0] # Only one node : 32
@@ -1053,14 +1058,14 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
             acc = df_ZYs[node_head]['ACCS'][i]
             x_acc = np.arange(0,len(acc))*0.02
             
-            ax[0].plot(x_acc, acc,
-                      alpha=0.3, linewidth=3, label='True', color = 'tab:blue')
+            ax.plot(x_acc, acc,
+                      alpha=0.3, linewidth=3, label='True signal', color = 'tab:blue')
             
             acc_reduced = acc[length_subvec-1:len(acc):length_step_test]
             x_acc_reduced = (np.arange(0,len(acc_reduced)) *length_step_test*0.02) + (length_subvec*0.02)
             
-            ax[0].plot(x_acc_reduced, acc_reduced,
-                      alpha=0.3, linewidth=2, label='True Red.', color = 'k')
+            # ax[0].plot(x_acc_reduced, acc_reduced,
+            #           alpha=0.3, linewidth=2, label='True Red.', color = 'k')
             
             
             
@@ -1072,8 +1077,8 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
             
             #sigma_i_temp = sigma_iEQ
             
-            ax[0].plot(x_temp, mus_temp,
-                     alpha=0.8,linewidth=1, label='Predicted', color = 'tab:orange')
+            ax.plot(x_temp, mus_temp,
+                     alpha=0.8,linewidth=1, label='Pred. signal', color = 'tab:orange')
             
             # ax[0].plot(x_acc, acc,
             #           alpha=0.8, linewidth=1, label='True')
@@ -1087,9 +1092,9 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
             #ax[0].fill_between(x_temp, mus_temp + 2*sigma_i, mus_temp-1, alpha = 0.3, color = 'tab:gray')
             
             #plt.xlabel('time [s]')
-            ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
-            ax[0].grid()
-            ax[0].legend()
+            # ax[0].set_ylabel('Acceleration [m/s\u00b2]')    
+            ax.grid()
+            ax.legend(prop=dict(size=12))
             
             
             
@@ -1099,13 +1104,20 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
             LF = Index_Results['Load factor'][idx]
             
             
-            fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
-            ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +  
-                            f' Epochs: {epochs}, BatchSize: {BatchSize}, Learn.rate: {learning_rate_exp} \n' + 
-                         f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
-                            x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            # fig.suptitle(f'Acceleration in node {node_head} predicted from nodes {load_Nodes_X} \n GM: {GM}, LF: {LF}')
+            # ax[0].set_title(f' General: $l$ = {length_subvec}, step = {length_step} \n' +  
+            #                 f' Epochs: {epochs}, BatchSize: {BatchSize}, Learn.rate: {learning_rate_exp} \n' + 
+            #              f' Input: {len(load_IDs)}, Nodes {load_Nodes_X} \n Output: {len(load_IDss)}, Nodes {load_Nodes_Y}',
+            #                 x=0, y=0.97, ha='left', va='bottom', fontsize=10)
+            
+            ax.set_title(f' GM: {GM} \n' + 
+                         f' Input: {len(load_IDs)} GMs and Nodes {load_Nodes_X} \n Output: {len(load_IDss)} GMs and Nodes {load_Nodes_Y}',
+                            x=0, y=0.97, ha='left', va='bottom', fontsize = font_size_signal)
             #model_optimizer
-            plt.xlabel('time [s]')
+            
+            #model_optimizer
+            fig.supxlabel('Time [s]', fontsize = font_size_signal)
+            fig.supylabel('Acceleration [m/s\u00b2]', fontsize = font_size_signal)
             fig.tight_layout()
             #plt.xlim(2000,3000)
     
@@ -1154,16 +1166,27 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
         ax[1].legend()
         '''
         
+        
+        ax.set_title(f' GM: {GM} \n' + 
+                     f' Input: {len(load_IDs)} GMs and Nodes {load_Nodes_X}, Output: {len(load_IDss)} GMs and Nodes {load_Nodes_Y}  \n' +
+                     f' Errros: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
+                        x=0, y=0.98, ha='left', va='bottom', fontsize = font_size_signal)
+        
+        
+        plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
+                          f'ACC{int_to_str3([idx])[0]}.png'))
+        plt.close()
+        
         # ax[1].fill_between(x_temp, (mus_temp+2*sigma_i_temp).flatten(), (mus_temp-2*sigma_i_temp).flatten(),
         #          alpha=0.5, label='95-CI')
     
-        if Plot_Figures:
+        if Plot_Figures_std:
             ax[1].plot(x_temp, mus_temp, 
-                     alpha=0.8, label='Predicted', color='tab:orange')
+                     alpha=0.8, label='Pred. signal', color='tab:orange')
             
                    
             #plt.xlabel('time [s]')
-            ax[1].set_ylabel('Standard deviation')
+            # ax[1].set_ylabel('Standard deviation')
             ax[1].grid()
             ax[1].legend()
             
@@ -1178,12 +1201,7 @@ def NNR(W_par=[25, 5, 1, 20, 1000], #[length_subvec, length_step, Hidden_Dim, no
                 
             model_status = 'N/A'
             
-            ax[1].set_title(f'Opt. Status: {model_status}, Error: RMSE = {round(RMSE[-1],2)}, SMSE = {round(SMSE[-1],2)}, MAE = {round(MAE[-1],2)}, MAPE = {round(MAPE[-1],2)}, TRAC = {round(TRAC[-1],2)}', 
-                         x=0, y=0.97, ha='left', va='bottom', fontsize=10)   
             
-            plt.savefig(os.path.join(folder_figure_save,sub_folder_plots,
-                              f'ACC{int_to_str3([idx])[0]}_l{length_subvec}_step{length_step}_node{load_Nodes_Ys[0]}_time{start_time_name}.png'))
-            plt.close()
             
             
         # Save all Values in DF
@@ -1317,28 +1335,28 @@ if False:
 
 #%% GP 9 Matric 20 EQs
 
-df_datasets = pd.read_pickle(os.path.join(folder_figure_save, 'GM_datasets_duration_impl.pkl'))
+# df_datasets = pd.read_pickle(os.path.join(folder_figure_save, 'GM_datasets_duration_impl.pkl'))
 
-load_IDs = int_to_str3(df_datasets['Train sets'][0])
-load_IDss = int_to_str3(df_datasets['Test sets'][0])
+# load_IDs = int_to_str3(df_datasets['Train sets'][0])
+# load_IDss = int_to_str3(df_datasets['Test sets'][0])
 
-Diff_Nodes = [23, 32, 42]
+# Diff_Nodes = [23, 32, 42]
 
 
 
-for i in Diff_Nodes:
-    for j  in Diff_Nodes:  
+# for i in Diff_Nodes:
+#     for j  in Diff_Nodes:  
     
-        load_Nodes_X = [i]
-        load_Nodes_Y = [j]
-        print(load_Nodes_X, load_Nodes_Y)
+#         load_Nodes_X = [i]
+#         load_Nodes_Y = [j]
+#         print(load_Nodes_X, load_Nodes_Y)
         
-        NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
-                                    [Epochs, train_batch, learning_rate], 
-                                    [load_IDs, load_Nodes_X, load_Nodes_Y], 
-                                    [load_IDss, load_Nodes_X, load_Nodes_Y])
+#         NNR([length_subvec, length_step, length_step_test, hidden_dim, noise_level], 
+#                                     [Epochs, train_batch, learning_rate], 
+#                                     [load_IDs, load_Nodes_X, load_Nodes_Y], 
+#                                     [load_IDss, load_Nodes_X, load_Nodes_Y])
 
-sys.exit()
+# sys.exit()
 
 #%% Varying learning rate
 
@@ -1492,7 +1510,7 @@ sys.exit()
 #%% 1-K Fold - With different Noise levels based on Hidden Dim
 
 # Create Epoch / Batch / Learning rate ----------------------------------------
-Epochs = 30
+Epochs = 30 # must be 30
 
 # Train Batch Size
 train_batch = 25
@@ -1502,7 +1520,8 @@ learning_rate = 4e-5
 
 # Loads / Models --------------------------------------------------------------
 # Loads that should be examined (ALL 0-> 300)
-list_loads = list(range(0,900+3))
+
+list_loads = list(range(0,301))
 list_loads = int_to_str3(list_loads)
 list_loads = np.array(list_loads)
 
