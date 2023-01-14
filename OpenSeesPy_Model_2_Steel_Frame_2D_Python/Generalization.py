@@ -46,7 +46,7 @@ folder_data = r'output_files\Figures_Singular'
 folder_data = r'output_NN\Linear\K1_Fold_900_Pred_23'
 
 # GP / NN Trained on Same 20 GMs and predict same 281 GMs
-folder_data = r'output_files\GP_9Matrix_20_EQs'
+folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 # folder_data = r'output_NN\Linear\NN_9Matrix_20_EQs_V2'
 
 
