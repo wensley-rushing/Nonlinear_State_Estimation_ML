@@ -261,19 +261,36 @@ for GMID in range(df_KMatrix.shape[0]):
         # Figure general layout   
         #ax.set_xlabel("DOFS")
          
-        plt.colorbar(m)
-        plt.title(f'Global Stiffness Matrix \n {GM_name}')
+        plt.colorbar(m)#.set_label(label='Amplitude [dB]', size=16)
+        plt.suptitle(f'Change in Global Stiffness Matrix, K(t)-K(0) \n {GM_name}',y = 0.95, fontweight='bold', fontsize = 16)
+        #plt.title(f'Global Stiffness Matrix \n {GM_name}', fontsize=16)
+        
         
         # Text setup
         time_text = ax.text(0, 1, "", transform=ax.transAxes, va = 'bottom', ha='left',
-                            fontsize=8, color='k')
+                            fontsize=16, color='k')
         ax.text(1, 1, f'Global Energy: {GM_Energy} kNm', transform=ax.transAxes, va = 'bottom', ha='right',
-                            fontsize=8, color='k')
+                            fontsize=16, color='k')
+        
+        
+        ax.set_xlabel('Degree-of-freedom Index' , fontsize = 16)
+        ax.xaxis.set_tick_params(labelsize=14)
+        ax.set_ylabel('Degree-of-freedom Index', fontsize = 16)
+        ax.yaxis.set_tick_params(labelsize=14)
+        
+        
+        # Labels set-up
+        labels = [item.get_text() for item in ax.get_xticklabels()]
+        
+        labels = ['−4', '1', '6', '11', '16', '21', '26', '31', '36', '41']
+        ax.set_xticklabels(labels)
+        ax.set_yticklabels(labels)
         
         # Animation setup
         ani2 = animation.FuncAnimation(fig, updateline2, 
                                        frames=len(data3), fargs=(data3, m),
                                        repeat_delay=repeat_delay)
+        
         ani2.save(os.path.join(folder_save_M2, f'{GMID}_Method_2' + animation_type), writer=writer)
     
         plt.close()

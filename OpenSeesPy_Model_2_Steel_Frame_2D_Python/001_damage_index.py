@@ -54,7 +54,7 @@ plot_dynamic_analysis = False
 #%% Folder structure
 
 # Define Recorders
-output_directory = 'output_Report'
+output_directory = 'output_files_gif'
 
 #%% UNITS
 # =============================================================================
@@ -131,7 +131,7 @@ dampRatio = 0.03
 #%% Initialization 
 
 # Create Dataframe for results
-gm_idx = 644
+gm_idx = 0
 df = pd.DataFrame(columns = ['OK=0', 'Ground motion', 'Load factor', 'PGA_g', 
                              'E - glob', 'Gl Drift', 'Gl Drift - class', 'Gl Drift_res', 
                              'Element ID', 'Section ID (E el.)', 'E el.', 'Section ID (PA el.)', 'PA el.', 'PA el. - class',
@@ -261,7 +261,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\Loads_Conv')
+folder_loads = os.path.join(os.getcwd(), 'import_loads\\Loads_gif')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -301,7 +301,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
             
             
             loadfactor_idx = 0
-            for loadfactor in [1.5]:
+            for loadfactor in [1.0]:
                 loadfactor_idx = loadfactor_idx + 1
                 
                 print('Load: ' + file_name + ' -- Loadfactor: %.2f' %(loadfactor))
@@ -458,7 +458,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     current_time = ops.getTime()
                     
-                    if False:
+                    if True:
                         K_list.append(GimmeMCK.extract_K()) # extract stiffness matrix
                         K_time.append(current_time)
                         #dynamicAnalysis.createDynAnalysis() # need to redefine the analysis settings after extracting the stiffness
