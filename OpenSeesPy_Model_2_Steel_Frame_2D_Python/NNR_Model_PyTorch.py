@@ -1268,10 +1268,10 @@ load_IDs = ['108', '001', '231', '079', '251']
 # load_IDs = df_NN_loads['Train'][0]
 
 # Training - X                                                                                 
-load_Nodes_X = [42] # Indicator of dimension d
+load_Nodes_X = [23] # Indicator of dimension d
 
 # Training - Y
-load_Nodes_Y = [23]
+load_Nodes_Y = [42]
 
 # Combine it all
 Train_par=[load_IDs, load_Nodes_X, load_Nodes_Y]
