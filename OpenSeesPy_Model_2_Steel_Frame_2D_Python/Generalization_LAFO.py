@@ -51,6 +51,8 @@ folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 
 folder_data = r'output_NN\Linear\K1_Fold_900_Noise\Noise_1000'
 
+folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000\00_New_withplots'
+
 #%% INPUTS
 # prediction_node = 43
 
@@ -295,7 +297,7 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
 Struc_Nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
 Struc_Nodes = [42]
 
-EQ_IN_OUT = [812,91]
+EQ_IN_OUT = [271,30]
 
 for i in [1]:
     for Node in Struc_Nodes:
