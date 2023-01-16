@@ -49,7 +49,7 @@ folder_data = r'output_NN\Linear\K1_Fold_900_Pred_23'
 folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 # folder_data = r'output_NN\Linear\NN_9Matrix_20_EQs_V2'
 
-folder_data = r'output_NN\Linear\K1_Fold_900_Noise\Noise_20'
+folder_data = r'output_NN\Linear\K1_Fold_900_Noise\Noise_1000'
 
 #%% INPUTS
 # prediction_node = 43
@@ -148,7 +148,7 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
     df.drop('MAPE', inplace=True)
     df.drop('MAE', inplace=True)
     # Plot bloxplot
-    fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(10, 10), sharex=True)
+    fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(9, 7), sharex=True)
 
     
     plot_right = 1
@@ -170,13 +170,14 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
             data = np.array(df[sensor][error]).reshape(-1,1)
             
             if error_id == len_error:
-                ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[f'{cur_sensor}'])        
-                ax[error_id].set_ylabel(f'{cur_error}', fontsize=14)
+                ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[f'{cur_sensor+1}'])        
+                ax[error_id].set_ylabel(f'{cur_error}', fontweight='bold', fontsize=14)
             else:
                 ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[' '])        
-                ax[error_id].set_ylabel(f'{cur_error}', fontsize=14)
+                ax[error_id].set_ylabel(f'{cur_error}', fontweight='bold', fontsize=14)
             
-            ax[error_id].text(x=(sensor_id-.5)/len_sensor, y=1, s=f'({round(data.mean(),2)})', va='bottom', ha='center', transform = ax[error_id].transAxes)
+            ax[error_id].text(x=(sensor_id-.5)/len_sensor, y=1, s=f'({round(data.mean(),2)})', fontsize=12,
+                              va='bottom', ha='center', transform = ax[error_id].transAxes)
             #ax[error_id].set_title('subplot 1')
             
             Data = np.append(Data,data, axis=0)
@@ -193,20 +194,24 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
                 ax[error_id].boxplot(Data,widths=0.5, positions=[sensor_id], labels=[' '])
             
             
-            ax[error_id].text(x=(sensor_id-.5)/len_sensor, y=1, s=f'({round(Data.mean(),2)})', va='bottom', ha='center', transform = ax[error_id].transAxes)
+            ax[error_id].text(x=(sensor_id-.5)/len_sensor, y=1, s=f'({round(Data.mean(),2)})', fontsize=12,
+                              va='bottom', ha='center', transform = ax[error_id].transAxes)
         
         
         ax[error_id].grid(axis='y')
+        ax[error_id].xaxis.set_tick_params(labelsize=14)
+        ax[error_id].yaxis.set_tick_params(labelsize=14)
         
         error_id+=1
         
     
     #ax[error_id-1].set_xlabel('XXX')
-    fig.suptitle(f'Error for estimation of node {prediction_node} \n Input: {num_in}   Estimations: {num_out},  (mean)') #, fontsize=16)
+    fig.suptitle(f'Error for estimation of node {prediction_node} \n Input: {num_in} Estimations: {num_out},  (mean)',
+                 y = 1.0, fontweight='bold', fontsize = 16) #, fontsize=16)
     
     plt.xticks(rotation = 0) # Rotates X-Axis Ticks by 45-degrees
     #plt.tight_layout()
-    plt.xlabel('Training Nodes', fontsize=14)
+    plt.xlabel('Fold', fontsize=16)
     
     plt.savefig(os.path.join(folder_data, f'GeneralError_train{train}_node{prediction_node}_IN{num_in}_OUT{num_out}.png'))
     # plt.close()
@@ -296,7 +301,7 @@ for i in [1]:
     for Node in Struc_Nodes:
         df_Error = GenError(Node, EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=False)
         
-    GenError(Struc_Nodes[0], EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=True)
+    #GenError(Struc_Nodes[0], EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=True)
 
 sys.exit()
 #%% Load
