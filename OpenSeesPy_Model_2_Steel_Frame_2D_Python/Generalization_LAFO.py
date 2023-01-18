@@ -52,9 +52,10 @@ folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 folder_data = r'output_NN\Linear\K1_Fold_900_Noise\Noise_1000'
 
 folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000\00_New_withplots'
+folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 
-folder_data = r'output_NN\Linear\NN_9Matrix_20_EQs_V3'
-folder_data = r'output_files\GP_9Matrix_20_EQs'
+# folder_data = r'output_NN\Linear\NN_9Matrix_20_EQs_V3'
+# folder_data = r'output_files\GP_9Matrix_20_EQs'
 
 
 #%% INPUTS
@@ -153,11 +154,11 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
     df = df_Error.copy()
     df.drop(labels=['MAE', 'MAPE'], axis=0, inplace=True)
     # Plot bloxplot
-    fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(7,6), sharex=True)
+    fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(8,9), sharex=True)
     #fig, ax = plt.subplots(nrows=df.shape[0], ncols=1, figsize =(9, 7), sharex=True)
 
     
-    plot_right = 0
+    plot_right = 1
     
     len_error = len(df.index.tolist())-1
     len_sensor = len(df.columns.tolist()) + plot_right
@@ -175,13 +176,13 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
         sensor_id = 1
         for sensor in df.columns.tolist():
             cur_sensor = list(df.columns)[sensor_id-1]
-            cur_sensor = [23, 32, 42][sensor_id-1]
-            cur_sensor = ['1st', '2nd', '3rd'][sensor_id-1]
+            # cur_sensor = [23, 32, 42][sensor_id-1]
+            # cur_sensor = ['1st', '2nd', '3rd'][sensor_id-1]
             
             data = np.array(df[sensor][error]).reshape(-1,1)
             
             if error_id == len_error:
-                ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[f'{cur_sensor}'])        
+                ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[f'{cur_sensor+1}'])        
                 ax[error_id].set_ylabel(f'{cur_error}', fontweight='bold', fontsize=14)
             else:
                 ax[error_id].boxplot(data,widths=0.5, positions=[sensor_id], labels=[' '])        
@@ -215,22 +216,22 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
         
         error_id+=1
     
-        
-    if prediction_node == 23:
-        prediction_node0 = '1st'
-    elif prediction_node == 32:
-        prediction_node0 = '2st'
-    elif prediction_node == 42:
-        prediction_node0 = '3rd'
+  
+    # if prediction_node == 23:
+    #     prediction_node0 = '1st'
+    # elif prediction_node == 32:
+    #     prediction_node0 = '2st'
+    # elif prediction_node == 42:
+    #     prediction_node0 = '3rd'
      
     
     #ax[error_id-1].set_xlabel('XXX')
-    fig.suptitle(f'Error for estimation of {prediction_node0} floor \n Input: {num_in}   Estimations: {num_out},  (mean)',
+    fig.suptitle(f'Error for estimation of node {prediction_node} \n Input: {num_in}   Estimations: {num_out},  (mean)',
                  y = 1.0, fontweight='bold', fontsize = 16) #, fontsize=16)
     
     plt.xticks(rotation = 0) # Rotates X-Axis Ticks by 45-degrees
     #plt.tight_layout()
-    plt.xlabel('Training Floor', fontsize=16)
+    plt.xlabel('Fold', fontsize=16)
     
     plt.tight_layout()
     
@@ -303,7 +304,7 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
         return av
     
     nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
-    nodes = [23, 32, 42]
+    # nodes = [23, 32, 42]
     
         
     df_map = pd.DataFrame(columns = [f'{prediction_node}'], index = nodes)
@@ -329,15 +330,16 @@ def GenError(prediction_node=32, EQ_IN_OUT=[5,296], ID_error=0, plot_ErrorMap=Fa
 #%% RUN
 
 Struc_Nodes = [20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43]
-Struc_Nodes = [23, 32, 42]
+Struc_Nodes = [42]
 
-EQ_IN_OUT = [20,281]
+EQ_IN_OUT = [271,30]
 
-for i in [0, 1, 4]:
+#for i in [0, 1, 4]:
+for i in [0]:
     for Node in Struc_Nodes:
         df_Error = GenError(Node, EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=False)
         
-    GenError(Struc_Nodes[0], EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=True)
+    #GenError(Struc_Nodes[0], EQ_IN_OUT=EQ_IN_OUT, ID_error=i, plot_ErrorMap=True)
 
 sys.exit()
 #%% Load
