@@ -57,6 +57,9 @@ folder_data = r'output_NN\Linear\K1_Fold_300_Noise_1000'
 # folder_data = r'output_NN\Linear\NN_9Matrix_20_EQs_V3'
 # folder_data = r'output_files\GP_9Matrix_20_EQs'
 
+folder_data = r'output_NN\Linear\Physical_inter\TrainN_TestN'
+
+
 
 #%% INPUTS
 # prediction_node = 43
