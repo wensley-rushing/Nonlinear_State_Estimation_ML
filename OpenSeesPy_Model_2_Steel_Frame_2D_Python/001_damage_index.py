@@ -48,7 +48,7 @@ plot_modeshapes = True
 
 # Dynamic analysis
 plot_ground_acc = False
-plot_dynamic_analysis = False
+plot_dynamic_analysis = True
 
 
 #%% Folder structure
@@ -261,7 +261,7 @@ print()
 # Import multiple loads
 
 # Getting the work directory of loads .AT1 or .AT2 files
-folder_loads = os.path.join(os.getcwd(), 'import_loads\\Loads_gif')
+folder_loads = os.path.join(os.getcwd(), r'import_loads\GM_Test')
 #r'C:\Users\larsk\Danmarks Tekniske Universitet\Thesis_Nonlinear-Damage-Detection\OpenSeesPy_Model_2_Steel_Frame_2D_Python\load_files'
 
 # r=root, d=directories, f = files
@@ -458,7 +458,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     
                     current_time = ops.getTime()
                     
-                    if True:
+                    if False:
                         K_list.append(GimmeMCK.extract_K()) # extract stiffness matrix
                         K_time.append(current_time)
                         #dynamicAnalysis.createDynAnalysis() # need to redefine the analysis settings after extracting the stiffness
@@ -604,7 +604,7 @@ for rdirs, dirs, files in os.walk(folder_loads):
                 print('---- Park-Ang Global: %.4f -- Damage Level: ' %(PA_G) + PA_G_cl)
                 '''
                 #%% Plot Global
-                if plot_dynamic_analysis and False:
+                if plot_dynamic_analysis and True:
                     
                                               
                     # Top displacement over time
@@ -616,21 +616,41 @@ for rdirs, dirs, files in os.walk(folder_loads):
                     plt.grid()
                     #plt.show()
                     
+                    
+                    
                     # Hysterises loop Global (Base shear vs. top disp)
-                    plt.figure(figsize=(7,6))
+                    fig = plt.figure(figsize=(8.5,7))
+                    ax = fig.add_subplot(111)
                     plt.plot(time_drift_disp[:,len(drift_nodes)],total_base_shear/1000)
-                    plt.title('Dynamic analysis - Structure \n' + 
-                              'GM: ' + file_name + f' ID: {gm_idx}' + ' -  Loadfactor: ' + str(loadfactor) + '\n' + 
-                              f'Energy: {round(Energy_G,4)}, DI_Inter={round(max_inter_time_drift,4)} ({drift_time_cl})')
-                    plt.xlabel('Roof displacement (m)')
-                    plt.ylabel('Total base shear (kN)')
-                    plt.xlim((-0.03,0.03))
+                    #plt.subtitle('Dynamic analysis - Structure \n' + 
+                    #          'GM: ' + file_name + f' ID: {gm_idx}' + ' -  Loadfactor: ' + str(loadfactor) + '\n' + 
+                    #          f'Energy: {round(Energy_G,4)}, DI_Inter={round(max_inter_time_drift,4)} ({drift_time_cl})')
+                    
+                    plt.suptitle(file_name, 
+                                 y = 1, fontweight='bold', fontsize = 16)
+                    ax.text(0, 1, 
+                            f'Global Energy: {round(Energy_G,2)} kNm', 
+                            transform=ax.transAxes, va = 'bottom', ha='left',
+                                        fontsize=18, color='k')
+                    
+                    ax.text(1, 1, 
+                            f'M Inter. drift: {round(max_inter_time_drift,2)}% ({drift_time_cl})', 
+                            transform=ax.transAxes, va = 'bottom', ha='right',
+                                        fontsize=18, color='k')
+                    
+                    ax.set_xlabel('Roof displacement (m)' , fontsize = 18)
+                    ax.xaxis.set_tick_params(labelsize=16)
+                    ax.set_ylabel('Total base shear (kN)', fontsize = 18)
+                    ax.yaxis.set_tick_params(labelsize=16)
+                    plt.tight_layout()
+                    
+                    plt.xlim((-0.1,0.1))
                     plt.ylim((-250,250))
                     plt.grid()
                     
                     # plt.savefig(os.path.join(output_directory, r'GE',
                     #                   f'{gm_idx}_{file_name}.png'))
-                    plt.close()
+                    #plt.close()
                     
                     
                 #%% Local - Damage Index
