@@ -32,6 +32,6 @@ On the contrary goes the Gaussian Process not scale well in terms of training da
     @Misc{NSEML2023,
       author =   {G. Mauro and L. K. Fogh},
       title =    {Nonlinear State Estimation via Machine Learning. Technical University of Denmark},
-      howpublished = {\url{https://github.com/s163761/Thesis_Nonlinear-Damage-Detection}},
+      howpublished = {\url{https://github.com/s163761/Nonlinear_State_Estimation_ML}},
       year = {2023}
     }
