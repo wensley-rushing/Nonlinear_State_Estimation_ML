@@ -1,7 +1,8 @@
 # Nonlinear State Estimation via Machine Learning
 The present repository has been used in relation with a Master's Thesis at the Technical University of Denmark, DTU.
 
-This project was prepared in the Department of Civil and Mechanical Engineering at the Technical University of Denmark is part in fulfillment of the requirements for acquiring a Masters degree in Civil Engineering.
+This project was prepared in the Department of Civil and Mechanical Engineering at the Technical University of Denmark as part of the fulfillment of the requirements
+for acquiring a Masters degree in Civil Engineering.
 
 The project accounts for 30 ECTS from each of the two authors, and have been carried out in the period between August 29th 2022 and January 29th 2023.
 
