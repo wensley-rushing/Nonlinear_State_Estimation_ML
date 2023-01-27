@@ -154,7 +154,7 @@ if plot and False:
     
 #%% Plot Error vs. Drift
 
-if plot and True:
+if plot and False:
     
     plot_df = df_errors.dropna()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
@@ -220,9 +220,10 @@ if plot and True:
     
 #%% Plot Drift vs. Global Energy
 
-if plot:
+if plot and True:
     
-    plot_df = df_errors.dropna()
+    #plot_df = df_errors.dropna()
+    plot_df = df_errors.copy()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
     
     # print(f'\n\nPlotting {len(plot_df)} GMs points')
@@ -367,7 +368,8 @@ if plot:
 
 if plot:
     
-    plot_df = df_errors.dropna()
+    #plot_df = df_errors.dropna()
+    plot_df = df_errors.copy()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
     
     # print(f'\n\nPlotting {len(plot_df)} GMs points')
