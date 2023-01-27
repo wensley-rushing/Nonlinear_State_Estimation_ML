@@ -14,6 +14,8 @@ import sys
 
 data_directory = r'output_NN\Linear\K1_Fold_900\Noise_1000'
 # data_directory = r'output_NN\Linear\K1_Fold_300_Noise_1000'
+data_directory = r'output_files_All'
+
 
 folder_gm = r'output_files_All'
 # folder_gm = r'output_files'
@@ -152,7 +154,7 @@ if plot and False:
     
 #%% Plot Error vs. Drift
 
-if plot and False:
+if plot and True:
     
     plot_df = df_errors.dropna()
     plot_df.to_pickle(os.path.join(data_directory, '00_All_Errors.pkl')) 
