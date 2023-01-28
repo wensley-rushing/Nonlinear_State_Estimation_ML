@@ -10,7 +10,7 @@ The project accounts for 30 ECTS from each of the two authors, and have been car
 **Authors:** Gabriele Mauro s202277 & Lars K. Fogh s163761 <br />
 **University:** Technical University of Denmark <br />
 
-The full report of the thesis is avalable from: [Nonlinear State Estimation via Machine Learning](MSc_Thesis_Nonlinear_State_Estimation_Intro.pdf)
+The full report of the thesis is avalable from: [Nonlinear State Estimation via Machine Learning](Nonlinear_State_Estimation_via_Machine_Learning.pdf)
 
 
 ## Abstract
