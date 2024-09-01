@@ -23,7 +23,7 @@ Created on Sat Jan 29 18:29:09 2022
 
 
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 #import openseespy.postprocessing.ops_vis as opsv
 import opsvis as opsv
 

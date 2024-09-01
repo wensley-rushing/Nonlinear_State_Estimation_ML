@@ -7,7 +7,7 @@ Created on Sat Jan 29 19:19:29 2022
 
 
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 
 N = 1
 m = 1

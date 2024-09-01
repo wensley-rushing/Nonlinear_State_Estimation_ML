@@ -5,7 +5,7 @@ Created on Sat Jan 29 18:35:00 2022
 @author: lucag
 """
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 
 from define_SteelSections import define_SteelSections
 

@@ -64,9 +64,8 @@ nbformat==5.3.0
 nest-asyncio==1.5.5
 numpy==1.23.2
 numpydoc==1.4.0
-openseespy==3.4.0.2
-openseespywin==3.4.0.2
-opsvis==1.0.20
+opensees>=0.0.68
+sees
 packaging==21.3
 pandas==1.4.4
 pandocfilters==1.5.0

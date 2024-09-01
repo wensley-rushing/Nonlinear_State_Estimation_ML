@@ -8,7 +8,7 @@ Created on Mon Oct 10 10:14:28 2022
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 import opsvis as opsv
 
 

@@ -8,7 +8,7 @@ Created on Fri Jul  9 10:41:51 2021
 # https://portwooddigital.com/2020/05/17/gimme-all-your-damping-all-your-mass-and-stiffness-too/
 
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 import numpy as np
 
 def GimmeMCK():

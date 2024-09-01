@@ -5,7 +5,7 @@ Created on Mon Oct 10 10:55:51 2022
 @author: larsk
 """
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 import opsvis as opsv
 
 import matplotlib.pyplot as plt

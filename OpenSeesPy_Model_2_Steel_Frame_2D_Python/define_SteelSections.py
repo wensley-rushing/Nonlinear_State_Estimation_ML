@@ -6,7 +6,7 @@ Created on Sat Jan 29 18:52:23 2022
 """
 
 
-import openseespy.opensees as ops
+import opensees.openseespy as ops
 
 
 Pa = 1; MPa = Pa*1e6; GPa = Pa*1e9
