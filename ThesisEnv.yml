@@ -16,6 +16,6 @@ dependencies:
   - wincertstore=0.2=py39haa95532_2
   - pip:
     - numpy==1.23.2
-    - openseespy==3.4.0.2
-    - openseespywin==3.4.0.2
+    - opensees>=0.0.68
+
 prefix: C:\Users\larsk\anaconda3\envs\thesis_env
